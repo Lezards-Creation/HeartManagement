@@ -138,7 +138,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
-import { Bars3Icon, CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, HomeModernIcon, HeartIcon, ChatBubbleLeftRightIcon, AdjustmentsVerticalIcon } from '@heroicons/vue/24/outline'
+import { BellAlertIcon, BoltIcon, Bars3Icon, CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, HomeModernIcon, HeartIcon, ChatBubbleLeftRightIcon, AdjustmentsVerticalIcon } from '@heroicons/vue/24/outline'
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -149,6 +149,8 @@ const navigation = [
       { name: 'Agences', href: '#', icon: HomeModernIcon, current: false },
       { name: 'Matching', href: '#', icon: HeartIcon, current: false },
       { name: 'Messages', href: '#', icon: ChatBubbleLeftRightIcon, current: false },
+      { name: 'Rencontres', href: '#', icon: BoltIcon, current: false },
+      { name: 'Leads', href: '#', icon: BellAlertIcon, current: false },
       { name: 'Réglages', href: '#', icon: AdjustmentsVerticalIcon, current: false },
 ]
 const teams = [
