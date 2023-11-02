@@ -161,6 +161,7 @@ function calculateAge(dateString) {
                                     <div class="px-4 sm:px-0">
                                           <h2 class="text-base font-semibold leading-7 text-gray-900">Profil</h2>
                                           <p class="mt-1 text-sm leading-6 text-gray-600">Information publiques du client, utilisées sur sa fiche publique et pouvant être partagées aux autres clients.</p>
+                                          
                                     </div>
 
                                     <form class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
@@ -612,7 +613,7 @@ function calculateAge(dateString) {
                                     <div class="absolute inset-0 overflow-hidden">
                                           <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
                                                 <TransitionChild as="template" enter="transform transition ease-in-out duration-500 sm:duration-700" enter-from="translate-x-full" enter-to="translate-x-0" leave="transform transition ease-in-out duration-500 sm:duration-700" leave-from="translate-x-0" leave-to="translate-x-full">
-                                                      <DialogPanel class="pointer-events-auto w-screen max-w-md">
+                                                      <DialogPanel class="pointer-events-auto w-screen max-w-xl">
                                                             <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
                                                                   <div class="p-6">
                                                                         <div class="flex items-start justify-between">
@@ -651,6 +652,7 @@ function calculateAge(dateString) {
                                                                                                       </p>
                                                                                                 </div>
                                                                                           </div>
+                                                                                          <div class="">Ajouter à la liste</div>
                                                                                     </a>
                                                                               </div>
                                                                         </li>

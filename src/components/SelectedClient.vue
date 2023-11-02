@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
 import { useRoute } from "vue-router";
-import { PhotoIcon, UserCircleIcon, MagnifyingGlassCircleIcon, ArrowPathRoundedSquareIcon, XMarkIcon } from '@heroicons/vue/24/solid'
+import { PhotoIcon, UserCircleIcon, MagnifyingGlassCircleIcon, ArrowPathRoundedSquareIcon, XMarkIcon, PlusIcon, ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/solid'
 import { useClientsStore } from '../stores/clients'
 import { Switch, SwitchGroup, SwitchLabel, Menu, MenuButton, MenuItem, MenuItems, Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid'
@@ -89,8 +89,10 @@ const tabs = ref([
       { name: 'Profil', href: '#' },
       { name: 'Recherche', href: '#' },
       { name: 'Physique', href: '#' },
-      { name: 'Contrats', href: '#' },
+      { name: 'Documents', href: '#' },
       { name: 'Annonces', href: '#' },
+      { name: 'Matching', href: '#' },
+      { name: 'Rencontres', href: '#' }
 ])
 
 function calculateAge(dateString) {
@@ -158,11 +160,25 @@ function calculateAge(dateString) {
                         <div class="px-4 sm:px-0">
                               <h2 class="text-base font-semibold leading-7 text-gray-900">Profil</h2>
                               <p class="mt-1 text-sm leading-6 text-gray-600">Information publiques du client, utilisées sur sa fiche publique et pouvant être partagées aux autres clients.</p>
+                              
                         </div>
 
                         <form class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                               <div class="px-4 py-6 sm:p-8">
                                     <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+
+                                          <div class="col-span-full flex">
+                                                <div class="photo overflow-hidden rounded-xl shadow-xl mt-0 mb-3 max-w-xs">
+                                                      <img class="w-full h-auto" :src="`https://heartmanagement.fr/soft/images/cli/${clients_store.current_client.id_cli}.jpg`" alt="" loading="lazy" />
+                                                </div>
+                                                <div class="droite p-10">
+                                                      <label for="photo" class="block text-sm font-medium leading-6 text-gray-900">Photo</label>
+                                                      <div class="mt-2 flex items-center gap-x-3">
+                                                            <button type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Modifier</button>
+                                                      </div>
+                                                </div>
+                                          </div>
+
                                           <div class="sm:col-span-4">
                                                 <label for="country" class="block text-sm font-medium leading-6 text-gray-900">Sexe</label>
                                                 <div class="mt-2">
@@ -267,13 +283,7 @@ function calculateAge(dateString) {
                                                 <p class="mt-3 text-sm leading-6 text-gray-600">Décrivez rapidement les intérets de votre client.</p>
                                           </div>
 
-                                          <div class="col-span-full">
-                                                <label for="photo" class="block text-sm font-medium leading-6 text-gray-900">Photo</label>
-                                                <div class="mt-2 flex items-center gap-x-3">
-                                                      <UserCircleIcon class="h-12 w-12 text-gray-300" aria-hidden="true" />
-                                                      <button type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Modifier</button>
-                                                </div>
-                                          </div>
+                                          
                                     </div>
                               </div>
                         </form>
@@ -543,7 +553,7 @@ function calculateAge(dateString) {
                   </div>
             </div>
 
-            <div class="space-y-10 divide-y" v-if="active_tab === 'Contrats'">
+            <div class="space-y-10 divide-y" v-if="active_tab === 'Documents'">
                   <ul role="list" class="divide-y divide-gray-100">
                         <li v-for="project in projects" :key="project.id" class="flex items-center justify-between gap-x-6 py-5">
                               <div class="min-w-0">
@@ -607,7 +617,7 @@ function calculateAge(dateString) {
                         <div class="absolute inset-0 overflow-hidden">
                               <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
                                     <TransitionChild as="template" enter="transform transition ease-in-out duration-500 sm:duration-700" enter-from="translate-x-full" enter-to="translate-x-0" leave="transform transition ease-in-out duration-500 sm:duration-700" leave-from="translate-x-0" leave-to="translate-x-full">
-                                          <DialogPanel class="pointer-events-auto w-screen max-w-md">
+                                          <DialogPanel class="pointer-events-auto w-screen max-w-xl">
                                                 <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
                                                       <div class="p-6">
                                                             <div class="flex items-start justify-between">
@@ -627,12 +637,14 @@ function calculateAge(dateString) {
                                                       <ul role="list" class="flex-1 divide-y divide-gray-200 overflow-y-auto">
                                                             <li v-for="person in team" :key="person.handle">
                                                                   <div class="group relative flex items-center px-5 py-6 ">
-                                                                        <a :href="`profil/${person.id_cli}`" class="-m-1 block flex-1 p-1 ">
+                                                                        <a :href="`profil/${person.id_cli}`" class="-m-1 block flex-1 p-1 group">
                                                                               <div class="absolute inset-0 group-hover:bg-gray-50" aria-hidden="true" />
                                                                               <div class="relative flex min-w-0 flex-1 items-center">
+                                                                                   
                                                                                     <span class="relative inline-block flex-shrink-0">
                                                                                           <img class="h-12 w-12 flex-none rounded-full object-cover bg-gray-50" :src="`https://heartmanagement.fr/soft/images/cli/${person.id_cli}.jpg`" alt="" loading="lazy" />
                                                                                           <span :class="[person.status === 'online' ? 'bg-green-400' : 'bg-gray-300', 'absolute top-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white']" aria-hidden="true" />
+                                                                                          <ArrowTopRightOnSquareIcon class="opacity-0 text-white transition-all group-hover:opacity-100  group-hover:drop-shadow-lg absolute w-4 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                                                                                     </span>
                                                                                     <div class="ml-4 truncate">
                                                                                           <p class="truncate text-sm font-medium text-gray-900"> 
@@ -645,6 +657,10 @@ function calculateAge(dateString) {
                                                                                                 {{ person.dateNaiss_cli ? calculateAge(person.dateNaiss_cli) + " ans" : '' }}
                                                                                           </p>
                                                                                     </div>
+                                                                              </div>
+                                                                              <div class="absolute top-1/2 -translate-y-1/2 right-8 inline-flex items-center justify-center rounded-md bg-rose-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">
+                                                                                    <PlusIcon class="w-4" />
+                                                                                    <span>Ajouter aux prétendants</span>
                                                                               </div>
                                                                         </a>
                                                                   </div>
