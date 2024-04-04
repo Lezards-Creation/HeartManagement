@@ -12,4 +12,7 @@ export default defineConfig({
                   '@': fileURLToPath(new URL('./src', import.meta.url)),
             },
       },
+      devServer: {
+            port: 9000, // your desired port number
+      },
 })

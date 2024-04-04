@@ -1,3 +1,5 @@
+import { plugin as storePlugin } from './stores'
+
 import './assets/main.css'
 import './assets/index.css'
 
@@ -9,10 +11,7 @@ import App from './App.vue'
 import router from './router'
 
 const app = createApp(App)
-const pinia = createPinia();
-pinia.use(piniaPersist);
 
-app.use(pinia)
+app.use(storePlugin)
 app.use(router)
-
 app.mount('#app')

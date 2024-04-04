@@ -1,11 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-      content: [
+	content: [
 		"./index.html",
 		"./src/**/*.{vue,js,ts,jsx,tsx}",
 	],
-      theme: {
-            extend: {
+	theme: {
+		extend: {
 			colors: {
 				'rose': {
 					DEFAULT: '#ED5390',
@@ -21,10 +21,23 @@ module.exports = {
 					900: '#570928',
 					950: '#3D061C',
 				}
+			},
+			transitionTimingFunction: {
+				'bounce': 'cubic-bezier(0.47,1.64,0.41,0.8)'
+			},
+			keyframes: {
+				wrong: {
+					'0%, 100%': {transform: 'translate(0, 0)'},
+					'50%': {transform: 'translate(-5px, 0)'},
+					'25%, 75%': {transform: 'translate(5px, 0)'},
+				}
+			},
+			animation: {
+				wrong: 'wrong 0.5s cubic-bezier(0.47,1.64,0.41,0.8)'
 			}
 		},
-      },
-      plugins: [
-		require('@tailwindcss/forms'),
-	],
+	},
+	plugins: [
+	require('@tailwindcss/forms'),
+],
 }
