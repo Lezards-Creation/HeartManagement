@@ -1,9 +1,7 @@
 <script setup>
-	import Layout from "../Layouts/default.vue";
+	import Main from '../components/Main.vue';
 </script>
 
 <template>
-	<Layout>
-		<Main />
-	</Layout>
+	<Main/>
 </template>
