@@ -1,27 +1,47 @@
 <script setup>
 	import { ref } from 'vue';
-
+	import { version } from "../../package.json"
 	import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 	import { BellAlertIcon, BoltIcon, Bars3Icon, CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, HomeModernIcon, HeartIcon, ChatBubbleLeftRightIcon, AdjustmentsVerticalIcon } from '@heroicons/vue/24/outline'
 	import { useRoute } from "vue-router";
+	import { useRouter } from 'vue-router'
+	import { useAgencesStore } from '../stores/agences';
 
+	const agencesStore = useAgencesStore();
 	const route = useRoute();
+	const router = useRouter();
 	
 	const navigation = [
 		{ name: 'Dashboard', href: '/', icon: HomeIcon, current: route.path == '/' },
 		{ name: 'Profils', href: '/profils', icon: UsersIcon, current: route.path == '/profils' || route.path.includes('/profil') },
-	];
+	];	
 
-	const teams = [
-		{ id: 8, name: 'Auxerre', href: '#', initial: 'A', current: false },
-		{ id: 5, name: 'Colmar', href: '#', initial: 'C', current: false },
-		{ id: 3, name: 'Epinal', href: '#', initial: 'E', current: false },
-		{ id: 1, name: 'Metz', href: '#', initial: 'M', current: false },
-		{ id: 2, name: 'Nancy', href: '#', initial: 'N', current: false },
-		{ id: 4, name: 'Reims', href: '#', initial: 'R', current: false },
-		{ id: 6, name: 'Troyes', href: '#', initial: 'T', current: false },
-		{ id: 7, name: 'Verdun', href: '#', initial: 'V', current: false },
-	];
+	const agences = ref([]);
+	const fetchAgences = () => {
+		agencesStore.getAgences()
+		.then((res) => {
+			if(res.agences.length > 0){
+				res.agences.forEach(agence => {
+					if(agence.id_agence !== 0){
+						let data = {
+							id: agence.id_agence,
+							name: agence.lib_agence,
+							initial: agence.lib_agence.charAt(0)
+						}
+						agences.value.push(data);
+					}
+				});
+
+				agences.value.sort((a, b) => {
+					return a.name.localeCompare(b.name);
+				});
+			}
+		})
+		.catch(err => {
+			console.error(err)
+		})
+	}
+	fetchAgences();
 
 	const sidebarOpen = ref(false);
 </script>
@@ -109,10 +129,8 @@
 					<li>
 						<ul role="list" class="-mx-2 space-y-1">
 							<li v-for="item in navigation" :key="item.name">
-								<RouterLink :class="[item.current ? 'bg-gray-50 text-rose-600' : 'text-gray-700 hover:text-rose-600 hover:bg-gray-50', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']" :to="{name: item.name}" >
-									<component :is="item.icon"
-										:class="[item.current ? 'text-rose-600' : 'text-gray-400 group-hover:text-rose-600', 'h-6 w-6 shrink-0']"
-										aria-hidden="true" />
+								<RouterLink :active-class="'!text-rose-600 group'" class="text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold" :to="{name: item.name}" >
+									<component :is="item.icon" class="text-gray-400 group-hover:text-rose-600 h-6 w-6 shrink-0 group-[.router-link-exact-active]:text-rose-600" aria-hidden="true" /> 
 									{{ item.name }}
 								</RouterLink>
 							</li>
@@ -121,19 +139,16 @@
 					<li>
 						<div class="text-xs font-semibold leading-6 text-gray-400">Agences</div>
 						<ul role="list" class="-mx-2 mt-2 space-y-1">
-							<li v-for="team in teams" :key="team.name">
-								<a :href="team.href"
-									:class="[team.current ? 'bg-gray-50 text-rose-600' : 'text-gray-700 hover:text-rose-600 hover:bg-gray-50', 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold']">
-									<span
-											:class="[team.current ? 'text-rose-600 border-rose-600' : 'text-gray-400 border-gray-200 group-hover:border-rose-600 group-hover:text-rose-600', 'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white']">{{
-												team.initial }}</span>
-									<span class="truncate">{{ team.name }}</span>
-								</a>
+							<li v-for="agence in agences" :key="agence.id">
+								<router-link :to="{name: 'Agence', params: {id: agence.id}}" :active-class="'!text-rose-600'" class="'text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+									<span class="text-gray-400 border-gray-200 group-hover:border-rose-600 group-hover:text-rose-600 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white group-[.router-link-exact-active]:text-rose-600 group-[.router-link-exact-active]:border-rose-600">{{ agence.initial }}</span>
+									<span class="truncate">{{ agence.name }}</span>
+								</router-link>
 							</li>
 						</ul>
 					</li>
 					<li class="mt-auto py-2 text-xs text-slate-500 font-light">
-						Proof of Concept
+						Heart Management v.{{ version }}
 						<br />© Lézards Création 2023
 					</li>
 				</ul>
