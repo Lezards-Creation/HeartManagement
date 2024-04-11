@@ -11,19 +11,26 @@ export const useClientsStore = defineStore('clients-store', () => {
 	const userStore = useUserStore();
 	const clients = ref(null);
 
-	const getClients = () => {
+	const getClients = (filter) => {
 		return new Promise((resolve, reject) => {
 			instance({
 				url: 'clients',
 				method: 'GET',
+				params: {
+					filter: filter
+				}, 
 				headers: {
                     Authorization: `Bearer ${userStore.userLog.token}`
                 }
 			})
             .then(res => {
-				clients.value = res.data.clients;
+				console.log(res.data);
+
+				clients.value = res.data.clients.map(obj=> {
+					return {...obj, situation_cli: JSON.parse(obj.situation_cli)};
+				});
 				
-				const sortedUsers = [...res.data.clients].sort((a, b) => {
+				const sortedUsers = [...clients.value].sort((a, b) => {
 					return a.nom_cli.localeCompare(b.name);
 				});
 						
@@ -47,9 +54,8 @@ export const useClientsStore = defineStore('clients-store', () => {
 						}
 
 						acc[lastNameInitial].push(user);
-
-						return acc;
 					}
+					return acc;
 				}, {});
 
 				const sortedKeys = Object.keys(groupedUsers).sort();

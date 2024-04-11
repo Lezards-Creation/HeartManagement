@@ -72,7 +72,7 @@
 	const current_user = computed(() => {
 		return clientsStore.clients.find((el) => el.id_cli === props.client)
 	})
-	console.log(current_user.value);
+	console.log(current_user);
 	
 	const open = ref(false)
 	
@@ -143,6 +143,13 @@
 		return age
 	}
 
+
+	const fallbackImage = `${uri}/img/cli/vide.png`;
+	function handleImageError(event, idCli) {
+		event.target.src = fallbackImage;
+	}
+
+
 	watch(current_user, () => {
 		editorAnn1.value.commands.setContent(current_user.value.ann1_cli);
 		editorAnn2.value.commands.setContent(current_user.value.ann2_cli);
@@ -156,7 +163,7 @@
 			<div class="flex items-center space-x-5">
 				<div class="flex-shrink-0">
 					<div class="relative">
-						<img class="h-16 w-16 rounded-full object-cover"
+						<img @error="event => handleImageError(event, current_user.id_cli)" class="h-16 w-16 rounded-full object-cover"
 							:src="`${uri}/img/cli/${current_user.id_cli}.jpg`" alt=""
 							loading="lazy" />
 						<span class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true" />
@@ -222,7 +229,7 @@
 
 							<div class="col-span-full flex">
 								<div class="photo overflow-hidden rounded-xl shadow-xl mt-0 mb-3 max-w-xs">
-									<img class="w-full h-auto"
+									<img @error="event => handleImageError(event, current_user.id_cli)" class="w-full h-auto"
 										:src="`${uri}/img/cli/${current_user.id_cli}.jpg`"
 										alt="" loading="lazy" />
 								</div>
@@ -459,10 +466,10 @@
 						<div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 							<div class="sm:col-span-2 self-end mb-2">
 								<SwitchGroup as="div" class="flex items-center">
-									<Switch v-model="current_user.celib_cli"
-										:class="[current_user.celib_cli === 'O' ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+									<Switch v-model="current_user.situation_cli.celib_cli"
+										:class="[current_user.situation_cli.celib_cli === 'O' ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
 										<span aria-hidden="true"
-											:class="[current_user.celib_cli === 'O' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+											:class="[current_user.situation_cli.celib_cli === 'O' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
 									</Switch>
 									<SwitchLabel as="span" class="ml-3 text-sm">
 										<span class="font-medium text-gray-900">Célibataire</span>
@@ -472,10 +479,10 @@
 
 							<div class="sm:col-span-2 self-end mb-2">
 								<SwitchGroup as="div" class="flex items-center">
-									<Switch v-model="current_user.veuf_cli"
-										:class="[current_user.veuf_cli === 'O' ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+									<Switch v-model="current_user.situation_cli.veuf_cli"
+										:class="[current_user.situation_cli.veuf_cli === 'O' ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
 										<span aria-hidden="true"
-											:class="[current_user.veuf_cli === 'O' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+											:class="[current_user.situation_cli.veuf_cli === 'O' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
 									</Switch>
 									<SwitchLabel as="span" class="ml-3 text-sm">
 										<span class="font-medium text-gray-900">Veuf</span>
@@ -485,10 +492,10 @@
 
 							<div class="sm:col-span-2 self-end mb-2">
 								<SwitchGroup as="div" class="flex items-center">
-									<Switch v-model="current_user.div_cli"
-										:class="[current_user.div_cli === 'O' ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+									<Switch v-model="current_user.situation_cli.div_cli"
+										:class="[current_user.situation_cli.div_cli === 'O' ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
 										<span aria-hidden="true"
-											:class="[current_user.div_cli === 'O' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+											:class="[current_user.situation_cli.div_cli === 'O' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
 									</Switch>
 									<SwitchLabel as="span" class="ml-3 text-sm">
 										<span class="font-medium text-gray-900">Divorcé</span>
@@ -499,9 +506,9 @@
 							<div class="sm:col-span-2 self-end mb-2">
 								<SwitchGroup as="div" class="flex items-center">
 									<Switch v-model="current_user.sep_cli"
-										:class="[current_user.sep_cli === 'O' ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+										:class="[current_user.situation_cli.sep_cli === 'O' ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
 										<span aria-hidden="true"
-											:class="[current_user.sep_cli === 'O' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+											:class="[current_user.situation_cli.sep_cli === 'O' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
 									</Switch>
 									<SwitchLabel as="span" class="ml-3 text-sm">
 										<span class="font-medium text-gray-900">Séparé</span>
@@ -511,10 +518,10 @@
 
 							<div class="sm:col-span-4 self-end mb-2">
 								<SwitchGroup as="div" class="flex items-center">
-									<Switch v-model="current_user.instDiv_cli"
-										:class="[current_user.instDiv_cli === 'O' ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+									<Switch v-model="current_user.situation_cli.instDiv_cli"
+										:class="[current_user.situation_cli.instDiv_cli === 'O' ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
 										<span aria-hidden="true"
-											:class="[current_user.instDiv_cli === 'O' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+											:class="[current_user.situation_cli.instDiv_cli === 'O' ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
 									</Switch>
 									<SwitchLabel as="span" class="ml-3 text-sm">
 										<span class="font-medium text-gray-900">En instance de divorce</span>

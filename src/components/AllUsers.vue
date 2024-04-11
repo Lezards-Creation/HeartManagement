@@ -1,43 +1,132 @@
 <script setup>
 import { computed, ref } from "vue"
 import { useClientsStore } from '../stores/clients'
-import { AdjustmentsHorizontalIcon, BarsArrowUpIcon, MagnifyingGlassIcon, ArrowPathIcon } from '@heroicons/vue/24/outline'
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
+import { AdjustmentsHorizontalIcon, BarsArrowUpIcon, MagnifyingGlassIcon, ArrowPathIcon, PlusIcon, CheckIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
+import { Popover, PopoverButton, PopoverPanel, Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
 
+import moment from "moment";
+import fr from 'moment/dist/locale/fr';
 
 const uri = import.meta.env.VITE_URL;
 const clientsStore = useClientsStore()
 
-const search_term = ref(null);
 
 const clients = ref({});
 const clients_count = ref(0);
 const selectedUser = ref(null);
 
-const filtered_clients = computed(() => {
-	if (!search_term.value || search_term.value.length < 3) {
-		return clients.value;
-	} else {
-		const searchTermLower = search_term.value.toLowerCase();
-		const filteredDirectory = Object.keys(clients.value).reduce((acc, initialLetter) => {
-			const filteredUsers = clients.value[initialLetter].filter(user => {
-				return (user.pNoms_cli.toLowerCase() + user.nom_cli.toLowerCase()).includes(searchTermLower) || user.ref_cli.toLowerCase().includes(searchTermLower);
-			});
-
-			if (filteredUsers.length) {
-				acc[initialLetter] = filteredUsers;
-			}
-
-			return acc;
-		}, {});
-		return filteredDirectory;
-	}
+const search_term = ref(null);
+const filters = ref({
+	sexe_cli: "",
+	ville_cli: "",
+	telGsm_cli: "",
+	libre_cli: "",
+	probPaie_cli: "",
+	situation_cli: "",
+	nbEnf_min_cli: "",
+	nbEnf_max_cli: "",
+	age_min_cli: "",
+	age_max_cli: "",
+	taille_min_cli: "",
+	taille_max_cli: "",
+	etude_cli: "",
+	ms_cli: "",
+	tranche_cli: "",
+	code_cli: "",
+	date_cli: "",
+	contrat_cli: "",
+	proc_cli: "",
 })
 
+const filterOptions = [
+	{ title: 'Adhérents', filter: 'insc_cli' ,current: true },
+	{ title: 'Prospects', filter: 'prosp_cli', current: false },
+	{ title: 'Contacts', filter: 'cont_cli', current: false },
+	{ title: 'Anciens adhérents', filter: 'anc_adh', current: false },
+	{ title: 'Fiches supprimées', filter: 'id_cli', current: false },
+	{ title: 'Liste noire', filter: 'ln_cli', current: false },
+]
+
+const selected = ref(filterOptions[0])
+
+const filtered_clients = computed(() => {
+    const searchTermLower = search_term.value?.toLowerCase() || "";
+    const filteredDirectory = Object.keys(clients.value).reduce((acc, initialLetter) => {
+        const filteredUsers = clients.value[initialLetter].filter(user => {
+            const searchMatch = searchTermLower.length >= 3 ? (user.pNoms_cli.toLowerCase() + user.nom_cli.toLowerCase()).includes(searchTermLower) || user.ref_cli.toLowerCase().includes(searchTermLower) : true;
+            let filtersMatch = true;
+            Object.entries(filters.value).forEach(([key, value]) => {
+				if(filters.value[key] !== undefined){
+					if(key === 'nbEnf_min_cli'){
+						filtersMatch = filtersMatch && user.nbEnf_cli >= value;
+						if(filters.value.nbEnf_max_cli){
+							filtersMatch = filtersMatch && (user.nbEnf_cli >= value && user.nbEnf_cli <= filters.value.nbEnf_max_cli);
+						}
+					}
+
+					if(key === 'age_min_cli'){
+						filtersMatch = filtersMatch && calculateAge(user.dateNaiss_cli) >= value;
+						if(filters.value.age_max_cli){
+							filtersMatch = filtersMatch && (calculateAge(user.dateNaiss_cli) >= value && calculateAge(user.dateNaiss_cli) <= filters.value.age_max_cli);
+						}
+					}
+
+					if(key === 'taille_min_cli'){
+						filtersMatch = filtersMatch && user.taille_cli >= value;
+						if(filters.value.taille_max_cli){
+							filtersMatch = filtersMatch && (user.taille_cli >= value && user.taille_cli <= filters.value.taille_max_cli);
+						}
+					}
+
+					if(key === 'date_cli'){
+						if(user.insc_cli){
+							let referenceDate = moment();
+							let dateToCheck = moment(user.insc_cli);
+							if(value){
+								let monthDifference = referenceDate.diff(dateToCheck, 'month');
+								filtersMatch = filtersMatch && (monthDifference <= parseInt(value));
+							}
+						}
+					}
+
+					if(key === 'contrat_cli'){
+						if(user.insc_cli){
+							let referenceDate = moment();
+							let dateToCheck = moment(user.insc_cli).add(user.duree_cli, 'M');
+
+							if(value){
+								let monthDifference = referenceDate.diff(dateToCheck, 'month');
+								filtersMatch = filtersMatch && (monthDifference <= parseInt(value));
+							}
+						}
+					}
+				}
+
+                if (filters.value[key] && user[key] !== undefined) {
+					if (key === 'situation_cli') {
+                        filtersMatch = filtersMatch && user[key][value] === 'O';
+					} else if (typeof user[key] === 'string') {
+                        filtersMatch = filtersMatch && user[key].toLowerCase().includes(filters.value[key].toLowerCase());
+                    } else {
+                        filtersMatch = filtersMatch && user[key] === filters.value[key];
+                    }
+                }
+            });
+            return searchMatch && filtersMatch;
+        });
+
+        if (filteredUsers.length) {
+            acc[initialLetter] = filteredUsers;
+        }
+
+        return acc;
+    }, {});
+    return filteredDirectory;
+});
+
 const fetchClients = () => {
-	clientsStore.getClients()
+	clientsStore.getClients(selected.value.filter)
 		.then((res) => {
-			console.log(res)
 			clients.value = res.directory;
 			clients_count.value = res.clients_count;
 		})
@@ -61,11 +150,62 @@ function calculateAge(dateString) {
 	}
 	return age
 }
+
+const toggleAccordeon = (e) => {
+	let target = e.currentTarget;
+	target.classList.toggle('active');
+	
+	var panel = target.nextElementSibling;
+	if (panel.style.maxHeight) {
+		panel.style.maxHeight = null;
+	} else {
+		panel.style.maxHeight = panel.scrollHeight + "px";
+	}	
+}
+const fallbackImage = `${uri}/img/cli/vide.png`;
+function handleImageError(event, idCli) {
+	event.target.src = fallbackImage;
+}
+
+
 </script>
 
 <template>
 	<!-- Filters -->
 	<div class="h-screen border-r border-r-gray-100">
+		<div class="flex gap-2 items-center px-4 pt-4">
+			<span>Type</span>
+			<Listbox class="" as="div" v-model="selected" @update:model-value="fetchClients">
+				<div class="relative">
+					<div class="inline-flex divide-x divide-rose-700 rounded-md shadow-sm">
+						<div class="inline-flex items-center gap-x-1.5 rounded-l-md bg-rose-600 px-3 py-2 text-white shadow-sm">
+							<p class="text-sm font-semibold">{{ selected.title }}</p>
+						</div>
+			
+						<ListboxButton class="inline-flex items-center rounded-l-none rounded-r-md bg-rose-600 p-2 rose:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 focus:ring-offset-gray-50">
+							<ChevronDownIcon class="h-5 w-5 text-white" aria-hidden="true" />
+						</ListboxButton>
+					</div>
+					<transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+						<ListboxOptions class="absolute right-0 z-10 mt-2 w-72 origin-top-right divide-y divide-gray-200 overflow-hidden rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+						<ListboxOption as="template" v-for="option in filterOptions" :key="option.title" :value="option" v-slot="{ active, selected }">
+							<li :class="[active ? 'bg-rose-600 text-white' : 'text-gray-900', 'cursor-default select-none p-4 text-sm']">
+							<div class="flex flex-col">
+								<div class="flex justify-between">
+								<p :class="selected ? 'font-semibold' : 'font-normal'">{{ option.title }}</p>
+									<span v-if="selected" :class="active ? 'text-white' : 'text-rose-600'">
+										<CheckIcon class="h-5 w-5" aria-hidden="true" />
+									</span>
+								</div>
+							</div>
+							</li>
+						</ListboxOption>
+						</ListboxOptions>
+					</transition>
+				</div>
+			</Listbox>
+		</div>
+		
 		<div class="search flex justify-between items-center p-4 w-full">
 			<div class="flex rounded-md shadow-sm w-full">
 				<div class="relative flex flex-grow items-stretch focus-within:z-10">
@@ -85,152 +225,261 @@ function calculateAge(dateString) {
 					</PopoverButton>
 
 					<PopoverPanel class="absolute left-1/2 z-10 mt-5 flex w-screen max-w-max -translate-x-1/2 px-4">
-						<div
-							class="w-screen max-w-md flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1 ring-gray-900/5">
+						<form @input="updateFilter" class="w-screen max-w-md flex-auto overflow-hidden rounded-3xl bg-white text-sm leading-6 shadow-lg ring-1 ring-gray-900/5">
 							<div class="p-4 py-6">
-								<div class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
-									<div class="sm:col-span-3">
-										<label for="country"
-											class="block text-sm font-medium leading-6 text-gray-900">Sexe</label>
-										<div class="mt-2">
-											<select id="country" name="country" autocomplete="country-name"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
-												<option value="">Homme / Femme</option>
-												<option value="H">Homme</option>
-												<option value="F">Femme</option>
-											</select>
+								<div class="accordion relative border-b pb-1 mb-4">
+									<button ref="firstAccordion" type="button" class="accordio flex items-center gap-2 group" @click="toggleAccordeon">
+										<PlusIcon class="h-5 w-auto text-rose group-[.active]:rotate-45 duration-300 ease-out"/>
+										Général
+									</button>
+									<div class="panel p-0 max-h-0 overflow-hidden duration-300 ease-out">
+										<div class="container grid grid-cols-1 gap-x-4 gap-y-4 py-2 sm:grid-cols-6">
+											<div class="sm:col-span-full">
+												<label for="sexe_cli"class="block text-sm font-medium leading-6 text-gray-900">Sexe</label>
+												<div class="mt-2">
+													<select v-model="filters.sexe_cli" id="sexe_cli" name="sexe_cli" 
+														class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+														<option value="">Homme / Femme</option>
+														<option value="H">Homme</option>
+														<option value="F">Femme</option>
+													</select>
+												</div>
+											</div>
+
+											<div class="sm:col-span-3">
+												<label for="ville_cli" class="block text-sm font-medium leading-6 text-gray-900">Ville</label>
+												<div class="mt-2">
+													<input v-model="filters.ville_cli" type="text" name="ville_cli" id="ville_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+												</div>
+											</div>
+
+											<div class="sm:col-span-3">
+												<label for="telGsm_cli" class="block text-sm font-medium leading-6 text-gray-900">Téléphone</label>
+												<div class="mt-2">
+													<input v-model="filters.telGsm_cli" type="text" name="telGsm_cli" id="telGsm_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+												</div>
+											</div>
+
+											<div class="sm:col-span-3">
+												<label for="libre_cli" class="block text-sm font-medium leading-6 text-gray-900">Libre</label>
+												<div class="mt-2">
+													<select v-model="filters.libre_cli" id="libre_cli" name="libre_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+														<option value="">Sans importance</option>
+														<option value="O">Oui</option>
+														<option value="N">Non</option>
+													</select>
+												</div>
+											</div>
+
+											<div class="sm:col-span-3">
+												<label for="probPaie_cli" class="block text-sm font-medium leading-6 text-gray-900">Problème de paiement</label>
+												<div class="mt-2">
+													<select v-model="filters.probPaie_cli" id="probPaie_cli" name="probPaie_cli"
+														class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+														<option value="">Sans importance</option>
+														<option value="O">Oui</option>
+														<option value="N">Non</option>
+													</select>
+												</div>
+											</div>
+
+											<div class="sm:col-span-full">
+												<label for="situation_cli" class="block text-sm font-medium leading-6 text-gray-900">Situation</label>
+												<div class="mt-2">
+													<select v-model="filters.situation_cli" id="situation_cli" name="situation_cli"
+														class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+														<option value="">Indétérminé</option>
+														<option value="celib_cli">Célibataire</option>
+														<option value="veuf_cli">Veuf</option>
+														<option value="div_cli">Divorcé</option>
+														<option value="sep_cli">Séparé</option>
+														<option value="instDiv_cli">En instance de divorce</option>
+													</select>
+												</div>
+											</div>
+
+											<div class="sm:col-span-full">
+												<label for="nbEnf_min_cli" class="block text-sm font-medium leading-6 text-gray-900">Enfants</label>
+												
+												<div class="mt-2 flex items-center gap-2">
+													<span>De</span>
+													<div class="relative">
+														<input v-model="filters.nbEnf_min_cli" type="text" name="nbEnf_min_cli" id="nbEnf_min_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+													</div>
+													<span>à</span>
+													<div class="relative">
+														<input v-model="filters.nbEnf_max_cli" type="text" name="nbEnf_max_cli" id="nbEnf_max_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+													</div>
+												</div>
+											</div>
 										</div>
 									</div>
+								</div>
 
+								<div class="accordion relative border-b pb-1 mb-4">
+									<button ref="firstAccordion" type="button" class="accordio flex items-center gap-2 group" @click="toggleAccordeon">
+										<PlusIcon class="h-5 w-auto text-rose group-[.active]:rotate-45 duration-300 ease-out"/>
+										Caractéristiques physique
+									</button>
+									<div class="panel p-0 max-h-0 overflow-hidden duration-300 ease-out">
+										<div class="container grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6 py-2">
+											<div class="sm:col-span-3">
+												<label for="age_min_cli" class="block text-sm font-medium leading-6 text-gray-900">Age</label>
+												
+												<div class="mt-2 flex items-center gap-2">
+													<span>De</span>
+													<div class="relative">
+														<input v-model="filters.age_min_cli" type="text" name="age_min_cli" id="age_min_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+														<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+															<span class="text-gray-500 text-xs" id="price-currency">ans</span>
+														</div>
+													</div>
+												
+													<span>à</span>
+													<div class="relative">
+														<input v-model="filters.age_max_cli" type="text" name="age_max_cli" id="age_max_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+														<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+															<span class="text-gray-500 text-xs" id="price-currency">ans</span>
+														</div>
+													</div>
+												</div>
+											</div>
 
-									<div class="sm:col-span-3">
-										<label for="first-name"
-											class="block text-sm font-medium leading-6 text-gray-900">Ville</label>
-										<div class="mt-2">
-											<input type="text" name="first-name" id="first-name"
-												autocomplete="given-name"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+											<div class="sm:col-span-3">
+												<label for="taille_min_cli" class="block text-sm font-medium leading-6 text-gray-900">Taille</label>
+												
+												<div class="mt-2 flex items-center gap-2">
+													<span>De</span>
+													<div class="relative">
+														<input v-model="filters.taille_min_cli" type="text" name="taille_min_cli" id="taille_min_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+														<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+															<span class="text-gray-500 text-xs" id="price-currency">cm</span>
+														</div>
+													</div>
+													<span>à</span>
+													<div class="relative">
+														<input v-model="filters.taille_max_cli" type="text" name="taille_max_cli" id="taille_max_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+														<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+															<span class="text-gray-500 text-xs" id="price-currency">cm</span>
+														</div>
+													</div>
+												</div>
+											</div>
 										</div>
 									</div>
+								</div>
+								
+								<div class="accordion relative border-b pb-1 mb-4">
+									<button ref="firstAccordion" type="button" class="accordio flex items-center gap-2 group" @click="toggleAccordeon">
+										<PlusIcon class="h-5 w-auto text-rose group-[.active]:rotate-45 duration-300 ease-out"/>
+										Caractéristiques professionnel
+									</button>
+									<div class="panel p-0 max-h-0 overflow-hidden duration-300 ease-out">
+										<div class="container grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6 py-2">
+											<div class="sm:col-span-2">
+												<label for="etude_cli" class="block text-sm font-medium leading-6 text-gray-900">Niveau d'étude</label>
+												<div class="mt-2">
+													<select v-model="filters.etude_cli" id="etude_cli" name="etude_cli"
+														class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+														<option value="">Sans importance</option>
+														<option value="0">Indeterminé</option>
+														<option value="1">Primaire</option>
+														<option value="2">Secondaire</option>
+														<option value="3">Bac à Bac +2</option>
+														<option value="4">Bac +3 et plus</option>
+													</select>
+												</div>
+											</div>
 
-									<div class="sm:col-span-3">
-										<label for="last-name"
-											class="block text-sm font-medium leading-6 text-gray-900">Département</label>
-										<div class="mt-2">
-											<input type="text" name="last-name" id="last-name"
-												autocomplete="family-name"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+											<div class="sm:col-span-2">
+												<label for="ms_cli" class="block text-sm font-medium leading-6 text-gray-900">Milieu social</label>
+												<div class="mt-2">
+													<select v-model="filters.ms_cli" id="ms_cli" name="ms_cli"
+														class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+														<option value="">Sans importance</option>
+														<option value="_0">Bon</option>
+														<option value="_1">Moyen</option>
+														<option value="_2">Modeste</option>
+														<option value="_3">Autre</option>
+													</select>
+												</div>
+											</div>
+
+											<div class="sm:col-span-2">
+												<label for="tranche_cli" class="block text-sm font-medium leading-6 text-gray-900">Revenus</label>
+												<div class="mt-2">
+													<select v-model="filters.tranche_cli" id="tranche_cli" name="tranche_cli"
+														class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+														<option value="">Sans importance</option>
+														<option value="0">Indeterminé</option>
+														<option value="1">Modestes (- de 900€)</option>
+														<option value="2">Corrects (de 900€ à 1300€)</option>
+														<option value="3">Confortables (de 1300€ à 2000€)</option>
+														<option value="4">Trés confortables (de 2000€ à 4000€)</option>
+														<option value="5">Elevés (4000€ et plus)</option>
+													</select>
+												</div>
+											</div>
 										</div>
 									</div>
+								</div>
 
-									<div class="sm:col-span-3">
-										<label for="last-name"
-											class="block text-sm font-medium leading-6 text-gray-900">Téléphone</label>
-										<div class="mt-2">
-											<input type="text" name="last-name" id="last-name"
-												autocomplete="family-name"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
-										</div>
-									</div>
+								<div class="accordion relative border-b pb-1">
+									<button ref="firstAccordion" type="button" class="accordio flex items-center gap-2 group" @click="toggleAccordeon">
+										<PlusIcon class="h-5 w-auto text-rose group-[.active]:rotate-45 duration-300 ease-out"/>
+										Autres
+									</button>
+									<div class="panel p-0 max-h-0 overflow-hidden duration-300 ease-out">
+										<div class="container grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6 py-2">
+											<div class="sm:col-span-3">
+												<label for="code_cli" class="block text-sm font-medium leading-6 text-gray-900">Code</label>
+												<div class="mt-2">
+													<select v-model="filters.code_cli" id="code_cli" name="code_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+														<option value="">Sans importance</option>
+														<option value="0">Indeterminé</option>
+														<option value="1">1</option>
+														<option value="2">2</option>
+														<option value="3">3</option>
+													</select>
+												</div>
+											</div>
 
-									<div class="sm:col-span-3">
-										<label for="country"
-											class="block text-sm font-medium leading-6 text-gray-900">Libre</label>
-										<div class="mt-2">
-											<select id="country" name="country" autocomplete="country-name"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
-												<option value="">Sans importance</option>
-												<option value="O">Oui</option>
-												<option value="N">Non</option>
-											</select>
-										</div>
-									</div>
+											<div class="sm:col-span-full">
+												<label for="date_cli" class="block text-sm font-medium leading-6 text-gray-900">Date d'inscription</label>
+												<div class="mt-2 flex items-center gap-2">
+													<span>Moins de</span>
+													<div class="relative">
+														<input v-model="filters.date_cli" type="text" name="date_cli" id="date_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+														<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+															<span class="text-gray-500 text-xs" id="price-currency">mois</span>
+														</div>
+													</div>
+												</div>
+											</div>
 
-									<div class="sm:col-span-3">
-										<label for="country"
-											class="block text-sm font-medium leading-6 text-gray-900">Problème de paiement</label>
-										<div class="mt-2">
-											<select id="country" name="country" autocomplete="country-name"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
-												<option value="">Sans importance</option>
-												<option value="O">Oui</option>
-												<option value="N">Non</option>
-											</select>
-										</div>
-									</div>
+											<div class="sm:col-span-full">
+												<label for="contrat_cli" class="block text-sm font-medium leading-6 text-gray-900">Contrat échu depuis</label>
+												<div class="mt-2 flex items-center gap-2">
+													<span>Moins de</span>
+													<div class="relative">
+														<input v-model="filters.contrat_cli" type="text" name="contrat_cli" id="contrat_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+														<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+															<span class="text-gray-500 text-xs" id="price-currency">mois</span>
+														</div>
+													</div>
+												</div>
+											</div>
 
-									<div class="sm:col-span-3">
-										<label for="country"
-											class="block text-sm font-medium leading-6 text-gray-900">Type</label>
-										<div class="mt-2">
-											<select id="country" name="country" autocomplete="country-name"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
-												<option value="adh">Adhérents</option>
-												<option value="prosp">Prospects</option>
-												<option value="cont">Contacts</option>
-												<option value="anc">Anciens adhérents</option>
-												<option value="sup">Fiches archivées</option>
-												<option value="ln">Liste noir</option>
-												<option value="">Tous</option>
-											</select>
-										</div>
-									</div>
-
-									<div class="sm:col-span-3">
-										<label for="country"
-											class="block text-sm font-medium leading-6 text-gray-900">Situation</label>
-										<div class="mt-2">
-											<select id="country" name="country" autocomplete="country-name"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
-												<option value="0">Indétérminé</option>
-												<option value="prosp">Prospects</option>
-												<option value="cont">Contacts</option>
-												<option value="anc">Anciens adhérents</option>
-												<option value="sup">Fiches archivées</option>
-												<option value="ln">Liste noir</option>
-												<option value="">Tous</option>
-											</select>
-										</div>
-									</div>
-
-									<div class="col-span-full">
-										<label for="street-address"
-											class="block text-sm font-medium leading-6 text-gray-900">Street
-											address</label>
-										<div class="mt-2">
-											<input type="text" name="street-address" id="street-address"
-												autocomplete="street-address"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
-										</div>
-									</div>
-
-									<div class="sm:col-span-2 sm:col-start-1">
-										<label for="city"
-											class="block text-sm font-medium leading-6 text-gray-900">City</label>
-										<div class="mt-2">
-											<input type="text" name="city" id="city" autocomplete="address-level2"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
-										</div>
-									</div>
-
-									<div class="sm:col-span-2">
-										<label for="region"
-											class="block text-sm font-medium leading-6 text-gray-900">State /
-											Province</label>
-										<div class="mt-2">
-											<input type="text" name="region" id="region" autocomplete="address-level1"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
-										</div>
-									</div>
-
-									<div class="sm:col-span-2">
-										<label for="postal-code"
-											class="block text-sm font-medium leading-6 text-gray-900">ZIP / Postal
-											code</label>
-										<div class="mt-2">
-											<input type="text" name="postal-code" id="postal-code"
-												autocomplete="postal-code"
-												class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+											<div class="sm:col-span-full">
+												<label for="proc_cli" class="block text-sm font-medium leading-6 text-gray-900">Procuration</label>
+												<div class="mt-2">
+													<select v-model="filters.proc_cli" id="proc_cli" name="proc_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+														<option value="">Sans importance</option>
+														<option value="O">Oui</option>
+														<option value="N">Non</option>
+													</select>
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
@@ -248,7 +497,7 @@ function calculateAge(dateString) {
 									Rechercher
 								</a>
 							</div>
-						</div>
+						</form>
 					</PopoverPanel>
 				</Popover>
 			</div>
@@ -263,7 +512,7 @@ function calculateAge(dateString) {
 					<li v-for="person in filtered_clients[letter]" :key="person.email"
 						class="flex gap-x-4 px-3 py-5 hover:bg-rose-50 items-center transition-all pointer"
 						@click="handleClick(person.id_cli)">
-						<img class="h-12 w-12 flex-none object-cover object-center rounded-full bg-gray-50"
+						<img @error="event => handleImageError(event, person.id_cli)" class="h-12 w-12 flex-none object-cover object-center rounded-full bg-gray-50"
 							:src="`${uri}/img/cli/${person.id_cli}.jpg`" loading="lazy" />
 						<div class="min-w-0">
 							<p class="text-sm font-medium  text-gray-900">{{ person.pNoms_cli }} {{ person.nom_cli }}
