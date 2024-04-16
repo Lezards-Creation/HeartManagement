@@ -1,9 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Dashboard from '../views/Dashboard.vue'
 import Connexion from '../views/Connexion.vue'
-import Profils from '../views/Profil.vue'
-import Profil from '../views/Client.vue'
+import Clients from '../views/Clients.vue'
 import Agence from '../views/Agence.vue'
+import Rencontre from '../views/Rencontre.vue'
+import Message from '../views/Message.vue'
+import Matching from '../views/Matching.vue'
+import Facture from '../views/Facture.vue'
+
 import { useUserStore } from '../stores/user'
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
@@ -25,17 +29,41 @@ const router = createRouter({
 			}
 		},
 		{
-			path: '/profils',
-			name: 'Profils',
-			component: Profils,
+			path: '/clients',
+			name: 'Clients',
+			component: Clients,
 			meta: {
 				requiresAuth: true
 			}
 		},
 		{
-			path: '/profil/:id',
-			name: 'Profil',
-			component: Profil,
+			path: '/factures',
+			name: 'Factures',
+			component: Facture,
+			meta: {
+				requiresAuth: true
+			}
+		},
+		{
+			path: '/matchings',
+			name: 'Matchings',
+			component: Matching,
+			meta: {
+				requiresAuth: true
+			}
+		},
+		{
+			path: '/rencontres',
+			name: 'Rencontres',
+			component: Rencontre,
+			meta: {
+				requiresAuth: true
+			}
+		},
+		{
+			path: '/messages',
+			name: 'Messages',
+			component: Message,
 			meta: {
 				requiresAuth: true
 			}

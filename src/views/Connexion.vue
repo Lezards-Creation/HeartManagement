@@ -26,7 +26,7 @@ const handleConnexion = () => {
 		error_message.value = null;
 
 		
-		router.push({name: 'dashboard'});
+		router.push({name: 'Dashboard'});
 	})
 	.catch(err => {
 		if(err.code === 'invalid_pass'){
