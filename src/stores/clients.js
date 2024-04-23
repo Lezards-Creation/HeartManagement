@@ -77,13 +77,38 @@ export const useClientsStore = defineStore('clients-store', () => {
 		})
 	}
 
+	const createClient = (payload) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: 'clients/create',
+				method: 'POST',
+				data: {
+					data: payload
+				}, 
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
 	return {
-		// Variables
-		clients,
-		// Functions
-		getClients
+		//#region Variables
+			clients,
+		//#endregion
+
+		//#region Functions
+			getClients,
+			createClient
+		//#endregion
     }
-}, { persistedState: { persist: false } })
+}, { persistedState: { persist: true } })
 
 if (import.meta.hot) {
 	import.meta.hot.accept(acceptHMRUpdate(useClientsStore, import.meta.hot));

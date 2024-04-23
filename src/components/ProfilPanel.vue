@@ -48,7 +48,7 @@
 		}
 	})
 
-    const fallbackImage = `${uri}/img/cli/vide.png`;
+    const fallbackImage = `${uri}/img/cli/vide.webp`;
 	function handleImageError(event, idCli) {
 		event.target.src = fallbackImage;
 	}
@@ -98,7 +98,7 @@
                             <div class="col-span-full flex">
                                 <div class="photo overflow-hidden rounded-xl shadow-xl mt-0 mb-3 max-w-xs">
                                     <img @error="event => handleImageError(event, current_user.id_cli)" class="w-full h-auto"
-                                        :src="`${uri}/img/cli/${current_user.id_cli}.jpg`"
+                                        :src="`${uri}/img/cli/${current_user.id_cli}.webp`"
                                         alt="" loading="lazy" />
                                 </div>
                                 <div class="droite p-10">

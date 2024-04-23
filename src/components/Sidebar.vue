@@ -13,7 +13,7 @@
 	
 	const navigation = [
 		{ name: 'Dashboard', href: '/', icon: HomeIcon, current: route.path == '/' },
-		{ name: 'Clients', href: '/clients', icon: UsersIcon, current: route.path == '/profils' || route.path.includes('/profil') },
+		{ name: 'Clients', href: '/clients', icon: UsersIcon, current: route.path == '/clients' || route.path.includes('/clients') },
 		{ name: 'Rencontres', href: '/rencontres', icon: BoltIcon, current: route.path == '/rencontres' },
 		{ name: 'Matchings', href: '/matchings', icon: HeartIcon, current: route.path == '/matchings' },
 		{ name: 'Messages', href: '/messages', icon: ChatBubbleLeftRightIcon, current: route.path == '/messages' },
@@ -133,7 +133,7 @@
 					<li>
 						<ul role="list" class="-mx-2 space-y-1">
 							<li v-for="item in navigation" :key="item.name">
-								<RouterLink :active-class="'!text-rose-600 group'" class="text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold" :to="{name: item.name}" >
+								<RouterLink :active-class="'!text-rose-600 group'" class="text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold" :to="{path: item.href}" >
 									<component :is="item.icon" class="text-gray-400 group-hover:text-rose-600 h-6 w-6 shrink-0 group-[.router-link-exact-active]:text-rose-600" aria-hidden="true" /> 
 									{{ item.name }}
 								</RouterLink>

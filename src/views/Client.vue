@@ -1,20 +1,22 @@
 <script setup>
 	import { computed, ref } from 'vue'
+    import { useRoute } from 'vue-router'
 	import { ArrowPathRoundedSquareIcon, XMarkIcon, PlusIcon, ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/solid'
 	import { UserPlusIcon } from '@heroicons/vue/24/outline'
 	import { FolderOpenIcon, BoltIcon, UserIcon} from '@heroicons/vue/24/outline'
 	import { useClientsStore } from '../stores/clients'
 	import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption, Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
-	import ProfilPanel from './ProfilPanel.vue';
-	import RencontrePanel from './RencontresPanel.vue';
-	import DocumentsPanel from './DocumentsPanel.vue';
+	import ProfilPanel from '../components/ProfilPanel.vue';
+	import RencontrePanel from '../components/RencontresPanel.vue';
+	import DocumentsPanel from '../components/DocumentsPanel.vue';
 	
 	const uri = import.meta.env.VITE_URL;
-	const props = defineProps(['client']);
-	
+	const route = useRoute();
 	const clientsStore = useClientsStore()
 	const current_user = computed(() => {
-		return clientsStore.clients.find((el) => el.id_cli === props.client)
+        if(clientsStore.clients.length > 0){
+            return clientsStore.clients.find((el) => el.id_cli == route.params.id)
+        }
 	})
 	
 	const open = ref(false)
@@ -139,15 +141,15 @@
 			</TabList>
 			<TabPanels>
 				<TabPanel>
-					<ProfilPanel :client="client"/>
+					<ProfilPanel :client="current_user.id_cli"/>
 				</TabPanel>
 				
 				<TabPanel>
-					<RencontrePanel :client="client" :name="current_user.sexe_cli === 'H' ? 'Mr ' + current_user.nom_cli : 'Mme ' + current_user.nom_cli" />
+					<RencontrePanel :client="current_user.id_cli" :name="current_user.sexe_cli === 'H' ? 'Mr ' + current_user.nom_cli : 'Mme ' + current_user.nom_cli" />
 				</TabPanel>
 				
 				<TabPanel>
-					<DocumentsPanel :client="client" />
+					<DocumentsPanel :client="current_user.id_cli" />
 				</TabPanel>
 			</TabPanels>
 		</TabGroup>	
@@ -322,5 +324,4 @@
 	.tiptap.ProseMirror:focus-visible {
 		outline: none;
 	}
-
 </style>

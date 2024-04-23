@@ -1,10 +1,7 @@
-<script setup>
-    import { useClientsStore } from '../stores/clients'
-    const clientsStore = useClientsStore()
-</script>
-
 <template>
     <section class="page flex">
         <AllUsers />
+        <RouterView />
+        <NewUser v-if="$route.name === 'Clients'" />
     </section>
 </template>

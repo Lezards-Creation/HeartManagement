@@ -2,11 +2,14 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Dashboard from '../views/Dashboard.vue'
 import Connexion from '../views/Connexion.vue'
 import Clients from '../views/Clients.vue'
+import Client from '../views/Client.vue'
+import Creation from '../views/CreationFiche.vue'
 import Agence from '../views/Agence.vue'
 import Rencontre from '../views/Rencontre.vue'
 import Message from '../views/Message.vue'
 import Matching from '../views/Matching.vue'
 import Facture from '../views/Facture.vue'
+import PageNotFound from '../views/404.vue'
 
 import { useUserStore } from '../stores/user'
 const router = createRouter({
@@ -32,6 +35,10 @@ const router = createRouter({
 			path: '/clients',
 			name: 'Clients',
 			component: Clients,
+			children: [
+				{ path: 'fiche/:id', name: 'Client', component: Client},
+				{ path: 'fiche/creation', name: 'Creation', component: Creation}
+			],
 			meta: {
 				requiresAuth: true
 			}
@@ -75,6 +82,11 @@ const router = createRouter({
 			meta: {
 				requiresAuth: true
 			}
+		},
+		{ 
+			path: '/:pathMatch(.*)*', 
+			name: 'NotFound',
+			component: PageNotFound 
 		},
 	],
 })

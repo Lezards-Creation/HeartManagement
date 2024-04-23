@@ -1,19 +1,17 @@
 <script setup>
 import { computed, ref } from "vue"
+import { useRouter } from "vue-router";
 import { useClientsStore } from '../stores/clients'
-import { AdjustmentsHorizontalIcon, BarsArrowUpIcon, MagnifyingGlassIcon, ArrowPathIcon, PlusIcon, CheckIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
+import { AdjustmentsHorizontalIcon, MagnifyingGlassIcon, ArrowPathIcon, PlusIcon, CheckIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
 import { Popover, PopoverButton, PopoverPanel, Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
 
 import moment from "moment";
-import fr from 'moment/dist/locale/fr';
 
 const uri = import.meta.env.VITE_URL;
 const clientsStore = useClientsStore()
 
-
 const clients = ref({});
 const clients_count = ref(0);
-const selectedUser = ref(null);
 
 const search_term = ref(null);
 const filters = ref({
@@ -136,10 +134,6 @@ const fetchClients = () => {
 }
 fetchClients();
 
-const handleClick = (id) => {
-	selectedUser.value = id;
-}
-
 function calculateAge(dateString) {
 	let today = new Date()
 	let birthDate = new Date(dateString)
@@ -162,16 +156,14 @@ const toggleAccordeon = (e) => {
 		panel.style.maxHeight = panel.scrollHeight + "px";
 	}	
 }
-const fallbackImage = `${uri}/img/cli/vide.png`;
+const fallbackImage = `${uri}/img/cli/vide.webp`;
 function handleImageError(event, idCli) {
 	event.target.src = fallbackImage;
 }
 
-
 </script>
 
 <template>
-	<!-- Filters -->
 	<div class="h-screen border-r border-r-gray-100">
 		<div class="flex gap-2 items-center px-4 pt-4">
 			<span>Type</span>
@@ -502,6 +494,7 @@ function handleImageError(event, idCli) {
 				</Popover>
 			</div>
 		</div>
+
 		<nav class="h-screen overflow-y-auto w-96  bg-white/80 backdrop-blur-sm relative" aria-label="Directory">
 			<div v-for="letter in Object.keys(filtered_clients)" :key="letter" class="relative">
 				<div
@@ -509,23 +502,17 @@ function handleImageError(event, idCli) {
 					<h3>{{ letter }}</h3>
 				</div>
 				<ul role="list" class="divide-y divide-gray-100">
-					<li v-for="person in filtered_clients[letter]" :key="person.email"
-						class="flex gap-x-4 px-3 py-5 hover:bg-rose-50 items-center transition-all pointer"
-						@click="handleClick(person.id_cli)">
-						<img @error="event => handleImageError(event, person.id_cli)" class="h-12 w-12 flex-none object-cover object-center rounded-full bg-gray-50"
-							:src="`${uri}/img/cli/${person.id_cli}.jpg`" loading="lazy" />
-						<div class="min-w-0">
-							<p class="text-sm font-medium  text-gray-900">{{ person.pNoms_cli }} {{ person.nom_cli }}
-							</p>
-							<p class="truncate text-xs text-gray-500">{{ person.ville_cli }} - {{ person.dateNaiss_cli ?
-						calculateAge(person.dateNaiss_cli) + ' ans' : '' }}</p>
-						</div>
+					<li v-for="person in filtered_clients[letter]" :key="person.email">
+						<router-link class="flex gap-x-4 px-3 py-5 hover:bg-rose-50 items-center transition-all pointer" :to="{ name: 'Client', params: { id: person.id_cli }}" >
+							<img @error="event => handleImageError(event, person.id_cli)" class="h-12 w-12 flex-none object-cover object-center rounded-full bg-gray-50" :src="`${uri}/img/cli/${person.id_cli}.webp`" loading="lazy" />
+							<div class="min-w-0">
+								<p class="text-sm font-medium  text-gray-900">{{ person.pNoms_cli }} {{ person.nom_cli }}</p>
+								<p class="truncate text-xs text-gray-500">{{ person.ville_cli }} - {{ person.dateNaiss_cli ? calculateAge(person.dateNaiss_cli) + ' ans' : '' }}</p>
+							</div>
+						</router-link>
 					</li>
 				</ul>
 			</div>
 		</nav>
 	</div>
-
-	<NewUser v-if="!selectedUser" />
-	<SelectedClient :client="selectedUser" v-else />
 </template>
