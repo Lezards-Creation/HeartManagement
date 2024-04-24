@@ -156,7 +156,7 @@ const toggleAccordeon = (e) => {
 		panel.style.maxHeight = panel.scrollHeight + "px";
 	}	
 }
-const fallbackImage = `${uri}/img/cli/vide.webp`;
+const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
 function handleImageError(event, idCli) {
 	event.target.src = fallbackImage;
 }
@@ -504,7 +504,7 @@ function handleImageError(event, idCli) {
 				<ul role="list" class="divide-y divide-gray-100">
 					<li v-for="person in filtered_clients[letter]" :key="person.email">
 						<router-link class="flex gap-x-4 px-3 py-5 hover:bg-rose-50 items-center transition-all pointer" :to="{ name: 'Client', params: { id: person.id_cli }}" >
-							<img @error="event => handleImageError(event, person.id_cli)" class="h-12 w-12 flex-none object-cover object-center rounded-full bg-gray-50" :src="`${uri}/img/cli/${person.id_cli}.webp`" loading="lazy" />
+							<img @error="event => handleImageError(event, person.id_cli)" class="h-12 w-12 flex-none object-cover object-center rounded-full bg-gray-50" :src="`${uri}/storage/img/cli/${person.id_cli}.webp`" loading="lazy" />
 							<div class="min-w-0">
 								<p class="text-sm font-medium  text-gray-900">{{ person.pNoms_cli }} {{ person.nom_cli }}</p>
 								<p class="truncate text-xs text-gray-500">{{ person.ville_cli }} - {{ person.dateNaiss_cli ? calculateAge(person.dateNaiss_cli) + ' ans' : '' }}</p>

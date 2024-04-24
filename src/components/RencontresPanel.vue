@@ -156,7 +156,7 @@
 
     watch(() => props.client, fetchRencontresData, {immediate: true});
 
-    const fallbackImage = `${uri}/img/cli/vide.webp`;
+    const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
 	function handleImageError(event) {
 		event.target.src = fallbackImage;
 	}
@@ -193,7 +193,7 @@
             <ul v-if="communs.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
                 <li v-if="communsLoaded" v-for="commun in communs" :key="commun.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="commun.client" class="flex min-w-0 gap-x-4">
-                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/img/cli/${commun.client.id_cli}.webp`" alt="" />
+                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${commun.client.id_cli}.webp`" alt="" />
                         <div class="min-w-0 flex-auto">
                             <p class="text-sm font-semibold leading-6 text-gray-900">
                                 <a class="flex gap-2 items-center">
@@ -226,7 +226,7 @@
             <ul v-if="choices.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
                 <li v-if="choicesLoaded" v-for="choice in choices" :key="choice.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="choice.client" class="flex min-w-0 gap-x-4">
-                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/img/cli/${choice.client.id_cli}.webp`" alt="" />
+                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${choice.client.id_cli}.webp`" alt="" />
                         <div class="min-w-0 flex-auto">
                             <p class="text-sm font-semibold leading-6 text-gray-900">
                                 <a class="flex gap-2 items-center">
@@ -275,7 +275,7 @@
             <ul v-if="demandes.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
                 <li v-if="demandesLoaded" v-for="demande in demandes" :key="demande.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="demande.client" class="flex min-w-0 gap-x-4">
-                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/img/cli/${demande.client.id_cli}.webp`" alt="" />
+                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${demande.client.id_cli}.webp`" alt="" />
                         <div class="min-w-0 flex-auto">
                             <p class="text-sm font-semibold leading-6 text-gray-900">
                                 <a class="flex gap-2 items-center">
@@ -324,7 +324,7 @@
             <ul v-if="rencontres.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
                 <li v-if="rencontresLoaded" v-for="rencontre in rencontres" :key="rencontre.id_renc" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="rencontre.laureat" class="flex min-w-0 gap-x-4">
-                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/img/cli/${rencontre.laureat.id_cli}.webp`" alt="" />
+                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${rencontre.laureat.id_cli}.webp`" alt="" />
                         <div class="min-w-0 flex-auto">
                             <p class="text-sm font-semibold leading-6 text-gray-900">
                                 <a class="flex gap-2 items-center">
@@ -354,7 +354,7 @@
             <ul v-if="demandes.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
                 <li v-if="propositionsLoaded" v-for="proposition in propositions" :key="proposition.id_prop" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="proposition.client" class="flex min-w-0 gap-x-4">
-                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/img/cli/${proposition.client.id_cli}.webp`" alt="" />
+                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${proposition.client.id_cli}.webp`" alt="" />
                         <div class="min-w-0 flex-auto">
                             <p class="text-sm font-semibold leading-6 text-gray-900">
                                 <a class="flex gap-2 items-center">

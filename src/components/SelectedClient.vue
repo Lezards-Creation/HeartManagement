@@ -62,7 +62,7 @@
 		return age
 	}
 
-	const fallbackImage = `${uri}/img/cli/vide.webp`;
+	const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
 	function handleImageError(event, idCli) {
 		event.target.src = fallbackImage;
 	}
@@ -76,7 +76,7 @@
 				<div class="flex-shrink-0">
 					<div class="relative">
 						<img @error="event => handleImageError(event, current_user.id_cli)" class="h-16 w-16 rounded-full object-cover"
-							:src="`${uri}/img/cli/${current_user.id_cli}.webp`" alt=""
+							:src="`${uri}/storage/img/cli/${current_user.id_cli}.webp`" alt=""
 							loading="lazy" />
 						<span class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true" />
 					</div>

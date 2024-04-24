@@ -77,14 +77,26 @@ export const useClientsStore = defineStore('clients-store', () => {
 		})
 	}
 
-	const createClient = (payload) => {
+	const createClient = (payload, files) => {
 		return new Promise((resolve, reject) => {
+			// Create a FormData instance
+			const formData = new FormData();
+
+			// Append payload as a JSON string (if it needs to be sent as JSON)
+			formData.append('data', JSON.stringify(payload));
+			
+			if (files && files.length) {
+				formData.append('photo', files[0].file, files[0].file.name);
+			}
+
+
 			instance({
 				url: 'clients/create',
 				method: 'POST',
-				data: {
-					data: payload
-				}, 
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+				data: formData,
 				headers: {
                     Authorization: `Bearer ${userStore.userLog.token}`
                 }
