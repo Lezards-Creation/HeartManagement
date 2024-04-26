@@ -110,6 +110,37 @@ export const useClientsStore = defineStore('clients-store', () => {
 		})
 	}
 
+	const updateClient = (payload, files) => {
+		return new Promise((resolve, reject) => {
+			const formData = new FormData();
+			// Append payload as a JSON string (if it needs to be sent as JSON)
+			formData.append('data', JSON.stringify(payload));
+			
+			if (files && files.length) {
+				formData.append('photo', files[0].file, files[0].file.name);
+			}
+
+			instance({
+				url: `clients/${payload.id_cli}/update`,
+				method: 'POST',
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+				data: formData,
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+
+		})
+	}
+
 	return {
 		//#region Variables
 			clients,
@@ -117,7 +148,8 @@ export const useClientsStore = defineStore('clients-store', () => {
 
 		//#region Functions
 			getClients,
-			createClient
+			createClient,
+			updateClient
 		//#endregion
     }
 }, { persistedState: { persist: true } })

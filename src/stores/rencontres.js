@@ -27,10 +27,52 @@ export const useRencontresStore = defineStore('rencontres-store', () => {
             })
 		})
     }
+
+	const updateRencontre = (payload) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `rencontre/${payload.id_renc}/update`,
+				method: 'POST',
+				data: payload,
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+
+		})
+	}
+
+	const createRencontre = (payload) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `rencontre/create`,
+				method: 'POST',
+				data: payload,
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
 	return {
 		// Variables
 		// Functions
-        getRencontres
+        getRencontres,
+		updateRencontre,
+		createRencontre
 	}
 }, { persistedState: { persist: true } })
 

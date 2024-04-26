@@ -27,10 +27,51 @@ export const useChoixStore = defineStore('choix-store', () => {
             })
 		})
     }
+
+	const addChoice = (payload) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `choix/create`,
+				method: 'POST',
+				data: payload,
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
+	const updateChoice = (payload) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `choix/${payload.id_choix}/update`,
+				method: 'POST',
+				data: payload,
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
 	return {
 		// Variables
 		// Functions
-        getChoices
+        getChoices,
+		addChoice,
+		updateChoice
 	}
 }, { persistedState: { persist: true } })
 

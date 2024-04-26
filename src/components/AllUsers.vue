@@ -157,7 +157,7 @@ const toggleAccordeon = (e) => {
 	}	
 }
 const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
-function handleImageError(event, idCli) {
+function handleImageError(event) {
 	event.target.src = fallbackImage;
 }
 
@@ -196,6 +196,10 @@ function handleImageError(event, idCli) {
 					</transition>
 				</div>
 			</Listbox>
+			<router-link :to="{path: '/clients/fiche/creation'}" type="button" class="inline-flex items-center rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+				<PlusIcon class="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+				Ajouter un client
+			</router-link>
 		</div>
 		
 		<div class="search flex justify-between items-center p-4 w-full">

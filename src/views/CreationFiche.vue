@@ -90,10 +90,6 @@ const previousStep = () => {
     console.log(current_step.value)
 }
 
-const showInput = () => {
-    console.log(dataCreation.value)
-}
-
 const handleCreationFiche = () => {
     clientsStore.createClient(dataCreation.value, files.value)
     .then(res => console.log(res))
@@ -154,7 +150,7 @@ const onInputChange = (e) => {
             </ol>
         </nav>
 
-        <form method="POST" @change="showInput" @submit.prevent="handleCreationFiche" class="bg-gray-50 p-10 mt-4 rounded-xl">
+        <form method="POST" @submit.prevent="handleCreationFiche" class="bg-gray-50 p-10 mt-4 rounded-xl">
             <div class="space-y-12">
                 <TransitionGroup class="overflow-hidden" tag="div" name="deploy">
                     <div v-if="current_step === 'reference'" class="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3">

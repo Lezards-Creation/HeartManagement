@@ -1,18 +1,28 @@
 <script setup>
 	import { computed, ref } from 'vue'
-    import { useRoute } from 'vue-router'
+    import { useRoute, useRouter } from 'vue-router'
 	import { ArrowPathRoundedSquareIcon, XMarkIcon, PlusIcon, ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/solid'
 	import { UserPlusIcon } from '@heroicons/vue/24/outline'
 	import { FolderOpenIcon, BoltIcon, UserIcon} from '@heroicons/vue/24/outline'
 	import { useClientsStore } from '../stores/clients'
+	import { useChoixStore } from '../stores/choix'
+	import { useUserStore } from '../stores/user'
+	import { usePropositionsStore } from '../stores/propositions'
 	import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption, Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
 	import ProfilPanel from '../components/ProfilPanel.vue';
 	import RencontrePanel from '../components/RencontresPanel.vue';
 	import DocumentsPanel from '../components/DocumentsPanel.vue';
+	import moment from 'moment'
 	
 	const uri = import.meta.env.VITE_URL;
 	const route = useRoute();
+	const router = useRouter();
 	const clientsStore = useClientsStore()
+	const choixStore = useChoixStore()
+	const userStore = useUserStore();
+	const propositionStore = usePropositionsStore();
+	
+	const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
 	const current_user = computed(() => {
         if(clientsStore.clients.length > 0){
             return clientsStore.clients.find((el) => el.id_cli == route.params.id)
@@ -20,6 +30,9 @@
 	})
 	
 	const open = ref(false)
+	const openSearch = ref(false);
+	const popupType = ref('choix');
+
 	
 	const team = [
 		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
@@ -43,7 +56,6 @@
 		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)]
 	]
 
-	const openSearch = ref(false);
 	const query = ref('');
 	const recent = ref([]);
 	
@@ -64,16 +76,65 @@
 		return age
 	}
 
-	const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
+	const goToFicheClient = (activeOption) => {
+		router.push({name: 'Client', params: {id: activeOption.id_cli}})
+		openSearch.value = false;
+	}
+
+	const handleAddChoice = (activeOption) => {
+		let client = current_user.value;
+		let choix = activeOption
+
+		let data = {
+			idUtil_choix: userStore.userLog.id_util,
+			idCli_choix: client.id_cli,
+			idCli1_choix: choix.id_cli,
+			date_choix: moment().format('YYYY-MM-DD'),
+		}
+		
+		choixStore.addChoice(data)
+		.then(res => {
+			console.log(res);
+			openSearch.value = false;
+		})
+		.catch(err => console.error(err))
+	}
+
+	const handleAddProposition = (activeOption) => {
+		let client = current_user.value;
+		let prop = activeOption
+
+		let data = {
+			idUtil_prop: userStore.userLog.id_util,
+			idCli_prop: client.id_cli,
+			idCli1_prop: prop.id_cli,
+			date_prop: moment().format('YYYY-MM-DD'),
+		}
+		
+		propositionStore.addProposition(data)
+		.then(res => {
+			console.log(res);
+			openSearch.value = false;
+		})
+		.catch(err => console.error(err))
+	}
+
+	
 	function handleImageError(event, idCli) {
 		event.target.src = fallbackImage;
+	}
+
+	const handlePopupChoix = (type) => {
+		console.log(type);
+		openSearch.value = true;
+		popupType.value = type;
 	}
 </script>
 
 <template>
 	<div :class="['h-screen flex-1 p-10 overflow-y-auto']"
 		v-if="current_user">
-		<div class="md:flex md:items-center md:justify-between md:space-x- mb-14 mt-2">
+		<div class="md:flex md:items-start md:justify-between md:space-x- mb-14 mt-2">
 			<div class="flex items-center space-x-5">
 				<div class="flex-shrink-0">
 					<div class="relative">
@@ -91,8 +152,13 @@
 					<p class="text-xs font-medium text-gray-500 mt-1">Réf. {{ current_user.ref_cli }}</p>
 				</div>
 			</div>
-			<div class="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:mt-0 md:flex-row md:space-x-3">
-				<button @click="openSearch = true" type="button"
+			<div class="flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:mt-0 md:flex-row md:space-x-3">
+				<button @click="handlePopupChoix('proposition')" type="button"
+					class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+					Faire une proposition
+					<UserPlusIcon class="text-gray-600 w-5 h-5" />
+				</button>
+				<button @click="handlePopupChoix('choix')" type="button"
 					class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
 					Choisir
 					<UserPlusIcon class="text-gray-600 w-5 h-5" />
@@ -101,10 +167,6 @@
 					class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
 					Lancer un match
 					<ArrowPathRoundedSquareIcon class="text-gray-600 w-5 h-5" />
-				</button>
-				<button type="button"
-					class="inline-flex items-center justify-center rounded-md bg-rose-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">
-					Envoyer un message
 				</button>
 			</div>
 		</div>
@@ -155,6 +217,7 @@
 		</TabGroup>	
 	</div>
 
+	<!-- #region POPUP Choix / Proposition -->
 	<TransitionRoot :show="openSearch" as="template" @after-leave="query = ''" appear>
 		<Dialog as="div" class="relative z-50" @close="openSearch = false">
 			<TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
@@ -176,7 +239,7 @@
 									<div hold class="-mx-2 text-sm text-gray-700">
 										<ComboboxOption v-for="person in query === '' ? recent : filteredPeople" :key="person.id" :value="person" as="template" v-slot="{ active }">
 												<div :class="['group flex cursor-default select-none items-center rounded-md p-2', active && 'bg-gray-100 text-gray-900']">
-													<img :src="`${uri}images/cli/${person.id_cli}.webp`" alt="" class="h-6 w-6 flex-none rounded-full bg-gray-200 object-cover" />
+													<img :src="`${uri}/storage/img/cli/${person.id_cli}.webp`" alt="" class="h-6 w-6 flex-none rounded-full bg-gray-200 object-cover" />
 													<span class="ml-3 flex-auto truncate">{{ person.pNoms_cli }} {{ person.nom_cli }}</span>
 													<ChevronRightIcon v-if="active" class="ml-3 h-5 w-5 flex-none text-gray-400" aria-hidden="true" />
 												</div>
@@ -184,9 +247,9 @@
 									</div>
 								</div>
 
-								<div v-if="activeOption" class="hidden h-96 w-1/2 flex-none flex-col divide-y divide-gray-100 overflow-y-auto sm:flex">
+								<div v-if="activeOption" class="hidden w-1/2 flex-none flex-col divide-y divide-gray-100 overflow-y-auto sm:flex">
 										<div class="flex-none p-6 text-center">
-											<img :src="`${uri}images/cli/${activeOption.id_cli}.webp`" loading="lazy" alt="" class="mx-auto h-16 w-16 rounded-full object-cover" />
+											<img :src="`${uri}/storage/img/cli/${activeOption.id_cli}.webp`" loading="lazy" alt="" class="mx-auto h-16 w-16 rounded-full object-cover" />
 											<h2 class="mt-3 font-semibold text-gray-900">
 													{{ activeOption.pNoms_cli }} {{ activeOption.nom_cli }}
 											</h2>
@@ -213,9 +276,17 @@
 													{{ activeOption.desc_cli }} 
 												</dd>
 											</dl>
-											<button type="button" class="mt-6 w-full rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">
-												Ajouter le choix
-											</button>
+											<div class="flex gap-x-2 mt-6">
+												<button @click="goToFicheClient(activeOption)" type="button" class="w-full inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+													Voir la fiche
+												</button>
+												<button v-if="popupType === 'choix'" @click="handleAddChoice(activeOption)" type="button" class=" w-full rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">
+													Ajouter le choix
+												</button>
+												<button v-else @click="handleAddProposition(activeOption)" type="button" class=" w-full rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">
+													Proposer
+												</button>
+											</div>
 										</div>
 								</div>
 							</ComboboxOptions>
@@ -231,7 +302,9 @@
 			</div>
 		</Dialog>
 	</TransitionRoot>
-
+	<!-- #endregion -->
+	
+	<!-- #region POPUP Matching -->
 	<TransitionRoot as="template" :show="open">
 		<Dialog as="div" class="relative z-50" @close="open = false">
 			<TransitionChild as="template" enter="ease-in-out duration-500" enter-from="opacity-0"
@@ -281,7 +354,7 @@
 
 														<span class="relative inline-block flex-shrink-0">
 															<img class="h-12 w-12 flex-none rounded-full object-cover bg-gray-50"
-																:src="`${uri}images/cli/${person.id_cli}.webp`"
+																:src="`${uri}/storage/img/cli/${person.id_cli}.webp`"
 																alt="" loading="lazy" />
 															<span
 																:class="[person.status === 'online' ? 'bg-green-400' : 'bg-gray-300', 'absolute top-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white']"
@@ -318,6 +391,7 @@
 			</div>
 		</Dialog>
 	</TransitionRoot>
+	<!-- #endregion -->
 </template>
 
 <style>
