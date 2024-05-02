@@ -1,17 +1,20 @@
 <script setup>
-    import { computed, ref, watch } from 'vue'
-    import { useClientsStore } from '../stores/clients'
-    import { useAgencesStore } from '../stores/agences'
-    import { CheckIcon } from '@heroicons/vue/24/outline'
-    import StarterKit from '@tiptap/starter-kit'
-	import { useEditor, EditorContent } from '@tiptap/vue-3'
-    import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
+    import { computed, ref, watch } from 'vue';
+    import { useRoute } from 'vue-router';
+    import { useClientsStore } from '../stores/clients';
+    import { useAgencesStore } from '../stores/agences';
+    import { CheckIcon } from '@heroicons/vue/24/outline';
+    import StarterKit from '@tiptap/starter-kit';
+	import { useEditor, EditorContent } from '@tiptap/vue-3';
+    import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
 
-    import DropZone from '../components/DropZone.vue'
-    import FilePreview from '../components/FilePreview.vue'
-    import useFileList from '../compositions/file-list'
+    import DropZone from '../components/DropZone.vue';
+    import FilePreview from '../components/FilePreview.vue';
+    import useFileList from '../compositions/file-list';
 
     //#region VARIABLES
+    const emit = defineEmits(['updateImage'])
+    const route = useRoute();
     const uri = import.meta.env.VITE_URL;
     const props = defineProps(['client']);
     const clientsStore = useClientsStore()
@@ -36,15 +39,14 @@
     //#endregion
 
     //#region METHODS
-    const current_user = computed(() => {
-		return clientsStore.clients.find((el) => el.id_cli === props.client)
-	})
+    const current_user = ref(null)
 
+    const imageSource = ref(null);
     const editorAnn1 = useEditor({
 		extensions: [
 			StarterKit,
 		],
-		content: current_user.value.ann1_cli,
+		content: '',
 		onUpdate: () => {
 			current_user.value.ann1_cli = editorAnn1.value.getHTML();
             debouncedFunction()
@@ -55,7 +57,7 @@
 		extensions: [
 			StarterKit,
 		],
-		content: current_user.value.ann2_cli,
+		content: '',
 		onUpdate: () => {
 			current_user.value.ann2_cli = editorAnn2.value.getHTML();
             debouncedFunction()
@@ -97,10 +99,13 @@
         .then(res => {
             if(target){
                 target.classList.add('updated');
+                
                 setTimeout(() => {
                     target.classList.remove('updated');
                 }, 2500)
             }
+            imageSource.value = `${uri}/storage/img/cli/${current_user.value.id_cli}.webp?` + new Date().getTime();
+            emit('updateImage')
         })
         .catch(err => console.error(err))
     }
@@ -112,10 +117,20 @@
         e.target.value = null
     }
 
-	watch(current_user, () => {
-		editorAnn1.value.commands.setContent(current_user.value.ann1_cli);
-		editorAnn2.value.commands.setContent(current_user.value.ann2_cli);
-	})
+	const handleGetClient = () => {
+		clientsStore.getClient(route.params.id)
+		.then(res => {
+			current_user.value = res.client
+            current_user.value.situation_cli = JSON.parse(res.client.situation_cli);
+
+			imageSource.value = `${uri}/storage/img/cli/${current_user.value.id_cli}.webp?` + new Date().getTime()
+
+            editorAnn1.value.commands.setContent(current_user.value.ann1_cli);
+            editorAnn2.value.commands.setContent(current_user.value.ann2_cli);
+		})
+	}
+
+    watch(() => route.params.id, handleGetClient, {immediate: true})
     //#endregion 
 </script>
 
@@ -144,7 +159,7 @@
             </div>
         </div>
 
-        <form method="POST" @change="handleUpdateClient">
+        <form method="POST" v-if="current_user" @change="handleUpdateClient">
             <div class="space-y-10 divide-y divide-gray-900/10 mt-10" v-if="active_tab === 'Etat civil'">
                 <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
                     <div class="px-4 sm:px-0">
@@ -156,7 +171,7 @@
                             <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                                 <div class="col-span-full flex">
                                     <div v-if="!updatingPhoto" class="photo overflow-hidden rounded-xl shadow-xl mt-0 mb-3 max-w-xs">
-                                        <img @error="event => handleImageError(event)" class="w-full h-auto" :src="`${uri}/storage/img/cli/${current_user.id_cli}.webp`" alt="" loading="lazy" />
+                                        <img @error="event => handleImageError(event)" class="w-full h-auto" :src="imageSource" alt="" loading="lazy" />
                                     </div>
                                     <DropZone v-else class="drop-area" @files-dropped="addFiles" #default="{ dropZoneActive }">
                                         <div v-show="!files.length" :class="[dropZoneActive ? 'border-solid border-rose' : 'border-dashed','mt-2 flex justify-center rounded-lg border border-gray-900/25 px-6 py-10']">
@@ -360,13 +375,13 @@
                                 <div class="sm:col-span-full">
                                     <label for="mail_cli" class="block text-sm font-medium leading-6 text-gray-900">Adresse email</label>
                                     <div class="mt-2">
-                                        <input id="mail_cli" v-model="current_user.mail_cli" name="email" type="mail_cli"
+                                        <input id="mail_cli" v-model="current_user.mail_cli" name="mail_cli" type="email"
                                             class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                         <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                     </div>
                                 </div>
-                                <div class="sm:col-span-2 self-end mb-2">
-                                    <SwitchGroup as="div" class="flex items-center">
+                                <div class="sm:col-span-2 self-start mb-2">
+                                    <SwitchGroup as="div" class="flex items-center flex-wrap">
                                         <Switch @click="debouncedFunction" v-model="current_user.nl_cli" name="nl_cli"
                                             :class="[current_user.nl_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                             <span aria-hidden="true"
@@ -375,6 +390,7 @@
                                         <SwitchLabel as="span" class="ml-3 text-sm">
                                             <span class="font-medium text-gray-900">Newsletter</span>
                                         </SwitchLabel>
+                                        <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                     </SwitchGroup>
                                 </div>
                             </div>
@@ -391,8 +407,8 @@
                     <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                         <div class="px-4 py-6 sm:p-8">
                             <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                                <div class="sm:col-span-2 self-end mb-2">
-                                    <SwitchGroup as="div" class="flex items-center">
+                                <div class="sm:col-span-2 self-start mb-2">
+                                    <SwitchGroup as="div" class="flex items-center flex-wrap">
                                         <Switch @click="debouncedFunction" v-model="current_user.situation_cli.celib_cli" name="celib_cli"
                                             :class="[current_user.situation_cli.celib_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                             <span aria-hidden="true"
@@ -401,10 +417,11 @@
                                         <SwitchLabel as="span" class="ml-3 text-sm">
                                             <span class="font-medium text-gray-900">Célibataire</span>
                                         </SwitchLabel>
+                                        <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                     </SwitchGroup>
                                 </div>
-                                <div class="sm:col-span-2 self-end mb-2">
-                                    <SwitchGroup as="div" class="flex items-center">
+                                <div class="sm:col-span-2 self-start mb-2">
+                                    <SwitchGroup as="div" class="flex items-center flex-wrap">
                                         <Switch @click="debouncedFunction" v-model="current_user.situation_cli.veuf_cli" name="veuf_cli"
                                             :class="[current_user.situation_cli.veuf_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                             <span aria-hidden="true"
@@ -413,10 +430,11 @@
                                         <SwitchLabel as="span" class="ml-3 text-sm">
                                             <span class="font-medium text-gray-900">Veuf</span>
                                         </SwitchLabel>
+                                        <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                     </SwitchGroup>
                                 </div>
-                                <div class="sm:col-span-2 self-end mb-2">
-                                    <SwitchGroup as="div" class="flex items-center">
+                                <div class="sm:col-span-2 self-start mb-2">
+                                    <SwitchGroup as="div" class="flex items-center flex-wrap">
                                         <Switch @click="debouncedFunction" v-model="current_user.situation_cli.div_cli" name="div_cli"
                                             :class="[current_user.situation_cli?.div_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                             <span aria-hidden="true"
@@ -425,10 +443,11 @@
                                         <SwitchLabel as="span" class="ml-3 text-sm">
                                             <span class="font-medium text-gray-900">Divorcé</span>
                                         </SwitchLabel>
+                                        <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                     </SwitchGroup>
                                 </div>
-                                <div class="sm:col-span-2 self-end mb-2">
-                                    <SwitchGroup as="div" class="flex items-center">
+                                <div class="sm:col-span-2 self-start mb-2">
+                                    <SwitchGroup as="div" class="flex items-center flex-wrap">
                                         <Switch @click="debouncedFunction" v-model="current_user.sep_cli" name="sep_cli"
                                             :class="[current_user.situation_cli?.sep_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                             <span aria-hidden="true"
@@ -437,10 +456,11 @@
                                         <SwitchLabel as="span" class="ml-3 text-sm">
                                             <span class="font-medium text-gray-900">Séparé</span>
                                         </SwitchLabel>
+                                        <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                     </SwitchGroup>
                                 </div>
-                                <div class="sm:col-span-4 self-end mb-2">
-                                    <SwitchGroup as="div" class="flex items-center">
+                                <div class="sm:col-span-4 self-start mb-2">
+                                    <SwitchGroup as="div" class="flex items-center flex-wrap">
                                         <Switch @click="debouncedFunction" v-model="current_user.situation_cli.instDiv_cli" name="instDiv_cli"
                                             :class="[current_user.situation_cli?.instDiv_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                             <span aria-hidden="true"
@@ -449,6 +469,7 @@
                                         <SwitchLabel as="span" class="ml-3 text-sm">
                                             <span class="font-medium text-gray-900">En instance de divorce</span>
                                         </SwitchLabel>
+                                        <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                     </SwitchGroup>
                                 </div>
                             </div>
@@ -471,7 +492,7 @@
                                     <div class="mt-2 relative">
                                         <input type="text" v-model="current_user.nbEnf_cli" name="nbEnf_cli" id="nbEnf_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                         <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
-                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                        <div class="pointer-events-none absolute top-[8px] right-0 flex items-center pr-3">
                                             <span class="text-gray-500 text-xs">enfant(s)</span>
                                         </div>
                                     </div>
@@ -485,7 +506,7 @@
                                             class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                         <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         <div
-                                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                            class="pointer-events-none absolute top-[8px] right-0 flex items-center pr-3">
                                             <span class="text-gray-500 text-xs" id="price-currency">ans</span>
                                         </div>
                                     </div>
@@ -499,7 +520,7 @@
                                             class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                         <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         <div
-                                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                            class="pointer-events-none absolute top-[8px] right-0 flex items-center pr-3">
                                             <span class="text-gray-500 text-xs" id="price-currency">ans</span>
                                         </div>
                                     </div>
@@ -513,7 +534,7 @@
                                             class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                             <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         <div
-                                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                            class="pointer-events-none absolute top-[8px] right-0 flex items-center pr-3">
                                             <span class="text-gray-500 text-xs" id="price-currency">enfant(s)</span>
                                         </div>
                                     </div>
@@ -527,7 +548,7 @@
                                             class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                         <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         <div
-                                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                            class="pointer-events-none absolute top-[8px] right-0 flex items-center pr-3">
                                             <span class="text-gray-500 text-xs" id="price-currency">enfant(s)</span>
                                         </div>
                                     </div>
@@ -578,6 +599,7 @@
                                             <div class="mt-2">
                                                 <select v-model="current_user.tranche_cli" name="tranche_cli" id="tranche_cli"
                                                     class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                                    <option value="">Indeterminé</option>
                                                     <option value="0">Modestes (- de 900€)</option>
                                                     <option value="1">Corrects (de 900€ à 1300€)</option>
                                                     <option value="2">Confortables (de 1300€ à 2000€)</option>
@@ -599,17 +621,15 @@
                                             <label for="hor_cli"
                                                 class="block text-sm font-medium leading-6 text-gray-900">Horaires</label>
                                             <div class="mt-2">
-                                                <textarea id="hor_cli" v-model="current_user.hor_cli" name="hor_cli"
-                                                    rows="3"
-                                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                                <textarea id="hor_cli" v-model="current_user.hor_cli" name="hor_cli" rows="3" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                                 <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </div>
                                         </div>
                                     </div>
                                 </fieldset>
                                 <fieldset class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                                    <div class="sm:col-span-2 self-end mb-2">
-                                        <SwitchGroup as="div" class="flex items-center">
+                                    <div class="sm:col-span-2 self-start mb-2">
+                                        <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.veh_cli" name="veh_cli"
                                                 :class="[current_user.veh_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
@@ -618,11 +638,12 @@
                                             <SwitchLabel as="span" class="ml-3 text-sm">
                                                 <span class="font-medium text-gray-900">Véhicule</span>
                                             </SwitchLabel>
+                                            <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         </SwitchGroup>
                                     </div>
 
-                                    <div class="sm:col-span-2 self-end mb-2">
-                                        <SwitchGroup as="div" class="flex items-center">
+                                    <div class="sm:col-span-2 self-start mb-2">
+                                        <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.permis_cli" name="permis_cli"
                                                 :class="[current_user.permis_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
@@ -631,6 +652,7 @@
                                             <SwitchLabel as="span" class="ml-3 text-sm">
                                                 <span class="font-medium text-gray-900">Permis de conduire</span>
                                             </SwitchLabel>
+                                            <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         </SwitchGroup>
                                     </div>
                                 </fieldset>
@@ -692,7 +714,7 @@
                                                     id="taille_cli"
                                                     class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                                 <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
-                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                <div class="pointer-events-none absolute top-[8px] right-0 flex items-center pr-3">
                                                     <span class="text-gray-500 text-xs" id="price-currency">cm</span>
                                                 </div>
                                             </div>
@@ -705,7 +727,7 @@
                                                     id="poid_cli"
                                                     class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                                 <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
-                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                <div class="pointer-events-none absolute top-[8px] right-0 flex items-center pr-3">
                                                     <span class="text-gray-500 text-xs" id="price-currency">kg</span>
                                                 </div>
                                             </div>
@@ -774,7 +796,7 @@
                                             </div>
                                         </div>
                                         <div class="sm:col-span-3">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.lun_cli" name="lun_cli"
                                                     :class="[current_user.lun_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -783,10 +805,11 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Porte des lunettes</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
                                         <div class="sm:col-span-3">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.fum_cli" name="fum_cli"
                                                     :class="[current_user.fum_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -795,6 +818,7 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Fumeur / Fumeuse</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
                                         <div class="col-span-full">
@@ -871,7 +895,7 @@
                                             </div>
                                         </div>
                                         <div class="sm:col-span-3">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.vip_cli" name="vip_cli"
                                                     :class="[current_user.vip_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -880,10 +904,11 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Client VIP</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
                                         <div class="sm:col-span-3">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.ln_cli" name="ln_cli"
                                                     :class="[current_user.ln_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -892,10 +917,11 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Liste noir</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
                                         <div class="sm:col-span-3">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.cont_cli" name="cont_cli"
                                                     :class="[current_user.cont_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -904,10 +930,11 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Contact</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
                                         <div class="sm:col-span-3">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.prosp_cli" name="prosp_cli"
                                                     :class="[current_user.prosp_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -916,6 +943,7 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Prospect</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
                                         <div class="sm:col-span-full">
@@ -930,13 +958,13 @@
                                             <div class="mt-2 relative">
                                                 <input type="text" v-model="current_user.duree_cli" name="duree_cli" id="duree_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                                 <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
-                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                <div class="pointer-events-none absolute top-[8px] right-0 flex items-center pr-3">
                                                     <span class="text-gray-500 text-xs" id="price-currency">mois</span>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="sm:col-span-3">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.libre_cli" name="libre_cli"
                                                     :class="[current_user.libre_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -945,10 +973,11 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Libre</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
                                         <div class="sm:col-span-3">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.probPaie_cli" name="probPaie_cli"
                                                     :class="[current_user.probPaie_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -957,6 +986,7 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Problème de paiement</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
                                     </div>
@@ -1020,8 +1050,8 @@
                                 <fieldset>
                                     <legend class="text-sm font-semibold leading-6 text-gray-900">Situation</legend>
                                     <div class="mt-6 grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                                        <div class="sm:col-span-2 self-end mb-2">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                        <div class="sm:col-span-2 self-start mb-2">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.desCelib_cli" name="desCelib_cli"
                                                     :class="[current_user.desCelib_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -1030,10 +1060,11 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Célibataire</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
-                                        <div class="sm:col-span-2 self-end mb-2">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                        <div class="sm:col-span-2 self-start mb-2">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.desVeuf_cli" name="desVeuf_cli"
                                                     :class="[current_user.desVeuf_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -1042,10 +1073,11 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Veuf</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
-                                        <div class="sm:col-span-2 self-end mb-2">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                        <div class="sm:col-span-2 self-start mb-2">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.desDiv_cli" name="desDiv_cli"
                                                     :class="[current_user.desDiv_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -1055,9 +1087,10 @@
                                                     <span class="font-medium text-gray-900">Divorcé</span>
                                                 </SwitchLabel>
                                             </SwitchGroup>
+                                            <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         </div>
                                         <div class="sm:col-span-2 self-end mb-2">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.desSep_cli" name="desSep_cli"
                                                     :class="[current_user.desSep_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -1066,6 +1099,7 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Séparé</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
                                     </div>
@@ -1117,8 +1151,8 @@
                                                 <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </div>
                                         </div>
-                                        <div class="sm:col-span-full self-end mb-2">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                        <div class="sm:col-span-full self-start mb-2">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.desReg_cli" name="desReg_cli"
                                                     :class="[current_user.desReg_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -1127,6 +1161,7 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Exclusivement dans la région</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
                                         <div class="sm:col-span-3">
@@ -1339,8 +1374,8 @@
                                             </div>
                                         </div>
             
-                                        <div class="sm:col-span-2 self-end mb-2">
-                                            <SwitchGroup as="div" class="flex items-center">
+                                        <div class="sm:col-span-2 self-start mb-2">
+                                            <SwitchGroup as="div" class="flex items-center flex-wrap">
                                                 <Switch @click="debouncedFunction" v-model="current_user.proc_cli" name="proc_cli"
                                                     :class="[current_user.proc_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                     <span aria-hidden="true"
@@ -1349,6 +1384,7 @@
                                                 <SwitchLabel as="span" class="ml-3 text-sm">
                                                     <span class="font-medium text-gray-900">Procuration</span>
                                                 </SwitchLabel>
+                                                <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                             </SwitchGroup>
                                         </div>
                                     </div>
@@ -1366,12 +1402,21 @@
 <style scoped>
 
     input.updated,
-    select.updated {
+    select.updated,
+    textarea.updated,
+    button.updated {
         box-shadow: 0 0px 7px #05a01fc9;
     }
 
-    input.updated ~ span {
+    input.updated ~ span,
+    textarea.updated ~ span,
+    select.updated ~ span {
         display: flex;
+    }
+
+    button.updated ~ span.status {
+        display: flex;
+        flex: 1 0 100%;
     }
 
 </style>

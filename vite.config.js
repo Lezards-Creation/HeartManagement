@@ -3,6 +3,7 @@ import Components from 'unplugin-vue-components/vite'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+const fs = require('fs')
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,7 +13,11 @@ export default defineConfig({
                   '@': fileURLToPath(new URL('./src', import.meta.url)),
             },
       },
-      devServer: {
+      server: {
             port: 9000, // your desired port number
+            https: {
+                  key: fs.readFileSync('./cert/localhost+2-key.pem'),
+                  cert: fs.readFileSync('./cert/localhost+2.pem'),
+            },
       },
 })

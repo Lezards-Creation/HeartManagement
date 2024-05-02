@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref, computed } from 'vue';
+import { ref } from 'vue';
 import { PhotoIcon, CheckIcon } from '@heroicons/vue/24/solid'
 import { useAgencesStore } from '../stores/agences';
 import { useClientsStore } from '../stores/clients';
@@ -7,6 +7,7 @@ import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
 import DropZone from '../components/DropZone.vue'
 import FilePreview from '../components/FilePreview.vue'
 import useFileList from '../compositions/file-list'
+import Toast from '../components/Toast.vue';
 
 // #region VARIABLES
 
@@ -64,6 +65,10 @@ const dataCreation = ref({
     msRech_cli: '_0',
     msRechPrec_cli: '',
 });
+
+const stateToast = ref(false);
+const newlyClient = ref(0);
+
 // #endregion
 
 // #region METHODS
@@ -92,7 +97,12 @@ const previousStep = () => {
 
 const handleCreationFiche = () => {
     clientsStore.createClient(dataCreation.value, files.value)
-    .then(res => console.log(res))
+    .then(res => {
+        stateToast.value = true;
+        if(res.arr){
+            newlyClient.value = res.arr.id_cli
+        }
+    })
     .catch(err => console.error(err))
 }
 
@@ -105,7 +115,7 @@ const onInputChange = (e) => {
 </script>
 
 <template>
-    <div class="h-screen flex-1 p-10 overflow-y-auto">
+    <div class="h-screen flex-1 p-10 overflow-y-auto relative">
         <nav aria-label="Progress">
             <ol role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
                 <li v-for="(step, stepIdx) in steps" :key="step.name" class="relative md:flex md:flex-1">
@@ -670,6 +680,12 @@ const onInputChange = (e) => {
                 </div>
             </div>
         </form>
+        
+        <Toast :state="stateToast" title="Fiche client ajouté">
+            <router-link :to="{name: 'Client', params: {id: newlyClient}}" class="inline-block mt-2 rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 duration-300 ease-out">
+                Voir la fiche
+            </router-link>
+        </Toast>
     </div>
 </template>
 

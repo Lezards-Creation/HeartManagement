@@ -1,0 +1,106 @@
+{
+    "etude_cli" : {
+        "0": "Indéterminé",
+        "1": "Primaire",
+        "2": "Secondaire",
+        "3": "Bac à Bac +2",
+        "4": "Bac + 3 et plus"
+    },
+    "tranche_cli": {
+        "0": "Indéterminé",
+        "1": "Modestes",
+        "2": "Corrects",
+        "3": "Confortables",
+        "4": "Très confortables",
+        "5": "Elevés"
+    },
+    "loge_cli": {
+        "0": "Indéterminé",
+        "1": "Non",
+        "2": "Oui (sans précision)",
+        "3": "Location appartement",
+        "4": "Location maison",
+        "5": "Propriétaire appartement",
+        "6": "Propriétaire maison",
+        "7": "En famille", 
+        "8": "Autre"
+    },
+    "cheveux_cli": {
+        "0": "Indéterminé",
+        "1": "Bruns",
+        "2": "Blonds",
+        "3": "Roux",
+        "4": "Blancs",
+        "5": "Chauve",
+        "6": "Noirs",
+        "7": "Châtains clairs",
+        "8": "Châtains foncés",
+        "9": "Gris",
+        "10": "Poivre et sel",
+        "11": "Auburn",
+        "12": "Acajou",
+        "13": "Mèches blondes",
+        "14": "Mèches brunes",
+        "15": "Autre"
+    },
+    "yeux_cli": {
+        "0": "Indéterminé",
+        "1": "Bruns",
+        "2": "Verts",
+        "3": "Bleus",
+        "4": "Noirs",
+        "5": "Gris",
+        "6": "Noisettes",
+        "7": "Bleus/verts",
+        "8": "Bleux/gris",
+        "9": "Dominance bleue",
+        "10": "Dominance verte",
+        "11": "Dominance brune",
+        "12": "Autres"
+    },
+    "pol_cli": {
+        "0": "Indéterminé",
+        "1": "Sans",
+        "2": "Extrême Gauche",
+        "3": "Gauche",
+        "4": "Centre",
+        "5": "Droite",
+        "6": "Extrême droite"
+    },
+    "ms_cli": {
+        "_0": "Bon",
+        "_1": "Moyen",
+        "_2": "Modestes",
+        "_3": "Autre"
+    },
+    "desNbEn_cli": {
+        "0": "Indéterminé",
+        "1": "Sans",
+        "2": "Pas d'importance",
+        "3": "Avec",
+        "4": "1",
+        "5": "jusqu'à 2",
+        "6": "jusqu'à 3",
+        "7": "4 et plus"
+    },
+    "desInst_cli": {
+        "0": "Indéterminé",
+        "1": "Au moins primaire",
+        "2": "Au moins secondaire",
+        "3": "Au moins Bac à Bac +3",
+        "4": "Bac + 3 et plus",
+        "5": "Sans importance"
+    },
+    "desProf_cli": {
+        "0": "Indéterminé",
+        "1": "Sans importance",
+        "2": "En activité",
+        "3": "Retraité"
+    },
+    "msRech_cli": {
+        "_0": "Bon",
+        "_1": "Moyen",
+        "_2": "Modestes",
+        "_3": "Autre"
+    }
+}

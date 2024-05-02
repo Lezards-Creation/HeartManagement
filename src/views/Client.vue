@@ -1,9 +1,8 @@
 <script setup>
-	import { computed, ref } from 'vue'
+	import { computed, ref, watch } from 'vue'
     import { useRoute, useRouter } from 'vue-router'
 	import { ArrowPathRoundedSquareIcon, XMarkIcon, PlusIcon, ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/solid'
-	import { UserPlusIcon } from '@heroicons/vue/24/outline'
-	import { FolderOpenIcon, BoltIcon, UserIcon} from '@heroicons/vue/24/outline'
+	import { FolderOpenIcon, BoltIcon, UserIcon, UserPlusIcon, EnvelopeIcon} from '@heroicons/vue/24/outline'
 	import { useClientsStore } from '../stores/clients'
 	import { useChoixStore } from '../stores/choix'
 	import { useUserStore } from '../stores/user'
@@ -12,6 +11,7 @@
 	import ProfilPanel from '../components/ProfilPanel.vue';
 	import RencontrePanel from '../components/RencontresPanel.vue';
 	import DocumentsPanel from '../components/DocumentsPanel.vue';
+	import PortraitClient from '../components/PortraitClient.vue';
 	import moment from 'moment'
 	
 	const uri = import.meta.env.VITE_URL;
@@ -23,38 +23,20 @@
 	const propositionStore = usePropositionsStore();
 	
 	const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
-	const current_user = computed(() => {
-        if(clientsStore.clients.length > 0){
-            return clientsStore.clients.find((el) => el.id_cli == route.params.id)
-        }
-	})
-	
+
 	const open = ref(false)
 	const openSearch = ref(false);
+	const openTestPopup = ref(false);
 	const popupType = ref('choix');
-
+	const current_user = ref(null);
 	
-	const team = [
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)],
-		clientsStore.clients[Math.floor(Math.random() * clientsStore.clients.length)]
-	]
+	const imageSource = ref(null);
+
+	const isModalOpened = ref(false);
+    const generateBase64 = ref(false);
+	const mail_test = ref(null);
+
+	const team = []
 
 	const query = ref('');
 	const recent = ref([]);
@@ -64,6 +46,19 @@
 			return person.nom_cli.toLowerCase().includes(query.value.toLowerCase())
 		})
 	)
+
+	const determineStatus = computed(() => {
+		if(current_user.value.insc_cli){
+			let a = moment(current_user.value.insc_cli).add(current_user.value.duree_cli, 'M');
+			let b = moment();
+			if(b.isBefore(a)){
+				return 'Adhérent jusqu\'au ' + moment(a).format('ll')
+			} else {
+				return 'Ancien adhérent depuis ' + moment(a).format('ll') 
+			}
+			
+		}
+	})
 
 	function calculateAge(dateString) {
 		let today = new Date()
@@ -119,28 +114,51 @@
 		.catch(err => console.error(err))
 	}
 
+	function updateImageSource() {
+		imageSource.value = `${uri}/storage/img/cli/${current_user.value.id_cli}.webp?` + new Date().getTime();
+	}
 	
 	function handleImageError(event, idCli) {
 		event.target.src = fallbackImage;
 	}
 
 	const handlePopupChoix = (type) => {
-		console.log(type);
 		openSearch.value = true;
 		popupType.value = type;
 	}
+
+	const handleGetClient = () => {
+		clientsStore.getClient(route.params.id)
+		.then(res => {
+			current_user.value = res.client
+			imageSource.value = `${uri}/storage/img/cli/${current_user.value.id_cli}.webp?` + new Date().getTime()
+		})
+	}
+
+    const handleMail = (e) => {
+        let data = {
+            base64: e.file,
+            filename: `${current_user.value.sexe_cli === 'H' ? 'Mr ' + current_user.value.nom_cli : 'Mme ' + current_user.value.nom_cli}`
+        }
+
+        clientsStore.sendPortraitMail(e.email, data)
+        .then(res => {
+			console.log(res);
+			openTestPopup.value = false;
+        })
+        .catch(err => console.error(err))
+    }
+
+	watch(() => route.params.id, handleGetClient, {immediate: true})
 </script>
 
 <template>
-	<div :class="['h-screen flex-1 p-10 overflow-y-auto']"
-		v-if="current_user">
+	<div :class="['h-screen flex-1 p-10 overflow-y-auto']" v-if="current_user">
 		<div class="md:flex md:items-start md:justify-between md:space-x- mb-14 mt-2">
 			<div class="flex items-center space-x-5">
 				<div class="flex-shrink-0">
 					<div class="relative">
-						<img @error="event => handleImageError(event, current_user.id_cli)" class="h-16 w-16 rounded-full object-cover"
-							:src="`${uri}/storage/img/cli/${current_user.id_cli}.webp`" alt=""
-							loading="lazy" />
+						<img @error="event => handleImageError(event, current_user.id_cli)" class="h-16 w-16 rounded-full object-cover" :src="imageSource" loading="lazy" />
 						<span class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true" />
 					</div>
 				</div>
@@ -149,25 +167,35 @@
 					<p class="text-sm font-medium text-gray-500">
 						<a href="#" class="text-gray-900">{{ current_user.prof_cli }}</a>, de {{ current_user.ville_cli}}, {{ current_user.dateNaiss_cli ? calculateAge(current_user.dateNaiss_cli) + ' ans' : '' }}
 					</p>
-					<p class="text-xs font-medium text-gray-500 mt-1">Réf. {{ current_user.ref_cli }}</p>
+					<p class="text-xs font-medium text-gray-500 mt-1">Réf. {{ current_user.ref_cli }} - {{ determineStatus }}</p>
 				</div>
 			</div>
-			<div class="flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:mt-0 md:flex-row md:space-x-3">
-				<button @click="handlePopupChoix('proposition')" type="button"
-					class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-					Faire une proposition
-					<UserPlusIcon class="text-gray-600 w-5 h-5" />
-				</button>
-				<button @click="handlePopupChoix('choix')" type="button"
-					class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-					Choisir
-					<UserPlusIcon class="text-gray-600 w-5 h-5" />
-				</button>
-				<button @click="open = true" type="button"
-					class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-					Lancer un match
-					<ArrowPathRoundedSquareIcon class="text-gray-600 w-5 h-5" />
-				</button>
+			<div>
+				<div class="flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse md:mt-0 md:flex-row md:space-x-3">
+					<button @click="handlePopupChoix('proposition')" type="button"
+						class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+						Faire une proposition
+						<UserPlusIcon class="text-gray-600 w-5 h-5" />
+					</button>
+					<button @click="handlePopupChoix('choix')" type="button"
+						class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+						Choisir
+						<UserPlusIcon class="text-gray-600 w-5 h-5" />
+					</button>
+					
+				</div>
+				<div class="mt-3 flex justify-end gap-x-3">
+					<button @click="openTestPopup = true" type="button"
+						class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+						Envoyer un test
+						<EnvelopeIcon class="text-gray-600 w-5 h-5"/>
+					</button>
+					<button @click="open = true" type="button"
+						class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+						Lancer un match
+						<ArrowPathRoundedSquareIcon class="text-gray-600 w-5 h-5" />
+					</button>
+				</div>
 			</div>
 		</div>
 
@@ -202,17 +230,23 @@
 				</Tab>
 			</TabList>
 			<TabPanels>
-				<TabPanel>
-					<ProfilPanel :client="current_user.id_cli"/>
-				</TabPanel>
+				<!-- #region PROFIL -->
+					<TabPanel>
+						<ProfilPanel :client="current_user.id_cli" @updateImage="updateImageSource"/>
+					</TabPanel>
+				<!-- #endregion -->
 				
-				<TabPanel>
-					<RencontrePanel :client="current_user.id_cli" :name="current_user.sexe_cli === 'H' ? 'Mr ' + current_user.nom_cli : 'Mme ' + current_user.nom_cli" />
-				</TabPanel>
+				<!-- #region RENCONTRE -->
+					<TabPanel>
+						<RencontrePanel :client="current_user.id_cli" :name="current_user.sexe_cli === 'H' ? 'Mr ' + current_user.nom_cli : 'Mme ' + current_user.nom_cli" />
+					</TabPanel>
+				<!-- #endregion -->
 				
-				<TabPanel>
-					<DocumentsPanel :client="current_user.id_cli" />
-				</TabPanel>
+				<!-- #region DOCUMENTS -->
+					<TabPanel>
+						<DocumentsPanel :client="current_user.id_cli" />
+					</TabPanel>
+				<!-- #endregion -->
 			</TabPanels>
 		</TabGroup>	
 	</div>
@@ -391,6 +425,45 @@
 			</div>
 		</Dialog>
 	</TransitionRoot>
+	<!-- #endregion -->
+
+	<!-- #region POPUP Test -->
+	<TransitionRoot :show="openTestPopup" as="template" appear>
+		<Dialog as="div" class="relative z-50" @close="openTestPopup = false">
+			<TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+				<div class="fixed inset-0 bg-black backdrop-blur-sm bg-opacity-50 transition-opacity" />
+			</TransitionChild>
+
+			<div class="fixed inset-0 z-10 w-screen overflow-y-auto p-4 sm:p-6 md:p-20">
+				<TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 scale-95" enter-to="opacity-100 scale-100" leave="ease-in duration-200" leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
+					<DialogPanel class="mx-auto max-w-xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
+						<div class="px-12 py-8">
+							<div class="mx-auto max-w-2xl text-center">
+								<h2 class="text-4xl font-bold tracking-tight text-rose">Aperçu portrait</h2>
+								<p class="mt-6 text-sm leading-6">Envoyer la fiche portrait du client sélectioné à un email personalisé.</p>
+							</div>
+
+							<div class="relative mt-2 rounded-md shadow-sm">
+								<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+									<EnvelopeIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+								</div>
+								<input v-model="mail_test" type="email" name="email" id="email" class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" placeholder="you@example.com" />
+							</div>
+
+							<div class="mt-5 flex items-center justify-center gap-x-2">
+								<a @click="openTestPopup = false" class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Annuler</a>
+								<a @click="generateBase64 = {state: true, email: mail_test}" class="inline-flex gap-2 items-center justify-center rounded-md bg-rose px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-600">Envoyer <span aria-hidden="true">→</span></a>
+							</div>
+						</div>
+					</DialogPanel>
+				</TransitionChild>
+			</div>
+		</Dialog>
+	</TransitionRoot>
+	<!-- #endregion -->
+
+	<!-- #region PORTRAIT PATIENT -->
+	<PortraitClient v-if="current_user" :client="current_user.id_cli" :isOpen="isModalOpened" :generate="generateBase64" @base64generated="handleMail" @modal-close="isModalOpened = false"/>
 	<!-- #endregion -->
 </template>
 

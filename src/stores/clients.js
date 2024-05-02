@@ -77,6 +77,24 @@ export const useClientsStore = defineStore('clients-store', () => {
 		})
 	}
 
+	const getClient = (id) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `clients/${id}`,
+				method: 'GET', 
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
 	const createClient = (payload, files) => {
 		return new Promise((resolve, reject) => {
 			// Create a FormData instance
@@ -141,6 +159,47 @@ export const useClientsStore = defineStore('clients-store', () => {
 		})
 	}
 
+	const getClientImage = (id) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `image/${id}`,
+				method: 'GET', 
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
+	const sendPortraitMail = (email, attachment) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: 'send-portrait',
+				method: 'POST', 
+				data: {
+					email: email,
+					attachment: attachment.base64,
+					attachment_name: attachment.filename
+				},
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+			.then(res => {
+				resolve(res.data)
+			})
+			.catch(err => {
+				reject(err);
+			})
+		})
+	}
+
 	return {
 		//#region Variables
 			clients,
@@ -148,11 +207,14 @@ export const useClientsStore = defineStore('clients-store', () => {
 
 		//#region Functions
 			getClients,
+			getClient,
 			createClient,
-			updateClient
+			updateClient,
+			getClientImage,
+			sendPortraitMail
 		//#endregion
     }
-}, { persistedState: { persist: true } })
+}, { persistedState: { persist: false } })
 
 if (import.meta.hot) {
 	import.meta.hot.accept(acceptHMRUpdate(useClientsStore, import.meta.hot));

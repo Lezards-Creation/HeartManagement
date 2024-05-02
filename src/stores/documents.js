@@ -27,10 +27,39 @@ export const useDocumentsStore = defineStore('documents-store', () => {
             })
 		})
     }
+
+	const addDocuments = (files, id) => {
+		return new Promise((resolve, reject) => {
+			const formData = new FormData();
+			console.log(files);
+			if (files && files.length) {
+				for (let i = 0; i < files.length; i++) {
+					formData.append(`files_${i}`, files[i].file, files[i].file.name);
+				}
+			}
+
+			instance({
+				url: `document/${id}/add`,
+				method: 'POST',
+				data: formData,
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
 	return {
 		// Variables
 		// Functions
-        getDocuments
+        getDocuments,
+		addDocuments
 	}
 }, { persistedState: { persist: true } })
 

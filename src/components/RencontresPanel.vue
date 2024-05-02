@@ -4,9 +4,11 @@
     import { useRencontresStore } from '../stores/rencontres'
     import { usePropositionsStore } from '../stores/propositions'
     import { useUserStore } from '../stores/user'
+    import { useClientsStore } from '../stores/clients'
 	import { EnvelopeIcon, AtSymbolIcon, CheckIcon, XMarkIcon} from '@heroicons/vue/24/outline'
-    import { TransitionRoot, TransitionChild, Dialog,  DialogTitle, DialogDescription } from '@headlessui/vue'
+    import { TransitionRoot, TransitionChild, Dialog,  DialogTitle } from '@headlessui/vue'
     import SkeletonRow from './SkeletonRow.vue';
+    import PortraitClient from './PortraitClient.vue';
 
     import moment from "moment";
     import fr from 'moment/dist/locale/fr';
@@ -20,6 +22,7 @@
     const userStore = useUserStore();
     const rencontresStore = useRencontresStore();
     const propositionsStore = usePropositionsStore();
+    const clientsStore = useClientsStore();
 
     const isOpen = ref(false);
 
@@ -46,6 +49,10 @@
 		{ name: 'Propositions', slug: 'propositions', href: '#' },
 		{ name: 'Rencontres', slug: 'rencontres', href: '#' },
 	])
+
+    const isModalOpened = ref(false);
+    const generateBase64 = ref(false);
+    const stateToast = ref(false);
     //#endregion
 
     //#region METHODS
@@ -200,7 +207,7 @@
 			idCli_renc: client,
 			idCli1_renc: autre,
             statut_renc: 'Z',
-			date_choix: moment().format('YYYY-MM-DD'),
+			dateCre_renc: moment().format('YYYY-MM-DD'),
 		}
 		
 		rencontresStore.createRencontre(data)
@@ -239,6 +246,21 @@
         .catch(err => console.error(err))
     }
 
+    const handleMail = (e) => {
+        let data = {
+            base64: e.file,
+            filename: `${props.name}`
+        }
+
+        clientsStore.sendPortraitMail(e.email, data)
+        .then(res => {
+            stateToast.value = true;
+            setTimeout(() => {
+                stateToast.value = false;
+            }, 3000)
+        })
+        .catch(err => console.error(err))
+    }
 
     watch(() => props.client, fetchRencontresData, {immediate: true});
     //#endregion
@@ -271,6 +293,7 @@
             </div>
         </div>
 
+        <!-- #region CHOIX COMMUNS -->
         <div class="space-y-10 divide-y divide-gray-900/10 mt-10" v-if="active_tab === 'communs'">
             <ul v-if="communs.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
                 <li v-if="communsLoaded" v-for="commun in communs" :key="commun.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
@@ -305,9 +328,11 @@
                 <SkeletonRow />
             </ul>
         </div>
+        <!-- #endregion -->
 
+        <!-- #region CHOIX -->
         <div class="space-y-10 divide-y divide-gray-900/10 mt-10" v-if="active_tab === 'choix'">
-            <ul v-if="choices.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
+            <ul v-if="choices.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
                 <li v-if="choicesLoaded" v-for="choice in choices" :key="choice.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="choice.client" class="flex min-w-0 gap-x-4">
                         <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${choice.client.id_cli}.webp`" alt="" />
@@ -331,12 +356,14 @@
                     </div>
                     <div class="flex shrink-0 items-center gap-x-4">
                         <div v-if="choice.client" class="flex flex-none items-center gap-x-2">
-                            <a class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a @click="generateBase64 = {state: true, email: choice.client.mail_cli}" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <AtSymbolIcon class="w-5 h-5"/>
+                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                             </a>
 
-                            <a class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a @click="isModalOpened = true" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <EnvelopeIcon class="w-5 h-5"/>
+                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
                             </a>
                         </div>
                     </div>
@@ -348,9 +375,11 @@
                 <p class="text-gray-500 text-center py-4">Aucun choix réalisé(e) par {{ name }}...</p>
             </div>
         </div>
+        <!-- #endregion -->
 
+        <!-- #region DEMANDE -->
         <div class="space-y-10 divide-y divide-gray-900/10 mt-10" v-if="active_tab === 'demande'">
-            <ul v-if="demandes.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
+            <ul v-if="demandes.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
                 <li v-if="demandesLoaded" v-for="demande in demandes" :key="demande.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="demande.client" class="flex min-w-0 gap-x-4">
                         <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${demande.client.id_cli}.webp`" alt="" />
@@ -374,12 +403,14 @@
                     </div>
                     <div class="flex shrink-0 items-center gap-x-4">
                         <div v-if="demande.client" class="flex flex-none items-center gap-x-2">
-                            <a class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a @click="generateBase64 = {state: true, email: demande.client.mail_cli}"  class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <AtSymbolIcon class="w-5 h-5"/>
+                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                             </a>
 
-                            <a class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a @click="isModalOpened = true" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <EnvelopeIcon class="w-5 h-5"/>
+                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
                             </a>
 
                             <a v-if="demande.res_choix === null" @click="handeUpdateChoice(demande.id_choix, true)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-green-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
@@ -399,9 +430,11 @@
                 <p class="text-gray-500 text-center py-4">Aucun choix réalisés concernant {{ name }}...</p>
             </div>
         </div>
+        <!-- #endregion -->
 
+        <!-- #region PROPOSITION -->
         <div class="space-y-10 divide-y divide-gray-900/10 mt-10" v-if="active_tab === 'propositions'">
-            <ul v-if="propositions.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
+            <ul v-if="propositions.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
                 <li v-if="propositionsLoaded" v-for="proposition in propositions" :key="proposition.id_prop" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="proposition.client" class="flex min-w-0 gap-x-4">
                         <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${proposition.client.id_cli}.webp`" alt="" />
@@ -418,12 +451,14 @@
                     </div>
                     <div class="flex shrink-0 items-center gap-x-4">
                         <div v-if="proposition.client" class="flex flex-none items-center gap-x-2">
-                            <a class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a @click="generateBase64 = {state: true, email: proposition.client.mail_cli}" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <AtSymbolIcon class="w-5 h-5"/>
+                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                             </a>
 
-                            <a class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a @click="isModalOpened = true" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <EnvelopeIcon class="w-5 h-5"/>
+                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
                             </a>
 
                             <a @click="handeUpdateProposition(proposition.id_prop, true)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-green-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
@@ -443,7 +478,9 @@
                 <p class="text-gray-500 text-center py-4">Aucune proposition de l'agence.</p>
             </div>
         </div>
+        <!-- #endregion -->
 
+        <!-- #region RENCONTRES -->
         <div class="space-y-10 divide-y divide-gray-900/10 mt-10" v-if="active_tab === 'rencontres'">
             <ul v-if="rencontres.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
                 <li v-if="rencontresLoaded" v-for="rencontre in rencontres" :key="rencontre.id_renc" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
@@ -565,7 +602,12 @@
                 </Dialog>
             </TransitionRoot>
         </div>        
-    </div>
+        <!-- #endregion -->
 
-    
+        <!-- #region PORTRAIT PATIENT -->
+        <PortraitClient :client="client" :isOpen="isModalOpened" :generate="generateBase64" @base64generated="handleMail" @modal-close="isModalOpened = false"/>
+        <!-- #endregion -->
+
+        <Toast :state="stateToast" title="Portrait client envoyé avec succès"/>
+    </div>
 </template>
