@@ -8,12 +8,10 @@
     import { jsPDF } from "jspdf";
     
     import keyMap from '../assets/json/keyMap.json';
-    import Toast from '../components/Toast.vue';
 
     moment.updateLocale('fr', fr);
     
     // #region VARIABLES
-    const uri = import.meta.env.VITE_URL;
     const props = defineProps(['client', 'isOpen', 'generate']);
     const emit = defineEmits(["modal-close", "base64generated"]);
     const clientsStore = useClientsStore();
@@ -74,7 +72,6 @@
 
     const generateAttachment = async () => {
         if(props.generate.state){
-            console.log(props.generate)
             await getBlobImage().then(async () => {
                 let pdf = page.value
 
@@ -87,7 +84,6 @@
                 emit('base64generated', {file: pdfBase64.split(',')[1], email: props.generate.email});
             })
         }
-        
     }
 
     const getSituationCli = () => {

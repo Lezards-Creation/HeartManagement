@@ -14,10 +14,10 @@
 	const navigation = [
 		{ name: 'Dashboard', href: '/', icon: HomeIcon, current: route.path == '/' },
 		{ name: 'Clients', href: '/clients', icon: UsersIcon, current: route.path == '/clients' || route.path.includes('/clients') },
-		{ name: 'Rencontres', href: '/rencontres', icon: BoltIcon, current: route.path == '/rencontres' },
-		{ name: 'Matchings', href: '/matchings', icon: HeartIcon, current: route.path == '/matchings' },
-		{ name: 'Messages', href: '/messages', icon: ChatBubbleLeftRightIcon, current: route.path == '/messages' },
-		{ name: 'Factures', href: '/factures', icon: FolderIcon, current: route.path == '/factures' },
+		// { name: 'Rencontres', href: '/rencontres', icon: BoltIcon, current: route.path == '/rencontres' },
+		// { name: 'Matchings', href: '/matchings', icon: HeartIcon, current: route.path == '/matchings' },
+		// { name: 'Messages', href: '/messages', icon: ChatBubbleLeftRightIcon, current: route.path == '/messages' },
+		// { name: 'Factures', href: '/factures', icon: FolderIcon, current: route.path == '/factures' },
 	];	
 
 	const agences = ref([]);

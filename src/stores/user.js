@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { defineStore, acceptHMRUpdate } from 'pinia';
 
 const instance = axios.create({
-	baseURL: 'http://127.0.0.1:8000/api/',
+	baseURL: 'https://api.heartmanagement.fr/api/',
 })
 
 export const useUserStore = defineStore('user-store', () => {    

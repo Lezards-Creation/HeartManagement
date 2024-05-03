@@ -4,7 +4,7 @@ import { defineStore, acceptHMRUpdate } from 'pinia';
 import { useUserStore } from './user';
 
 const instance = axios.create({
-	baseURL: 'http://127.0.0.1:8000/api/',
+	baseURL: 'https://api.heartmanagement.fr/api/',
 })
 
 export const useDocumentsStore = defineStore('documents-store', () => {    
@@ -55,11 +55,33 @@ export const useDocumentsStore = defineStore('documents-store', () => {
 		})
 	}
 
+	const deleteDocument = (docname, id) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `document/${id}/delete`,
+				method: 'POST',
+				data: {
+					filename: docname
+				},
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
 	return {
 		// Variables
 		// Functions
         getDocuments,
-		addDocuments
+		addDocuments,
+		deleteDocument
 	}
 }, { persistedState: { persist: true } })
 

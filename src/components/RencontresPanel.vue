@@ -9,6 +9,7 @@
     import { TransitionRoot, TransitionChild, Dialog,  DialogTitle } from '@headlessui/vue'
     import SkeletonRow from './SkeletonRow.vue';
     import PortraitClient from './PortraitClient.vue';
+    import CourrierClient from './CourrierClient.vue';
 
     import moment from "moment";
     import fr from 'moment/dist/locale/fr';
@@ -53,6 +54,8 @@
     const isModalOpened = ref(false);
     const generateBase64 = ref(false);
     const stateToast = ref(false);
+
+    const popupCourrier = ref(false);
     //#endregion
 
     //#region METHODS
@@ -247,19 +250,22 @@
     }
 
     const handleMail = (e) => {
-        let data = {
-            base64: e.file,
-            filename: `${props.name}`
-        }
+        console.log(e);
+        if(window.confirm("Êtes-vous sûr de vouloir envoyer un mail au client ?")){
+            let data = {
+                base64: e.file,
+                filename: `${props.name}`
+            }
 
-        clientsStore.sendPortraitMail(e.email, data)
-        .then(res => {
-            stateToast.value = true;
-            setTimeout(() => {
-                stateToast.value = false;
-            }, 3000)
-        })
-        .catch(err => console.error(err))
+            clientsStore.sendPortraitMail(e.email, data)
+            .then(res => {
+                stateToast.value = true;
+                setTimeout(() => {
+                    stateToast.value = false;
+                }, 3000)
+            })
+            .catch(err => console.error(err))
+        }
     }
 
     watch(() => props.client, fetchRencontresData, {immediate: true});
@@ -356,12 +362,12 @@
                     </div>
                     <div class="flex shrink-0 items-center gap-x-4">
                         <div v-if="choice.client" class="flex flex-none items-center gap-x-2">
-                            <a @click="generateBase64 = {state: true, email: choice.client.mail_cli}" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <AtSymbolIcon class="w-5 h-5"/>
                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                             </a>
 
-                            <a @click="isModalOpened = true" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a @click="popupCourrier = true" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <EnvelopeIcon class="w-5 h-5"/>
                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
                             </a>
@@ -403,12 +409,12 @@
                     </div>
                     <div class="flex shrink-0 items-center gap-x-4">
                         <div v-if="demande.client" class="flex flex-none items-center gap-x-2">
-                            <a @click="generateBase64 = {state: true, email: demande.client.mail_cli}"  class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <AtSymbolIcon class="w-5 h-5"/>
                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                             </a>
 
-                            <a @click="isModalOpened = true" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a @click="popupCourrier = true" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <EnvelopeIcon class="w-5 h-5"/>
                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
                             </a>
@@ -451,12 +457,12 @@
                     </div>
                     <div class="flex shrink-0 items-center gap-x-4">
                         <div v-if="proposition.client" class="flex flex-none items-center gap-x-2">
-                            <a @click="generateBase64 = {state: true, email: proposition.client.mail_cli}" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <AtSymbolIcon class="w-5 h-5"/>
                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                             </a>
 
-                            <a @click="isModalOpened = true" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a @click="popupCourrier = true" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <EnvelopeIcon class="w-5 h-5"/>
                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
                             </a>
@@ -541,7 +547,7 @@
                                                             <AtSymbolIcon class="w-5 h-5"/>
                                                         </a>
                                                         <a class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                                            <EnvelopeIcon class="w-5 h-5"/>
+                                                            <EnvelopeIcon @click="popupCourrier = true" class="w-5 h-5"/>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -556,7 +562,7 @@
                                                             <AtSymbolIcon class="w-5 h-5"/>
                                                         </a>
                                                         <a class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                                            <EnvelopeIcon class="w-5 h-5"/>
+                                                            <EnvelopeIcon @click="popupCourrier = true" class="w-5 h-5"/>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -604,8 +610,12 @@
         </div>        
         <!-- #endregion -->
 
-        <!-- #region PORTRAIT PATIENT -->
+        <!-- #region PORTRAIT CLIENT -->
         <PortraitClient :client="client" :isOpen="isModalOpened" :generate="generateBase64" @base64generated="handleMail" @modal-close="isModalOpened = false"/>
+        <!-- #endregion -->
+
+        <!-- #region COURRIER CLIENT -->
+        <CourrierClient :client="client" :isOpen="popupCourrier" @modal-close="popupCourrier = false"/>
         <!-- #endregion -->
 
         <Toast :state="stateToast" title="Portrait client envoyé avec succès"/>

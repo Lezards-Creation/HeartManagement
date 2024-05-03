@@ -16,7 +16,7 @@
     const documents = ref([]); // Use ref to make documents reactive
     const documentsLoaded = ref(false);
     
-    function fetchDocuments() {
+    const fetchDocuments = () => {
         documentsLoaded.value = false
         documentsStore.getDocuments(props.client)
         .then(res => {
@@ -43,7 +43,15 @@
         e.target.value = null
     }
 
-    watch(() => route.params.id, fetchDocuments, {immediate: true})
+    const deleteDoc = (name) => {
+        documentsStore.deleteDocument(name, props.client)
+        .then(res => {
+            fetchDocuments();
+        })
+        .catch(err => console.error(err)) 
+    }
+
+    watch(() => props.client, fetchDocuments, {immediate: true})
 </script>
 
 <template>
@@ -66,8 +74,9 @@
                     </div>
                 </div>
                 <div class="flex flex-none items-center gap-x-4">
-                    <a :download="`${document.name}`" :href="`${uri}/storage/documents/${client}/${document.name}`"class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">Télécharger</a>
-                    <a target="_blank" :href="`${uri}/storage/documents/${client}/${document.name}`"class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">Visionner</a>
+                    <a :download="`${document.name}`" :href="`${uri}/storage/documents/${client}/${document.name}`" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">Télécharger</a>
+                    <a target="_blank" :href="`${uri}/storage/documents/${client}/${document.name}`" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">Visionner</a>
+                    <a @click="deleteDoc(document.name)" class="hidden rounded-md bg-rose px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-600 sm:block">Supprimer</a>
                 </div>
             </li>
         </ul>
