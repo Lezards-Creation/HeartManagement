@@ -164,8 +164,9 @@ function handleImageError(event) {
 </script>
 
 <template>
-	<div class="h-screen border-r border-r-gray-100">
-		<div class="flex gap-2 items-center px-4 pt-4">
+	<div class="h-screen border-r border-r-gray-100 flex-[0]">
+		<!-- #region FILTRES TYPE + AJOUT -->
+		<div class="flex gap-2 items-center px-4 pt-4 flex-wrap">
 			<span>Type</span>
 			<Listbox class="" as="div" v-model="selected" @update:model-value="fetchClients">
 				<div class="relative">
@@ -201,7 +202,9 @@ function handleImageError(event) {
 				Ajouter un client
 			</router-link>
 		</div>
+		<!-- #endregion -->
 		
+		<!-- #region RECHERCHE + FILTRES -->
 		<div class="search flex justify-between items-center p-4 w-full">
 			<div class="flex rounded-md shadow-sm w-full">
 				<div class="relative flex flex-grow items-stretch focus-within:z-10">
@@ -498,8 +501,10 @@ function handleImageError(event) {
 				</Popover>
 			</div>
 		</div>
+		<!-- #endregion -->
 
-		<nav class="h-screen overflow-y-auto w-96  bg-white/80 backdrop-blur-sm relative" aria-label="Directory">
+		<!-- #region LISTES CLIENTS -->
+		<nav class="h-screen overflow-y-auto 2xl:w-96 bg-white/80 backdrop-blur-sm relative" aria-label="Directory">
 			<div v-for="letter in Object.keys(filtered_clients)" :key="letter" class="relative">
 				<div
 					class="sticky top-0 z-10 border-y border-b-gray-200 border-t-gray-100 bg-gray-50 px-3 py-1.5 text-sm font-semibold leading-6 text-rose">
@@ -518,5 +523,6 @@ function handleImageError(event) {
 				</ul>
 			</div>
 		</nav>
+		<!-- #endregion -->
 	</div>
 </template>

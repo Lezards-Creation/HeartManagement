@@ -153,7 +153,8 @@
 </script>
 
 <template>
-	<div :class="['h-screen flex-1 p-10 overflow-y-auto']" v-if="current_user">
+	<!-- #region LAYOUT -->
+	<div class="h-screen flex-1 p-10 overflow-y-auto" v-if="current_user">
 		<div class="md:flex md:items-start md:justify-between md:space-x- mb-14 mt-2">
 			<div class="flex items-center space-x-5">
 				<div class="flex-shrink-0">
@@ -250,6 +251,7 @@
 			</TabPanels>
 		</TabGroup>	
 	</div>
+	<!-- #endregion -->
 
 	<!-- #region POPUP Choix / Proposition -->
 	<TransitionRoot :show="openSearch" as="template" @after-leave="query = ''" appear>

@@ -14,10 +14,13 @@ export default defineConfig({
             },
       },
       server: {
-            port: 9000, // your desired port number
+            host: 'test.heartmanagement.fr',
+            port: 443, // your desired port number
             https: {
-                  key: fs.readFileSync('./cert/localhost+2-key.pem'),
-                  cert: fs.readFileSync('./cert/localhost+2.pem'),
+                  key: fs.readFileSync('./cert/test.heartmanagement.fr-key.pem'),
+                  cert: fs.readFileSync('./cert/test.heartmanagement.fr.pem'),
             },
+            cors: true,
+            strictPort: true // If the port is in use, Vite will exit instead of trying another one
       },
 })

@@ -23,6 +23,7 @@
     const agences = ref(null);
     const active_tab = ref('Etat civil');
     const updatingPhoto = ref(false);
+
     const tabs = ref([
 		{ name: 'Etat civil', href: '#' },
 		{ name: 'Adresse', href: '#' },
@@ -141,19 +142,18 @@
                 <h3 class="text-base font-semibold leading-6 text-gray-900"></h3>
             </div>
             <div class="mt-4">
-                <div class="sm:hidden">
+                <div class="xl:hidden">
                     <label for="current-tab" class="sr-only">Select a tab</label>
-                    <select id="current-tab" name="current-tab"
-                        class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600">
-                        <option v-for="tab in tabs" :key="tab.name" :selected="tab.current"
-                            @click="active_tab = tab.name">{{ tab.name }}</option>
+                    <select @change="(e) => active_tab = e.target.value"  id="current-tab" name="current-tab" class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600">
+                        <option v-for="tab in tabs" :key="tab.name" :selected="tab.name" :value="tab.name">{{ tab.name }}</option>
                     </select>
                 </div>
-                <div class="hidden sm:block">
-                    <nav class="-mb-px flex space-x-8">
+                
+                <div class="hidden xl:block">
+                    <nav class="-mb-px flex">
                         <a @click="active_tab = tab.name" v-for="tab in tabs" :key="tab.name" :href="tab.href"
-                            :class="[active_tab == tab.name ? 'border-rose-500 text-rose-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700', 'whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium']"
-                            :aria-current="tab.current ? 'page' : undefined">{{ tab.name }}</a>
+                            :class="[active_tab == tab.name  ? 'border-rose-500 text-rose-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700', 'w-1/4 border-b-2 py-4 px-1 text-center text-sm font-medium']"
+                            :aria-current="active_tab == tab.name  ? 'page' : undefined">{{ tab.name }}</a>
                     </nav>
                 </div>
             </div>
@@ -1031,6 +1031,372 @@
                                             </div>
                                             <p class="mt-3 text-sm leading-6 text-gray-600">Décrivez rapidement votre client.</p>
                                         </div>
+
+                                        <div class="col-span-full">
+                                            <legend class="text-base font-semibold leading-6 text-gray-900 mb-4">Allure</legend>
+                                            <div class="gap-4 grid grid-cols-4">
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.allure_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="indetermine" class="font-medium text-gray-900">Indeterminé</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.allure_cli" id="classique" value="1" name="classique" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="classique" class="font-medium text-gray-900">Classique</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.allure_cli" id="attirant" value="2" name="attirant" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="attirant" class="font-medium text-gray-900">Attirant(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.allure_cli" id="decontracte" value="3" name="decontracte" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="decontracte" class="font-medium text-gray-900">Décontracté(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.allure_cli" id="moderne" value="4" name="moderne" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="moderne" class="font-medium text-gray-900">Moderne</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.allure_cli" id="elegant" value="5" name="elegant" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="elegant" class="font-medium text-gray-900">Élégant</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.allure_cli" id="elance" value="6" name="elance" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="elance" class="font-medium text-gray-900">Élancé(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.allure_cli" id="moyenne" value="7" name="moyenne" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="moyenne" class="font-medium text-gray-900">Moyenne</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.allure_cli" id="solide" value="8" name="solide" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="solide" class="font-medium text-gray-900">Solide</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-span-full">
+                                            <legend class="text-base font-semibold leading-6 text-gray-900 mb-4">Personnalités</legend>
+                                            <div class="gap-4 grid grid-cols-4">
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="indetermine" class="font-medium text-gray-900">Indeterminé</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="Romantique" value="1" name="Romantique" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="Romantique" class="font-medium text-gray-900">Romantique</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="sentimental" value="2" name="sentimental" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="sentimental" class="font-medium text-gray-900">Sentimental(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="sensible" value="3" name="sensible" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="sensible" class="font-medium text-gray-900">Sensible</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="optimiste" value="4" name="optimiste" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="optimiste" class="font-medium text-gray-900">Optimiste</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="humour" value="5" name="humour" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="humour" class="font-medium text-gray-900">Humour</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="cultive" value="6" name="cultive" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="cultive" class="font-medium text-gray-900">Cultivé(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="patient" value="7" name="patient" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="patient" class="font-medium text-gray-900">Patient(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="doux" value="8" name="doux" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="doux" class="font-medium text-gray-900">Doux(ce)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="ambitieux" value="9" name="ambitieux" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="ambitieux" class="font-medium text-gray-900">Ambitieux(se)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="communicatif" value="10" name="communicatif" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="communicatif" class="font-medium text-gray-900">Communicatif(ve)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="dynamique" value="11" name="dynamique" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="dynamique" class="font-medium text-gray-900">Dynamique</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="savoir-vivre" value="12" name="savoir-vivre" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="savoir-vivre" class="font-medium text-gray-900">Savoir-vire</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="reserve" value="13" name="reserve" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="reserve" class="font-medium text-gray-900">Réservé(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="intelligent" value="14" name="intelligent" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="intelligent" class="font-medium text-gray-900">Intelligent(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.personnalite_cli" id="tendre" value="15" name="tendre" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="tendre" class="font-medium text-gray-900">Tendre</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-span-full">
+                                            <legend class="text-base font-semibold leading-6 text-gray-900 mb-4">Goûts</legend>
+                                            <div class="gap-4 grid grid-cols-4">
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="indetermine" class="font-medium text-gray-900">Indeterminé</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="enfants" value="1" name="enfants" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="enfants" class="font-medium text-gray-900">Les enfants</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="cuisine" value="2" name="cuisine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="cuisine" class="font-medium text-gray-900">La cuisine</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="bricolage" value="3" name="bricolage" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="bricolage" class="font-medium text-gray-900">Le bricolage</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="animaux" value="4" name="animaux" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="animaux" class="font-medium text-gray-900">Les animaux</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="arts" value="5" name="arts" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="arts" class="font-medium text-gray-900">Les arts</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="cultive" value="6" name="lecture" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="lecture" class="font-medium text-gray-900">La lecture</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="musique" value="7" name="musique" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="musique" class="font-medium text-gray-900">La musique</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="sorties" value="8" name="sorties" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="sorties" class="font-medium text-gray-900">Les sorties</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="sport" value="9" name="sport" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="sport" class="font-medium text-gray-900">Le sport</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="vie_de_famille" value="10" name="vie_de_famille" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="vie_de_famille" class="font-medium text-gray-900">La vie de famille</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="sexe" value="11" name="sexe" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="sexe" class="font-medium text-gray-900">Le sexe</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="spiritualite" value="12" name="spiritualite" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="spiritualite" class="font-medium text-gray-900">Spiritualité</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.gouts_cli" id="nature" value="13" name="nature" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="nature" class="font-medium text-gray-900">La nature</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </fieldset>
                             </div>
@@ -1217,6 +1583,372 @@
                                             <div class="mt-2"> 
                                                 <input type="text" v-model="current_user.msRechPrec_cli" name="msRechPrec_cli" id="msRechPrec_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                                 <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-span-full">
+                                            <legend class="text-base font-semibold leading-6 text-gray-900 mb-4">Son allure</legend>
+                                            <div class="gap-4 grid grid-cols-4">
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desAllure_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="indetermine" class="font-medium text-gray-900">Indeterminé</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desAllure_cli" id="classique" value="1" name="classique" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="classique" class="font-medium text-gray-900">Classique</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desAllure_cli" id="attirant" value="2" name="attirant" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="attirant" class="font-medium text-gray-900">Attirant(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desAllure_cli" id="decontracte" value="3" name="decontracte" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="decontracte" class="font-medium text-gray-900">Décontracté(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desAllure_cli" id="moderne" value="4" name="moderne" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="moderne" class="font-medium text-gray-900">Moderne</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desAllure_cli" id="elegant" value="5" name="elegant" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="elegant" class="font-medium text-gray-900">Élégant</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desAllure_cli" id="elance" value="6" name="elance" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="elance" class="font-medium text-gray-900">Élancé(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desAllure_cli" id="moyenne" value="7" name="moyenne" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="moyenne" class="font-medium text-gray-900">Moyenne</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desAllure_cli" id="solide" value="8" name="solide" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="solide" class="font-medium text-gray-900">Solide</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-span-full">
+                                            <legend class="text-base font-semibold leading-6 text-gray-900 mb-4">Sa personnalité</legend>
+                                            <div class="gap-4 grid grid-cols-4">
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="indetermine" class="font-medium text-gray-900">Indeterminé</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="Romantique" value="1" name="Romantique" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="Romantique" class="font-medium text-gray-900">Romantique</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="sentimental" value="2" name="sentimental" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="sentimental" class="font-medium text-gray-900">Sentimental(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="sensible" value="3" name="sensible" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="sensible" class="font-medium text-gray-900">Sensible</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="optimiste" value="4" name="optimiste" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="optimiste" class="font-medium text-gray-900">Optimiste</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="humour" value="5" name="humour" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="humour" class="font-medium text-gray-900">Humour</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="cultive" value="6" name="cultive" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="cultive" class="font-medium text-gray-900">Cultivé(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="patient" value="7" name="patient" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="patient" class="font-medium text-gray-900">Patient(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="doux" value="8" name="doux" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="doux" class="font-medium text-gray-900">Doux(ce)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="ambitieux" value="9" name="ambitieux" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="ambitieux" class="font-medium text-gray-900">Ambitieux(se)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="communicatif" value="10" name="communicatif" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="communicatif" class="font-medium text-gray-900">Communicatif(ve)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="dynamique" value="11" name="dynamique" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="dynamique" class="font-medium text-gray-900">Dynamique</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="savoir-vivre" value="12" name="savoir-vivre" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="savoir-vivre" class="font-medium text-gray-900">Savoir-vire</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="reserve" value="13" name="reserve" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="reserve" class="font-medium text-gray-900">Réservé(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="intelligent" value="14" name="intelligent" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="intelligent" class="font-medium text-gray-900">Intelligent(e)</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desPersonnalite_cli" id="tendre" value="15" name="tendre" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="tendre" class="font-medium text-gray-900">Tendre</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-span-full">
+                                            <legend class="text-base font-semibold leading-6 text-gray-900 mb-4">Ses goûts</legend>
+                                            <div class="gap-4 grid grid-cols-4">
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="indetermine" class="font-medium text-gray-900">Indeterminé</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="enfants" value="1" name="enfants" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="enfants" class="font-medium text-gray-900">Les enfants</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="cuisine" value="2" name="cuisine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="cuisine" class="font-medium text-gray-900">La cuisine</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="bricolage" value="3" name="bricolage" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="bricolage" class="font-medium text-gray-900">Le bricolage</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="animaux" value="4" name="animaux" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="animaux" class="font-medium text-gray-900">Les animaux</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="arts" value="5" name="arts" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="arts" class="font-medium text-gray-900">Les arts</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="cultive" value="6" name="lecture" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="lecture" class="font-medium text-gray-900">La lecture</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="musique" value="7" name="musique" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="musique" class="font-medium text-gray-900">La musique</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="sorties" value="8" name="sorties" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="sorties" class="font-medium text-gray-900">Les sorties</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="sport" value="9" name="sport" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="sport" class="font-medium text-gray-900">Le sport</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="vie_de_famille" value="10" name="vie_de_famille" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="vie_de_famille" class="font-medium text-gray-900">La vie de famille</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="sexe" value="11" name="sexe" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="sexe" class="font-medium text-gray-900">Le sexe</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="spiritualite" value="12" name="spiritualite" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="spiritualite" class="font-medium text-gray-900">Spiritualité</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="relative flex items-start">
+                                                    <div class="flex h-6 items-center">
+                                                        <input v-model="current_user.desGouts_cli" id="nature" value="13" name="nature" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    </div>
+                                                    <div class="ml-3 text-sm leading-6">
+                                                        <label for="nature" class="font-medium text-gray-900">La nature</label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

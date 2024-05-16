@@ -1,7 +1,9 @@
-<script setup>
-	import Main from '../components/Main.vue';
-</script>
+<script setup></script>
 
 <template>
-	<Main/>
+	<Statistic />
+	<div class="flex w-full bg-gradient-to-b from-white/80 to-white/0 relative max-w-7xl mx-auto bg-white shadow rounded-lg">
+		<UsersList />
+		<Feed />
+	</div>
 </template>

@@ -279,18 +279,19 @@
                 <h3 class="text-base font-semibold leading-6 text-gray-900"></h3>
             </div>
             <div class="mt-4">
-                <div class="sm:hidden">
+                <div class="xl:hidden">
                     <label for="current-tab" class="sr-only">Select a tab</label>
-                    <select id="current-tab" name="current-tab"
+                    <select @change="(e) => active_tab = e.target.value" id="current-tab" name="current-tab"
                         class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600">
-                        <option v-for="tab in tabs" :key="tab.name" :selected="tab.current"
-                            @click="active_tab = tab.slug">{{ tab.name }}</option>
+                        <option v-for="tab in tabs" :key="tab.name" :selected="tab.current" :value="tab.slug">
+                            {{tab.name + ' '}} {{ tab.slug === 'choix' ? name : (tab.slug === 'demande' ? name : '') }}
+                        </option>
                     </select>
                 </div>
-                <div class="hidden sm:block">
+                <div class="hidden xl:block">
                     <nav class="-mb-px flex space-x-8">
                         <a @click="active_tab = tab.slug" v-for="tab in tabs" :key="tab.name" :href="tab.href"
-                            :class="[active_tab == tab.slug ? 'border-rose-500 text-rose-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700', 'whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium']"
+                            :class="[active_tab == tab.slug ? 'border-rose-500 text-rose-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700', 'w-1/4 border-b-2 pb-4 px-1 text-center text-sm font-medium']"
                             :aria-current="tab.current ? 'page' : undefined">
                             {{tab.name + ' '}} {{ tab.slug === 'choix' ? name : (tab.slug === 'demande' ? name : '') }}
                         </a>
@@ -301,7 +302,7 @@
 
         <!-- #region CHOIX COMMUNS -->
         <div class="space-y-10 divide-y divide-gray-900/10 mt-10" v-if="active_tab === 'communs'">
-            <ul v-if="communs.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
+            <ul v-if="communs.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl lg:xl:max-w-[80%]">
                 <li v-if="communsLoaded" v-for="commun in communs" :key="commun.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="commun.client" class="flex min-w-0 gap-x-4">
                         <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${commun.client.id_cli}.webp`" alt="" />
@@ -330,7 +331,7 @@
             <div v-else-if="communsLoaded">
                 <p class="text-gray-500 text-center py-4">Aucun choix communs de possible pour le moment...</p>
             </div>
-            <ul v-else role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
+            <ul v-else role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl xl:max-w-[80%]">
                 <SkeletonRow />
             </ul>
         </div>
@@ -338,7 +339,7 @@
 
         <!-- #region CHOIX -->
         <div class="space-y-10 divide-y divide-gray-900/10 mt-10" v-if="active_tab === 'choix'">
-            <ul v-if="choices.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
+            <ul v-if="choices.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl xl:max-w-[80%]">
                 <li v-if="choicesLoaded" v-for="choice in choices" :key="choice.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="choice.client" class="flex min-w-0 gap-x-4">
                         <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${choice.client.id_cli}.webp`" alt="" />
@@ -385,7 +386,7 @@
 
         <!-- #region DEMANDE -->
         <div class="space-y-10 divide-y divide-gray-900/10 mt-10" v-if="active_tab === 'demande'">
-            <ul v-if="demandes.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
+            <ul v-if="demandes.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl xl:max-w-[80%]">
                 <li v-if="demandesLoaded" v-for="demande in demandes" :key="demande.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="demande.client" class="flex min-w-0 gap-x-4">
                         <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${demande.client.id_cli}.webp`" alt="" />
@@ -440,7 +441,7 @@
 
         <!-- #region PROPOSITION -->
         <div class="space-y-10 divide-y divide-gray-900/10 mt-10" v-if="active_tab === 'propositions'">
-            <ul v-if="propositions.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
+            <ul v-if="propositions.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl xl:max-w-[80%]">
                 <li v-if="propositionsLoaded" v-for="proposition in propositions" :key="proposition.id_prop" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="proposition.client" class="flex min-w-0 gap-x-4">
                         <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${proposition.client.id_cli}.webp`" alt="" />
@@ -488,7 +489,7 @@
 
         <!-- #region RENCONTRES -->
         <div class="space-y-10 divide-y divide-gray-900/10 mt-10" v-if="active_tab === 'rencontres'">
-            <ul v-if="rencontres.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl max-w-[80%]">
+            <ul v-if="rencontres.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl xl:max-w-[80%]">
                 <li v-if="rencontresLoaded" v-for="rencontre in rencontres" :key="rencontre.id_renc" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                     <div v-if="rencontre.laureat" class="flex min-w-0 gap-x-4">
                         <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${rencontre.laureat.id_cli}.webp`" alt="" />
