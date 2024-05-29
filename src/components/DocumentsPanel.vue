@@ -55,7 +55,7 @@
 </script>
 
 <template>
-    <div class="bg-gray-50 p-4 shadow-sm ring-1 ring-gray-900/5 sm:rounded-b-xl overflow-hidden">
+    <div class="overflow-hidden">
         <ul v-if="documents.length > 0" role="list" class="divide-y divide-gray-200">
             <li v-for="document in documents"
                 class="flex items-center justify-between gap-x-6 py-5">

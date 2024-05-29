@@ -81,7 +81,7 @@
                 doc.addImage(dataUrl1, 'JPEG', 0, 0, 210, 297);
                 
                 var pdfBase64 = doc.output('datauristring');
-                emit('base64generated', {file: pdfBase64.split(',')[1], email: props.generate.email});
+                emit('base64generated', {file: pdfBase64.split(',')[1], email: props.generate.email, subject: 'Portrait de'});
             })
         }
     }

@@ -177,13 +177,14 @@ export const useClientsStore = defineStore('clients-store', () => {
 		})
 	}
 
-	const sendPortraitMail = (email, attachment) => {
+	const sendMail = (email, attachment) => {
 		return new Promise((resolve, reject) => {
 			instance({
 				url: 'send-portrait',
 				method: 'POST', 
 				data: {
 					email: email,
+					subject: attachment.subject,
 					attachment: attachment.base64,
 					attachment_name: attachment.filename
 				},
@@ -200,6 +201,24 @@ export const useClientsStore = defineStore('clients-store', () => {
 		})
 	}
 
+	const getMatch = (id) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `clients/${id}/match`,
+				method: 'GET', 
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
 	return {
 		//#region Variables
 			clients,
@@ -211,7 +230,8 @@ export const useClientsStore = defineStore('clients-store', () => {
 			createClient,
 			updateClient,
 			getClientImage,
-			sendPortraitMail
+			sendMail,
+			getMatch
 		//#endregion
     }
 }, { persistedState: { persist: false } })

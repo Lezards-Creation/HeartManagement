@@ -156,6 +156,7 @@ const toggleAccordeon = (e) => {
 		panel.style.maxHeight = panel.scrollHeight + "px";
 	}	
 }
+
 const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
 function handleImageError(event) {
 	event.target.src = fallbackImage;
@@ -167,20 +168,18 @@ function handleImageError(event) {
 	<div class="h-screen border-r border-r-gray-100 flex-[0]">
 		<!-- #region FILTRES TYPE + AJOUT -->
 		<div class="flex gap-2 items-center px-4 pt-4 flex-wrap">
-			<span>Type</span>
 			<Listbox class="" as="div" v-model="selected" @update:model-value="fetchClients">
 				<div class="relative">
-					<div class="inline-flex divide-x divide-rose-700 rounded-md shadow-sm">
-						<div class="inline-flex items-center gap-x-1.5 rounded-l-md bg-rose-600 px-3 py-2 text-white shadow-sm">
+					<div class="inline-flex">
+						<ListboxButton class="inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
 							<p class="text-sm font-semibold">{{ selected.title }}</p>
-						</div>
-			
-						<ListboxButton class="inline-flex items-center rounded-l-none rounded-r-md bg-rose-600 p-2 rose:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 focus:ring-offset-gray-50">
-							<ChevronDownIcon class="h-5 w-5 text-white" aria-hidden="true" />
+							<ChevronDownIcon class="ml-2 h-4 w-4" aria-hidden="true" />
 						</ListboxButton>
 					</div>
+
+
 					<transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-						<ListboxOptions class="absolute right-0 z-10 mt-2 w-72 origin-top-right divide-y divide-gray-200 overflow-hidden rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+						<ListboxOptions class="absolute left-0 z-10 mt-2 w-72 origin-top-right divide-y divide-gray-200 overflow-hidden rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
 						<ListboxOption as="template" v-for="option in filterOptions" :key="option.title" :value="option" v-slot="{ active, selected }">
 							<li :class="[active ? 'bg-rose-600 text-white' : 'text-gray-900', 'cursor-default select-none p-4 text-sm']">
 							<div class="flex flex-col">
@@ -197,8 +196,8 @@ function handleImageError(event) {
 					</transition>
 				</div>
 			</Listbox>
-			<router-link :to="{path: '/clients/fiche/creation'}" type="button" class="inline-flex items-center rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-				<PlusIcon class="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+			<router-link :to="{path: '/clients/fiche/creation'}" type="button" class="inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+				<PlusIcon class="-ml-0.5 mr-1.5 h-4 w-4" aria-hidden="true" />
 				Ajouter un client
 			</router-link>
 		</div>
@@ -504,7 +503,7 @@ function handleImageError(event) {
 		<!-- #endregion -->
 
 		<!-- #region LISTES CLIENTS -->
-		<nav class="h-screen overflow-y-auto 2xl:w-96 bg-white/80 backdrop-blur-sm relative" aria-label="Directory">
+		<nav class="h-screen overflow-y-auto 2xl:w-96 bg-white/80 backdrop-blur-sm relative pb-[100%]" aria-label="Directory">
 			<div v-for="letter in Object.keys(filtered_clients)" :key="letter" class="relative">
 				<div
 					class="sticky top-0 z-10 border-y border-b-gray-200 border-t-gray-100 bg-gray-50 px-3 py-1.5 text-sm font-semibold leading-6 text-rose">

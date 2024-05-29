@@ -4,12 +4,16 @@ import Connexion from '../views/Connexion.vue'
 import Clients from '../views/Clients.vue'
 import Client from '../views/Client.vue'
 import Creation from '../views/CreationFiche.vue'
+import Agences from '../views/Agences.vue'
 import Agence from '../views/Agence.vue'
 import Rencontre from '../views/Rencontre.vue'
 import Message from '../views/Message.vue'
 import Matching from '../views/Matching.vue'
+import Leads from '../views/Leads.vue'
+import Reglages from '../views/Reglages.vue'
 import Facture from '../views/Facture.vue'
 import PageNotFound from '../views/404.vue'
+
 
 import { useUserStore } from '../stores/user'
 const router = createRouter({
@@ -71,6 +75,30 @@ const router = createRouter({
 			path: '/messages',
 			name: 'Messages',
 			component: Message,
+			meta: {
+				requiresAuth: true
+			}
+		},
+		{
+			path: '/agences/',
+			name: 'Agences',
+			component: Agences,
+			meta: {
+				requiresAuth: true
+			}
+		},
+		{
+			path: '/leads/',
+			name: 'Leads',
+			component: Leads,
+			meta: {
+				requiresAuth: true
+			}
+		},
+		{
+			path: '/reglages/',
+			name: 'Reglages',
+			component: Reglages,
 			meta: {
 				requiresAuth: true
 			}
