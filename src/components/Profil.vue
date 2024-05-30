@@ -83,7 +83,7 @@
             
             clearTimeout(timerId);
             timerId = setTimeout(() => {
-            func.apply(context, args);
+                func.apply(context, args);
             }, delay);
         };
     }

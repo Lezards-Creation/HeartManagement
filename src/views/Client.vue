@@ -1,13 +1,13 @@
 <script setup>
 	import { computed, ref, watch } from 'vue'
     import { useRoute, useRouter } from 'vue-router'
-	import { ArrowPathRoundedSquareIcon, XMarkIcon, EllipsisVerticalIcon } from '@heroicons/vue/24/solid'
-	import { UserPlusIcon, EnvelopeIcon} from '@heroicons/vue/24/outline'
+	import { ArrowPathRoundedSquareIcon, XMarkIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from '@heroicons/vue/24/solid'
+	import { UserPlusIcon, EnvelopeIcon, CpuChipIcon} from '@heroicons/vue/24/outline'
 	import { useClientsStore } from '../stores/clients'
 	import { useChoixStore } from '../stores/choix'
 	import { useUserStore } from '../stores/user'
 	import { usePropositionsStore } from '../stores/propositions'
-	import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption, Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, Menu, MenuButton, MenuItem, MenuItems, } from '@headlessui/vue'
+	import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 	import ProfilPanel from '../components/Profil.vue';
 	import PortraitClient from '../components/PortraitClient.vue';
 	import moment from 'moment'
@@ -26,7 +26,6 @@
 	const open = ref(false)
 	const openSearch = ref(false);
 	const openTestPopup = ref(false);
-	const popupType = ref('choix');
 	const current_user = ref(null);
 	
 	const imageSource = ref(null);
@@ -37,17 +36,29 @@
 
 	const scoring = ref(null); 
 
+	const currentTabs = ref('Matching');
+	const tabs = [
+		{ name: 'Matching'},
+		{ name: 'Recherche'},
+	]
+
+	const search_term = ref(null);
+	const clientListed = ref(null);
+
+	const searchLoading = ref(false);
+	const matchLoading = ref(false);
+
 	const determineStatus = computed(() => {
-		if(current_user.value.insc_cli){
+		if (current_user.value && current_user.value.insc_cli) {
 			let a = moment(current_user.value.insc_cli).add(current_user.value.duree_cli, 'M');
 			let b = moment();
-			if(b.isBefore(a)){
-				return 'Adhérent jusqu\'au ' + moment(a).format('ll')
+			if (b.isBefore(a)) {
+				return 'Adhérent jusqu\'au ' + moment(a).format('ll');
 			} else {
-				return 'Ancien adhérent depuis ' + moment(a).format('ll') 
+				return 'Ancien adhérent depuis ' + moment(a).format('ll');
 			}
-			
 		}
+		return '';
 	})
 	//#endregion
 
@@ -110,7 +121,7 @@
 		imageSource.value = `${uri}/storage/img/cli/${current_user.value.id_cli}.webp?` + new Date().getTime();
 	}
 	
-	function handleImageError(event, idCli) {
+	function handleImageError(event) {
 		event.target.src = fallbackImage;
 	}
 
@@ -137,16 +148,57 @@
     }
 
 	const seekMatch = () => {
+		matchLoading.value = true;
 		clientsStore.getMatch(current_user.value.id_cli)
 		.then((res) => {
+			matchLoading.value = false;
 			scoring.value = res.scoring
 		})
 		.catch(err => {
+			matchLoading.value = false;
 			console.error(err)
 		})
 	}
 
-	watch(() => route.params.id, handleGetClient, {immediate: true})
+	const handleSearchClient = () => {
+		searchLoading.value = true;
+		if(search_term.value.length > 3){
+			let sexe = current_user.value.sexe_cli === 'H' ? 'F' : 'H';
+			clientsStore.searchClient(search_term.value, sexe)
+			.then(res => {
+				if(res.clients){
+					clientListed.value = res.clients;
+				} else {
+					clientListed.value = [];
+				}
+				
+				searchLoading.value = false;
+			})
+			.catch(err => console.error(err))
+		} else {
+			clientListed.value = [];
+			searchLoading.value = false;
+		}
+	}
+
+	function debounce(func, delay) {
+        let timerId;
+        
+        return function() {
+            const context = this;
+            const args = arguments;
+            
+            clearTimeout(timerId);
+            timerId = setTimeout(() => {
+                func.apply(context, args);
+            }, delay);
+        };
+    }
+	const debouncedFunction = debounce(handleSearchClient, 1000);
+
+	watch(() => route.params.id, () => {
+		handleGetClient()
+	}, {immediate: true})
 	//#endregion
 </script>
 
@@ -202,67 +254,165 @@
 				<div class="absolute inset-0 overflow-hidden">
 				<div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
 					<TransitionChild as="template" enter="transform transition ease-in-out duration-500 sm:duration-700" enter-from="translate-x-full" enter-to="translate-x-0" leave="transform transition ease-in-out duration-500 sm:duration-700" leave-from="translate-x-0" leave-to="translate-x-full">
-					<DialogPanel class="pointer-events-auto w-screen max-w-md">
-						<div class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
-							<div class="bg-gray-50 px-4 py-6 sm:px-6 border-b border-gray-900/5">
-								<div class="flex items-center justify-between">
-									<DialogTitle class="text-base font-semibold leading-6">Outils de Matching</DialogTitle>
-									<div class="ml-3 flex h-7 items-center">
-										<button type="button" class="relative rounded-md hover:text-rose focus:outline-none focus:ring-2 focus:ring-white" @click="open = false">
-											<span class="absolute -inset-2.5" />
-											<span class="sr-only">Close panel</span>
-											<XMarkIcon class="h-6 w-6" aria-hidden="true" />
-										</button>
+						<DialogPanel class="pointer-events-auto w-screen max-w-md">
+							<div class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+								<div class="bg-gray-50 px-4 py-6 sm:px-6 border-b border-gray-900/5">
+									<div class="flex items-center justify-between">
+										<DialogTitle class="text-base font-semibold leading-6">Outils de Matching</DialogTitle>
+										<div class="ml-3 flex h-7 items-center">
+											<button type="button" class="relative rounded-md hover:text-rose focus:outline-none focus:ring-2 focus:ring-white" @click="open = false">
+												<span class="absolute -inset-2.5" />
+												<span class="sr-only">Close panel</span>
+												<XMarkIcon class="h-6 w-6" aria-hidden="true" />
+											</button>
+										</div>
+									</div>
+									<div class="mt-1">
+										<p class="text-sm text-gray-400 font-light">Liste d'options qui permet de réaliser des actions sur les potentiels prétendants du client.</p>
 									</div>
 								</div>
-								<div class="mt-1">
-									<p class="text-sm text-gray-400 font-light">Liste d'options qui permet de réaliser des actions sur les potentiels prétendants du client.</p>
+								<div class="border-b border-gray-200 mt-6">
+									<div class="px-6">
+										<nav class="-mb-px flex space-x-6">
+											<a v-if="tabs && currentTabs" @click="currentTabs = tab.name" v-for="tab in tabs" :key="tab.name" :class="[currentTabs === tab.name ? 'border-rose-500 text-rose-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700', 'whitespace-nowrap border-b-2 px-1 pb-4 text-sm font-medium']">
+												{{ tab.name }}
+											</a>
+										</nav>
+									</div>
 								</div>
-							</div>
-							<ul role="list" class="flex-1 divide-y divide-gray-200 overflow-y-auto mt-6">
-								<li v-for="score in scoring" :key="score.client.id_cli">
-									<div class="group relative flex items-center px-5 py-6">
-										<a href="#" class="-m-1 block flex-1 p-1">
-											<div class="absolute inset-0 group-hover:bg-gray-50" aria-hidden="true" />
-											<div class="relative flex min-w-0 flex-1 items-center">
-												<span class="relative inline-block flex-shrink-0">
-													<img class="h-10 w-10 rounded-full object-cover" @error="handleImageError" :src="`${uri}/storage/img/cli/${score.client.id_cli}.webp`" alt="" />
-												</span>
-												<div class="ml-4 truncate">
-													<p class="truncate text-sm font-medium text-gray-900">{{ score.client.pNoms_cli }} {{ score.client.nom_cli }}</p>
-													<p class="truncate text-sm text-gray-500">{{ score.client.ville_cli }}, {{ calculateAge(score.client.dateNaiss_cli) }} ans </p>
+								<div v-if="currentTabs === 'Matching'">
+									<ul v-if="scoring" role="list" class="flex-1 divide-y divide-gray-200 overflow-y-auto mt-6">
+										<li v-for="score in scoring" :key="score.client.id_cli">
+											<div class="group relative flex items-center px-5 py-6">
+												<a href="#" class="-m-1 block flex-1 p-1">
+													<div class="absolute inset-0 group-hover:bg-gray-50" aria-hidden="true" />
+													<div class="relative flex min-w-0 flex-1 items-center">
+														<span class="relative inline-block flex-shrink-0">
+															<img class="h-10 w-10 rounded-full object-cover" @error="handleImageError" :src="`${uri}/storage/img/cli/${score.client.id_cli}.webp`" alt="" />
+														</span>
+														<div class="ml-4 truncate">
+															<p class="truncate text-sm font-medium text-gray-900">{{ score.client.pNoms_cli }} {{ score.client.nom_cli }}</p>
+															<p class="truncate text-sm text-gray-500">{{ score.client.ville_cli }}, {{ calculateAge(score.client.dateNaiss_cli) }} ans </p>
+														</div>
+													</div>
+												</a>
+												<Menu as="div" class="relative ml-2 inline-block flex-shrink-0 text-left">
+													<MenuButton class="group relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2">
+														<span class="absolute -inset-1.5" />
+														<span class="sr-only">Open options menu</span>
+														<span class="flex h-full w-full items-center justify-center rounded-full">
+															<EllipsisVerticalIcon class="h-5 w-5 text-gray-900 group-hover:text-gray-500" aria-hidden="true" />
+														</span>
+													</MenuButton>
+													<transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+														<MenuItems class="absolute right-9 top-0 z-10 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+															<div class="py-1">
+																<MenuItem v-slot="{ active }">
+																	<a @click="handleAddChoice(score.client)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Ajouter choix</a>
+																</MenuItem>
+																<MenuItem v-slot="{ active }">
+																	<a @click="handleAddProposition(score.client)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Ajouter proposition</a>
+																</MenuItem>
+																<MenuItem v-slot="{ active }">
+																	<a @click="goToFicheClient(score.client)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Voir le profil</a>
+																</MenuItem>
+															</div>
+														</MenuItems>
+													</transition>
+												</Menu>
+											</div>
+										</li>
+										<li v-if="scoring?.length === 0">
+											<p class="text-center text-base text-gray-500 font-normal">Aucun matchs potentiels</p>
+										</li>
+									</ul>
+									<ul v-else-if="matchLoading" role="list" class="divide-y divide-gray-100 mt-6">
+										<li class="relative flex justify-between gap-x-6 px-4 py-5" v-for="n in 10">
+											<div class="flex min-w-0 gap-x-4 items-center animate-pulse">
+												<span class="bg-gray-300 h-12 w-12 rounded-full"></span>
+												
+												<div class="min-w-0 flex-auto">
+													<span class="bg-gray-300 w-32 h-4 block rounded-xl"></span>
+													<span class="bg-gray-300 w-12 h-3 block rounded-xl mt-2"></span>
 												</div>
 											</div>
-										</a>
-										<Menu as="div" class="relative ml-2 inline-block flex-shrink-0 text-left">
-											<MenuButton class="group relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2">
-												<span class="absolute -inset-1.5" />
-												<span class="sr-only">Open options menu</span>
-												<span class="flex h-full w-full items-center justify-center rounded-full">
-													<EllipsisVerticalIcon class="h-5 w-5 text-gray-900 group-hover:text-gray-500" aria-hidden="true" />
-												</span>
-											</MenuButton>
-											<transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-												<MenuItems class="absolute right-9 top-0 z-10 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-													<div class="py-1">
-														<MenuItem v-slot="{ active }">
-															<a @click="handleAddChoice(score.client)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Ajouter choix</a>
-														</MenuItem>
-														<MenuItem v-slot="{ active }">
-															<a @click="handleAddProposition(score.client)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Ajouter proposition</a>
-														</MenuItem>
-														<MenuItem v-slot="{ active }">
-															<a @click="goToFicheClient(score.client)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Voir le profil</a>
-														</MenuItem>
-													</div>
-												</MenuItems>
-											</transition>
-										</Menu>
+										</li>
+									</ul>
+								</div>
+
+								<div v-if="currentTabs === 'Recherche'">
+									<div class="p-5 mt-5">
+										<span class="text-sm font-normal text-gray-500">Chercher manuellement un client.</span>
+										<div class="relative flex flex-grow items-stretch focus-within:z-10 mt-2">
+											<input @input="debouncedFunction" type="text" name="search_term" v-model="search_term" id="search_term"
+												class="block w-full rounded-md border-0 py-2.5 pl-4 text-gray-900 ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6"
+												placeholder="Rechercher un client..." />
+												<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+													<MagnifyingGlassIcon class="h-5 w-5 text-gray-400" aria-hidden="true"/>
+												</div>
+										</div>
 									</div>
-								</li>
-							</ul>
-						</div>
-					</DialogPanel>
+								
+									<ul v-if="clientListed" role="list" class="flex-1 divide-y divide-gray-200 overflow-y-auto mt-6 pb-24">
+										<li v-for="client in clientListed" :key="client.id_cli">
+											<div class="group relative flex items-center px-5 py-6">
+												<a href="#" class="-m-1 block flex-1 p-1">
+													<div class="absolute inset-0 group-hover:bg-gray-50" aria-hidden="true" />
+													<div class="relative flex min-w-0 flex-1 items-center">
+														<span class="relative inline-block flex-shrink-0">
+															<img class="h-10 w-10 rounded-full object-cover" @error="handleImageError" :src="`${uri}/storage/img/cli/${client.id_cli}.webp`" alt="" />
+														</span>
+														<div class="ml-4 truncate">
+															<p class="truncate text-sm font-medium text-gray-900">{{ client.pNoms_cli }} {{ client.nom_cli }}</p>
+															<p class="truncate text-sm text-gray-500">{{ client.ville_cli }}, {{ calculateAge(client.dateNaiss_cli) }} ans </p>
+														</div>
+													</div>
+												</a>
+												<Menu as="div" class="relative ml-2 inline-block flex-shrink-0 text-left">
+													<MenuButton class="group relative inline-flex h-8 w-8 items-center justify-center rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2">
+														<span class="absolute -inset-1.5" />
+														<span class="sr-only">Open options menu</span>
+														<span class="flex h-full w-full items-center justify-center rounded-full">
+															<EllipsisVerticalIcon class="h-5 w-5 text-gray-900 group-hover:text-gray-500" aria-hidden="true" />
+														</span>
+													</MenuButton>
+													<transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+														<MenuItems class="absolute right-9 top-0 z-10 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+															<div class="py-1">
+																<MenuItem v-slot="{ active }">
+																	<a @click="handleAddChoice(client)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Ajouter choix</a>
+																</MenuItem>
+																<MenuItem v-slot="{ active }">
+																	<a @click="handleAddProposition(client)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Ajouter proposition</a>
+																</MenuItem>
+																<MenuItem v-slot="{ active }">
+																	<a @click="goToFicheClient(client)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Voir le profil</a>
+																</MenuItem>
+															</div>
+														</MenuItems>
+													</transition>
+												</Menu>
+											</div>
+										</li>
+										<li v-if="clientListed.length === 0">
+											<p class="text-center text-base text-gray-500 font-normal">Aucun client correspond à votre</p>
+										</li>
+									</ul>
+									<ul v-else-if="searchLoading" role="list" class="divide-y divide-gray-100 mt-6">
+										<li class="relative flex justify-between gap-x-6 px-4 py-5" v-for="n in 10">
+											<div class="flex min-w-0 gap-x-4 items-center animate-pulse">
+												<span class="bg-gray-300 h-12 w-12 rounded-full"></span>
+												
+												<div class="min-w-0 flex-auto">
+													<span class="bg-gray-300 w-32 h-4 block rounded-xl"></span>
+													<span class="bg-gray-300 w-12 h-3 block rounded-xl mt-2"></span>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</DialogPanel>
 					</TransitionChild>
 				</div>
 				</div>

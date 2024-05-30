@@ -6,8 +6,8 @@
     import { useUserStore } from '../stores/user'
     import { useClientsStore } from '../stores/clients'
     import { useRouter } from 'vue-router'
-	import { EnvelopeIcon, AtSymbolIcon, CheckIcon, XMarkIcon, UsersIcon, BoltIcon, HomeModernIcon, ArrowRightCircleIcon, ArrowLeftCircleIcon, EllipsisVerticalIcon} from '@heroicons/vue/24/outline'
-    import { TransitionRoot, TransitionChild, Dialog, DialogTitle, DialogPanel, Menu, MenuButton, MenuItem, MenuItems, } from '@headlessui/vue'
+	import { PrinterIcon, AtSymbolIcon, CheckIcon, XMarkIcon, UsersIcon, BoltIcon, HomeModernIcon, ArrowRightCircleIcon, ArrowLeftCircleIcon} from '@heroicons/vue/24/outline'
+    import { TransitionRoot, TransitionChild, Dialog, DialogTitle, DialogPanel } from '@headlessui/vue'
     import SkeletonRow from './SkeletonRow.vue';
     import CourrierClient from './CourrierClient.vue';
 
@@ -341,7 +341,7 @@
 
 <template>
     <div class="overflow-hidden">
-        <div class="mx-auto max-w-7xl lg:flex lg:gap-x-16">
+        <div class="lg:flex lg:gap-x-16">
             <aside class="flex overflow-x-auto border-b border-gray-900/5 lg:block lg:w-72 lg:flex-none lg:border-0">
                 <nav class="flex-none px-4 sm:px-6 lg:px-0">
                     <ul role="list" class="flex gap-x-3 gap-y-1 whitespace-nowrap lg:flex-col">
@@ -430,7 +430,7 @@
                                         </a>
 
                                         <a @click="handlePrint(client, 'choix', choice.client)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <EnvelopeIcon class="w-5 h-5"/>
+                                            <PrinterIcon class="w-5 h-5"/>
                                             <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
                                         </a>
                                     </div>
@@ -481,7 +481,7 @@
                                         </a>
 
                                         <a @click="handlePrint(demande.client, 'choix')" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <EnvelopeIcon class="w-5 h-5"/>
+                                            <PrinterIcon class="w-5 h-5"/>
                                             <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
                                         </a>
 
@@ -533,7 +533,7 @@
                                         </a>
 
                                         <a @click="handlePrint(proposition.client, 'prop')" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <EnvelopeIcon class="w-5 h-5"/>
+                                            <PrinterIcon class="w-5 h-5"/>
                                             <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
                                         </a>
 
@@ -621,7 +621,7 @@
                                                                         <AtSymbolIcon class="w-5 h-5"/>
                                                                     </a>
                                                                     <a @click="handlePrint(rencontre_ref.laureat, 'renc')" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                                                        <EnvelopeIcon class="w-5 h-5"/>
+                                                                        <PrinterIcon class="w-5 h-5"/>
                                                                     </a>
                                                                 </div>
                                                             </div>
@@ -636,7 +636,7 @@
                                                                         <AtSymbolIcon class="w-5 h-5"/>
                                                                     </a>
                                                                     <a @click="handlePrint(client, 'renc', rencontre_ref.laureat)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                                                        <EnvelopeIcon  class="w-5 h-5"/>
+                                                                        <PrinterIcon  class="w-5 h-5"/>
                                                                     </a>
                                                                 </div>
                                                             </div>

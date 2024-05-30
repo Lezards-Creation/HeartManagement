@@ -4,7 +4,7 @@
 </script>
 
 <template>
-    <div class="grid min-h-screen place-items-center bg-white px-6 py-12 sm:py-24 lg:px-8">
+    <div class="grid min-h-screen place-items-center bg-white px-6 lg:px-8">
         <div class="text-center">
             <p class="text-base font-semibold text-rose-600 text-center">
                 <WrenchScrewdriverIcon class="w-8 h-8 mx-auto"/>

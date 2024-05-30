@@ -80,9 +80,12 @@ const router = createRouter({
 			}
 		},
 		{
-			path: '/agences/',
-			name: 'Agences',
-			component: Agences,
+			path: '/agences',
+			children: [
+				{ path: "", name: "Agences", component: Agences, children: [
+					{ path: 'fiche/:id', name: 'Agence', component: Agence},
+				]},
+			],
 			meta: {
 				requiresAuth: true
 			}
@@ -99,14 +102,6 @@ const router = createRouter({
 			path: '/reglages/',
 			name: 'Reglages',
 			component: Reglages,
-			meta: {
-				requiresAuth: true
-			}
-		},
-		{
-			path: '/agence/:id',
-			name: 'Agence',
-			component: Agence,
 			meta: {
 				requiresAuth: true
 			}

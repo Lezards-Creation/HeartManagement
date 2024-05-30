@@ -4,8 +4,22 @@
 	import { ChevronRightIcon } from '@heroicons/vue/20/solid'
 	import { useClientsStore } from '../stores/clients';
 
-	const clients_store = useClientsStore();
-	const people = ref([]);
+	const uri = import.meta.env.VITE_URL;
+	const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
+	const clientsStore = useClientsStore();
+	const people = ref(null);
+
+	const fetchNewClients = () => {
+		clientsStore.getLastClients()
+		.then(res => people.value = res.clients)
+		.catch(err => console.error(err))
+	}
+	fetchNewClients()
+
+	function handleImageError(event) {
+        event.target.src = fallbackImage;
+	}
+
 	function calculateAge(dateString) {
 		let today = new Date();
 		let birthDate = new Date(dateString);
@@ -31,11 +45,12 @@
 			<li v-for="person in people" :key="person.email" class="relative flex justify-between gap-x-6 py-5">
 				<div class="flex min-w-0 gap-x-4">
 					<img class="h-12 w-12 flex-none rounded-full object-cover bg-gray-50"
-						:src="`https://heartmanagement.fr/soft/images/cli/${person.id_cli}.jpg`" alt=""
+						@error="handleImageError"
+						:src="`${uri}/storage/img/cli/${person.id_cli}.webp`" alt=""
 						loading="lazy" />
 					<div class="min-w-0 flex-auto">
 						<p class="text-sm font-semibold leading-6 text-gray-900">
-							<a :href="`profil/${person.id_cli}`">
+							<a :href="`clients/fiche/${person.id_cli}`">
 								<span class="absolute inset-x-0 -top-px bottom-0" />
 								{{ person.pNoms_cli }} {{ person.nom_cli }}
 							</a>

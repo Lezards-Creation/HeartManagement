@@ -219,6 +219,47 @@ export const useClientsStore = defineStore('clients-store', () => {
 		})
 	}
 
+	const getLastClients = () => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `newclients`,
+				method: 'GET', 
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
+
+	const searchClient = (query, sexe) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `clients/search/${query}`,
+				method: 'GET', 
+				params: {
+					sexe: sexe
+				},
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
+
 	return {
 		//#region Variables
 			clients,
@@ -231,7 +272,9 @@ export const useClientsStore = defineStore('clients-store', () => {
 			updateClient,
 			getClientImage,
 			sendMail,
-			getMatch
+			getMatch,
+			getLastClients,
+			searchClient
 		//#endregion
     }
 }, { persistedState: { persist: false } })

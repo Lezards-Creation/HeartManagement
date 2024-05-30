@@ -184,10 +184,10 @@
 						<div class="text-xs font-semibold leading-6 text-gray-400 mt-12 mb-2">Agences</div>
 						<ul role="list" class="flex flex-col space-y-1">
 							<li v-for="agence in agences" :key="agence.id">
-								<router-link :to="{name: 'Agence', params: {id: agence.id}}" :active-class="'!text-rose-600'" class="'text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-xs leading-6 font-medium">
+								<a href="#" :active-class="'!text-rose-600'" class="'text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-xs leading-6 font-medium">
 									<span class="text-gray-400 border-gray-200 group-hover:border-rose-600 group-hover:text-rose-600 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white group-[.router-link-exact-active]:text-rose-600 group-[.router-link-exact-active]:border-rose-600">{{ agence.initial }}</span>
 									<span>{{ agence.name }}</span>
-								</router-link>
+								</a>
 							</li>
 						</ul>
 					</li>
