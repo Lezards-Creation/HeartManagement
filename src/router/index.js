@@ -82,9 +82,12 @@ const router = createRouter({
 		{
 			path: '/agences',
 			children: [
-				{ path: "", name: "Agences", component: Agences, children: [
-					{ path: 'fiche/:id', name: 'Agence', component: Agence},
-				]},
+				{ 
+					path: "", name: "Agences", component: Agences, children: 
+					[
+						{ path: 'fiche/:id', name: 'Agence', component: Agence}
+					]
+				},
 			],
 			meta: {
 				requiresAuth: true

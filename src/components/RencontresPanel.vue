@@ -60,7 +60,6 @@
     const isInverse = ref(false);
     const generateBase64Courrier = ref(false);
 
-
     const clientViewed = ref(null);
     
     //#endregion
@@ -141,7 +140,7 @@
             demandesLoaded.value = true;
 
             let temp = findDuplicatePairs(res.communs, 'client.id_cli');
-            rencontresStore.getRencontres(props.client)
+            rencontresStore.getRencontre(props.client)
             .then(res => {
                 rencontres.value = res.rencontres; 
                 communs.value = findNonMatchingPairs(temp, rencontres.value);

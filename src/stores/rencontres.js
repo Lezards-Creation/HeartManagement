@@ -10,7 +10,28 @@ const instance = axios.create({
 export const useRencontresStore = defineStore('rencontres-store', () => {    
 	const userStore = useUserStore();
 	
-    const getRencontres = (id) => {
+	const getRencontres = (page) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `rencontres`,
+				method: 'GET',
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                },
+				params: {
+					page: page
+				}
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
+    const getRencontre = (id) => {
         return new Promise((resolve, reject) => {
 			instance({
 				url: `rencontre/${id}`,
@@ -70,7 +91,8 @@ export const useRencontresStore = defineStore('rencontres-store', () => {
 	return {
 		// Variables
 		// Functions
-        getRencontres,
+        getRencontre,
+		getRencontres,
 		updateRencontre,
 		createRencontre
 	}

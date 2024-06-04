@@ -1,7 +1,22 @@
 <script setup>
     import { ref, watch } from "vue"
     import { useRoute } from 'vue-router'
-    import { useAgencesStore } from '../stores/agences'
+    import { useAgencesStore } from '../stores/agences'    
+    import {
+        CalendarIcon,
+        XMarkIcon,
+        ChevronDownIcon,
+        PhoneIcon,
+        DevicePhoneMobileIcon,
+        PrinterIcon,
+        AtSymbolIcon,
+        BuildingOffice2Icon,
+        MapPinIcon,
+        PencilIcon,
+    } from '@heroicons/vue/24/outline'
+    import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
+
+
 
     const agencesStore = useAgencesStore()
     const route = useRoute()
@@ -37,57 +52,84 @@
 <template>
     <div class="h-screen border-r border-r-gray-100 flex-1 overflow-y-auto pb-24">
         <div class="px-8 py-10 w-full" v-if="agence">
-            <div class="px-4 sm:px-0">
-                <h3 class="text-base font-semibold leading-7 text-gray-900">Agence</h3>
-                <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">{{ agence.lib_agence }}</p>
-            </div>
-            <div class="mt-6 border-t border-gray-100">
-                <dl class="divide-y divide-gray-100">
-                    <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt class="text-sm font-medium leading-6 text-gray-900">Adresse</dt>
-                        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ agence.adr_agence }} {{ agence.ville_agence }}, {{ agence.cp_agence }} </dd>
-                    </div>
+            <div class="lg:flex lg:items-center lg:justify-between">
+                <div class="min-w-0 flex-1">
+                    <h2 class="mt-2 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{{ agence.lib_agence}}</h2>
+                
+                    <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-6 gap-y-3">
+                        <div class="flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-6 gap-y-3"> 
+                            <div v-if="agence.adr_agence" class="mt-2 flex items-center text-sm text-gray-500">
+                                <MapPinIcon class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                                {{ agence.adr_agence }}
+                            </div>
+                            <div v-if="agence.hor_agence" class="mt-2 flex items-center text-sm text-gray-500">
+                                <CalendarIcon class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                                {{ agence.hor_agence }}
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-6 gap-y-3">
+                            <div v-if="agence.mail_agence" class="mt-2 flex items-center text-sm text-gray-500">
+                                <AtSymbolIcon class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                                <a class="hover:text-rose" :href="`mailto:${agence.mail_agence}`">{{ agence.mail_agence }}</a>
+                            </div>
+    
+                            <div v-if="agence.tel_agence" class="mt-2 flex items-center text-sm text-gray-500">
+                                <PhoneIcon class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                                <a class="hover:text-rose" :href="`tel:${agence.tel_agence}`">{{ agence.tel_agence }}</a>
+                            </div>
+    
+                            <div v-if="agence.port_agence" class="mt-2 flex items-center text-sm text-gray-500">
+                                <DevicePhoneMobileIcon class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                                <a class="hover:text-rose" :href="`tel:${agence.port_agence}`">{{ agence.port_agence }}</a>
+                            </div>
+    
+                            <div v-if="agence.fax_agence" class="mt-2 flex items-center text-sm text-gray-500">
+                                <PrinterIcon class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                                <a class="hover:text-rose" :href="`fax:${agence.fax_agence}`">{{ agence.fax_agence }}</a>
+                            </div>
+    
+                            <div v-if="agence.siren_agence" class="mt-2 flex items-center text-sm text-gray-500">
+                                <BuildingOffice2Icon class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
+                                SIRET {{ agence.siren_agence }}
+                            </div>
+                        </div>
+                    </div>  
+                </div>
+                <div class="mt-5 flex lg:ml-4 lg:mt-0">
+                    <span class="hidden sm:block">
+                        <button type="button" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <PencilIcon class="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
+                        Modifier
+                        </button>
+                    </span>
 
-                    <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt class="text-sm font-medium leading-6 text-gray-900">Horaires</dt>
-                        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{{ agence.hor_agence }}</dd>
-                    </div>
-                    
-                    <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt class="text-sm font-medium leading-6 text-gray-900">Adresse e-mail</dt>
-                        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                            <a class="text-rose underline" :href="`mailto:${agence.mail_agence}`">{{ agence.mail_agence }}</a>
-                        </dd>
-                    </div>
+                    <span class="sm:ml-3">
+                        <button type="button" class="inline-flex items-center rounded-md bg-rose px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">
+                        <XMarkIcon class="-ml-0.5 mr-1.5 h-5 w-5 text-white" aria-hidden="true" />
+                            Supprimer
+                        </button>
+                    </span>
 
-                    <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt class="text-sm font-medium leading-6 text-gray-900">Téléphone de l'agence</dt>
-                        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                            <a class="text-rose underline" :href="`tel:${agence.tel_agence}`">{{ agence.tel_agence }}</a>
-                        </dd>
-                    </div>
+                    <!-- Dropdown -->
+                    <Menu as="div" class="relative ml-3 sm:hidden">
+                        <MenuButton class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400">
+                        More
+                        <ChevronDownIcon class="-mr-1 ml-1.5 h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </MenuButton>
 
-                    <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt class="text-sm font-medium leading-6 text-gray-900">Portable de l'agence</dt>
-                        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                            <a class="text-rose underline" :href="`tel:${agence.port_agence}`">{{ agence.port_agence }}</a>
-                        </dd>
-                    </div>
-
-                    <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt class="text-sm font-medium leading-6 text-gray-900">Fax de l'agence</dt>
-                        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                            <a class="text-rose underline" :href="`tel:${agence.fax_agence}`">{{ agence.fax_agence }}</a>
-                        </dd>
-                    </div>
-
-                    <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                        <dt class="text-sm font-medium leading-6 text-gray-900">Siren de l'agence</dt>
-                        <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                            {{ agence.siren_agence }}
-                        </dd>
-                    </div>
-                </dl>
+                        <transition enter-active-class="transition ease-out duration-200" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                        <MenuItems class="absolute right-0 z-10 -mr-1 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <MenuItem v-slot="{ active }">
+                            <a href="#" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">Edit</a>
+                            </MenuItem>
+                            <MenuItem v-slot="{ active }">
+                            <a href="#" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">View</a>
+                            </MenuItem>
+                        </MenuItems>
+                        </transition>
+                    </Menu>
+                </div>
             </div>
         </div> 
 

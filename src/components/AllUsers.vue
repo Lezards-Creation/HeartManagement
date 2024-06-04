@@ -1,6 +1,6 @@
 <script setup>
-	import { computed, ref } from "vue"
-	import { useRouter } from "vue-router";
+	import { computed, ref, watch, onMounted } from "vue"
+	import { useRoute } from "vue-router";
 	import { useClientsStore } from '../stores/clients'
 	import { useAgencesStore } from "../stores/agences";
 	import { AdjustmentsHorizontalIcon, PlusIcon, CheckIcon, ChevronDownIcon, IdentificationIcon, AdjustmentsVerticalIcon, BuildingOffice2Icon, ListBulletIcon, XMarkIcon } from '@heroicons/vue/24/outline'
@@ -9,6 +9,10 @@
 	import moment from "moment";
 
 	const uri = import.meta.env.VITE_URL;
+	const route = useRoute();
+
+	
+
 	const clientsStore = useClientsStore()
 
 	const clients = ref({});
@@ -204,6 +208,18 @@
 	function handleImageError(event) {
 		event.target.src = fallbackImage;
 	}
+
+	onMounted(() => {
+		if(route?.query?.agence){
+			filters.value.idAgence_cli = parseInt(route.query.agence)
+		}
+	})
+
+	watch(() => route?.query?.agence, () => {
+		if(route?.query?.agence){
+			filters.value.idAgence_cli = parseInt(route.query.agence)
+		}
+	})
 </script>
 
 <template>
