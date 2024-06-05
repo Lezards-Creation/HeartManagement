@@ -17,7 +17,6 @@
 	const router = useRouter();
 
 	const userNavigation = [
-		// { name: 'Mon profil', href: '#' },
 		{ name: 'Déconnexion', href: '/connexion' },
 	]
 
@@ -89,7 +88,7 @@
 	<div>
 		<!-- #region SIDEBAR MOBILE -->
 		<TransitionRoot as="template" :show="sidebarOpen">
-			<Dialog class="relative z-50 lg:hidden" @close="sidebarOpen = false">
+			<Dialog class="relative z-50 xl:hidden" @close="sidebarOpen = false">
 				<TransitionChild as="template" enter="transition-opacity ease-linear duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="transition-opacity ease-linear duration-300" leave-from="opacity-100" leave-to="opacity-0">
 					<div class="fixed inset-0 bg-gray-900/80" />
 				</TransitionChild>
@@ -123,9 +122,9 @@
 									</svg>
 								</div>
 								<nav class="flex flex-1 flex-col">
-									<ul role="list" class="-mx-2 flex-1 space-y-1">
+									<ul role="list" class="flex flex-col space-y-1">
 										<li v-for="item in navigation" :key="item.name">
-											<router-link :to="{path: item.href}" :active-class="'!text-rose-600 bg-rose-100'" class="text-gray-400 hover:text-rose hover:bg-gray-200/25 group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold">
+											<router-link :to="{path: item.href}" :active-class="'!text-rose-600 bg-rose-100'" class="text-gray-700 hover:text-rose hover:bg-gray-200/25 group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-medium">
 												<component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
 												<span>{{ item.name }}</span>
 											</router-link>
@@ -134,10 +133,17 @@
 										<li>
 											<div class="text-xs font-semibold leading-6 text-gray-400 mt-12 mb-2">Agences</div>
 											<ul role="list" class="flex flex-col space-y-1">
+												<li>
+													<router-link :to="{path: '/clients', query: {agence: '0'}}" href="#" :class="$route.query.agence == 0 ? 'active bg-rose-100' : false"  class="'text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-xs leading-6 font-medium">
+														<span class="text-gray-400 border-gray-200 group-[.active]:text-rose-600 group-[.active]:border-rose group-hover:border-rose-600 group-hover:text-rose-600 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white">T</span>
+														<span class="group-[.active]:text-rose-600">TOUTES</span>
+													</router-link>
+												</li>
+
 												<li v-for="agence in agences" :key="agence.id">
-													<router-link :to="{name: 'Agence', params: {id: agence.id}}" :active-class="'!text-rose-600'" class="'text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
-														<span class="text-gray-400 border-gray-200 group-hover:border-rose-600 group-hover:text-rose-600 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white group-[.router-link-exact-active]:text-rose-600 group-[.router-link-exact-active]:border-rose-600">{{ agence.initial }}</span>
-														{{ agence.name }}
+													<router-link :to="{path: '/clients', query: {agence: agence.id}}" href="#" :class="agence.id == $route.query.agence ? 'active bg-rose-100' : false"  class="'text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-xs leading-6 font-medium">
+														<span class="text-gray-400 border-gray-200 group-[.active]:text-rose-600 group-[.active]:border-rose group-hover:border-rose-600 group-hover:text-rose-600 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white">{{ agence.initial }}</span>
+														<span class="group-[.active]:text-rose-600">{{ agence.name }}</span>
 													</router-link>
 												</li>
 											</ul>
@@ -153,7 +159,7 @@
 		<!-- #endregion -->
 
 		<!-- #region SIDEBAR -->
-		<div class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:w-64 lg:block lg:overflow-y-auto lg:pb-4 border-r border-gray-200 bg-white">
+		<div class="hidden xl:fixed xl:inset-y-0 xl:left-0 xl:z-50 xl:w-64 xl:block xl:overflow-y-auto xl:pb-4 border-r border-gray-200 bg-white">
 			<div class="flex h-16 shrink-0 items-center justify-center pt-4">
 				<svg class="w-32 h-auto" viewBox="0 0 311 146" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 					<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -204,31 +210,26 @@
 		<!-- #endregion -->
 
 		<!-- #region BAR DU HAUT + ROUTER VIEW -->
-		<div class="lg:pl-64">
-			<div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-				<button type="button" class="-m-2.5 p-2.5 text-gray-700 lg:hidden" @click="sidebarOpen = true">
+		<div class="xl:pl-64">
+			<div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 xl:px-8">
+				<button type="button" class="-m-2.5 p-2.5 text-gray-700 xl:hidden" @click="sidebarOpen = true">
 					<span class="sr-only">Open sidebar</span>
 					<Bars3Icon class="h-6 w-6" aria-hidden="true" />
 				</button>
 
 				<!-- Separator -->
-				<div class="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true" />
+				<div class="h-6 w-px bg-gray-900/10 xl:hidden" aria-hidden="true" />
 
-				<div class="flex flex-1 gap-x-4 lg:gap-x-6">
+				<div class="flex flex-1 gap-x-4 xl:gap-x-6">
 					<div class="flex-1"></div>
-					<!-- <form class="relative flex flex-1" action="#" method="GET">
-						<label for="search-field" class="sr-only">Rechercher un client</label>
-						<MagnifyingGlassIcon class="pointer-events-none absolute inset-y-0 left-2 h-full w-5 text-gray-400" aria-hidden="true" />
-						<input id="search-field" class="block rounded-md border-0 bg-white py-1.5 pl-10 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" placeholder="Rechercher un client..." type="search" name="search" @click="openSearch = !openSearch" />
-					</form> -->
-					<div class="flex items-center gap-x-4 lg:gap-x-6">
+					<div class="flex items-center gap-x-4 xl:gap-x-6">
 						<button v-if="false" type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
 							<span class="sr-only">View notifications</span>
 							<BellIcon class="h-6 w-6" aria-hidden="true" />
 						</button>
 
 						<!-- Separator -->
-						<div class="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-900/10" aria-hidden="true" />
+						<div class="hidden xl:block xl:h-6 xl:w-px xl:bg-gray-900/10" aria-hidden="true" />
 
 						<!-- Profile dropdown -->
 						<Menu as="div" class="relative">
@@ -239,7 +240,7 @@
 									{{ userStore.userLog.prenom.toUpperCase().charAt(0) }}
 								</span>
 
-								<span class="hidden lg:flex lg:items-center">
+								<span class="hidden xl:flex xl:items-center">
 									<span class="ml-4 text-sm font-semibold leading-6 text-gray-900" aria-hidden="true">
 										{{ userStore.userLog.prenom }}
 									</span>
