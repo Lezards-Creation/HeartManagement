@@ -1,6 +1,6 @@
 <script setup>
     import { ref } from 'vue';
-    import { PrinterIcon, AtSymbolIcon, MagnifyingGlassIcon, ChevronDownIcon, BarsArrowUpIcon, BoltIcon } from '@heroicons/vue/24/outline';
+    import { PrinterIcon, AtSymbolIcon, MagnifyingGlassIcon, ChevronDownIcon, BarsArrowUpIcon, LinkIcon } from '@heroicons/vue/24/outline';
     import { useRouter } from 'vue-router';
     import { useRencontresStore } from '../stores/rencontres';
     import { useClientsStore } from '../stores/clients';
@@ -212,7 +212,7 @@
                     </div>
 
                     <span class="z-10 absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-10 h-10 bg-white ring-1 ring-inset ring-gray-300 rounded-full flex items-center justify-center">
-                        <BoltIcon class="w-5 h-5"/>
+                        <LinkIcon class="w-5 h-5"/>
                     </span>
 
                     <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
@@ -266,7 +266,7 @@
                     </div>
 
                     <span class="z-10 absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-10 h-10 bg-white ring-1 ring-inset ring-gray-300 rounded-full flex items-center justify-center">
-                        <BoltIcon class="w-5 h-5"/>
+                        <LinkIcon class="w-5 h-5"/>
                     </span>
 
                     <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">

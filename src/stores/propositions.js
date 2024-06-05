@@ -10,6 +10,28 @@ const instance = axios.create({
 export const usePropositionsStore = defineStore('propositions-store', () => {    
 	const userStore = useUserStore();
 	
+	const getAllPropositions = (page) => {
+        return new Promise((resolve, reject) => {
+			instance({
+				url: `propositions`,
+				method: 'GET',
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                },
+				params: {
+					page: page
+				}
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+    }
+
+
     const getPropositions = (id) => {
         return new Promise((resolve, reject) => {
 			instance({
@@ -70,6 +92,7 @@ export const usePropositionsStore = defineStore('propositions-store', () => {
 	return {
 		// Variables
 		// Functions
+		getAllPropositions,
         getPropositions,
 		addProposition,
 		updateProposition

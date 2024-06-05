@@ -56,7 +56,7 @@
                 <div class="min-w-0 flex-1">
                     <h2 class="mt-2 text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">{{ agence.lib_agence}}</h2>
                 
-                    <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-6 gap-y-3">
+                    <div class="mt-2 flex flex-col sm:mt-2 sm:flex-row sm:flex-wrap sm:gap-x-6 gap-y-1">
                         <div class="flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-6 gap-y-3"> 
                             <div v-if="agence.adr_agence" class="mt-2 flex items-center text-sm text-gray-500">
                                 <MapPinIcon class="mr-1.5 h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
