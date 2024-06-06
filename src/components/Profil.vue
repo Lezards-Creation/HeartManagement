@@ -619,7 +619,7 @@
                                 </div>
                             </fieldset>
                             <fieldset class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                                <div class="sm:col-span-2 self-start mb-2">
+                                <div class="sm:col-span-3 self-start mb-2">
                                     <SwitchGroup as="div" class="flex items-center flex-wrap">
                                         <Switch @click="debouncedFunction" v-model="current_user.veh_cli" name="veh_cli"
                                             :class="[current_user.veh_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
@@ -633,7 +633,7 @@
                                     </SwitchGroup>
                                 </div>
 
-                                <div class="sm:col-span-2 self-start mb-2">
+                                <div class="sm:col-span-3 self-start mb-2">
                                     <SwitchGroup as="div" class="flex items-center flex-wrap">
                                         <Switch @click="debouncedFunction" v-model="current_user.permis_cli" name="permis_cli"
                                             :class="[current_user.permis_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">

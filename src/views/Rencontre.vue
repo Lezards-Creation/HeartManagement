@@ -1,6 +1,7 @@
 <script setup>
-    import { ref } from 'vue';
-    import { PrinterIcon, AtSymbolIcon, MagnifyingGlassIcon, ChevronDownIcon, BarsArrowUpIcon, LinkIcon } from '@heroicons/vue/24/outline';
+    import { ref, computed } from 'vue';
+    import { Dialog, DialogPanel, Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems, Popover, PopoverButton, PopoverGroup, PopoverPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
+    import { PrinterIcon, AtSymbolIcon, ChevronDownIcon, LinkIcon, XMarkIcon } from '@heroicons/vue/24/outline';
     import { useRouter } from 'vue-router';
     import { useRencontresStore } from '../stores/rencontres';
     import { useClientsStore } from '../stores/clients';
@@ -20,6 +21,27 @@
 
     const uri = import.meta.env.VITE_URL;
 
+    const filteredRencontres = computed(() => {
+        const filtered = rencontres.value.filter(rencontre => {
+            let filtersMatch = true;
+            Object.entries(filters.value).forEach(([key, value]) => {
+                if(filters.value[key] && rencontre[key] !== undefined){
+                    if (Array.isArray(filters.value[key])) {
+                        if (filters.value[key].length > 0) {
+                            filtersMatch = filtersMatch && filters.value[key].includes(rencontre[key]);
+                        }
+                    } else if (typeof rencontre[key] === 'string') {
+                        filtersMatch = filtersMatch && rencontre[key].includes(filters.value[key]);
+                    } else {
+                        filtersMatch = filtersMatch && filters.value[key] === rencontre[key];
+                    }
+                }
+            });
+            return filtersMatch;
+        })
+        return filtered;
+    })
+
     const pageNumber = ref(1);
 
     const popupCourrier = ref(false);
@@ -31,6 +53,37 @@
 
     const stateToast = ref(false);
     const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
+
+    const sortOptions = [
+        { name: 'Plus récent', href: '#', value: "desc" },
+        { name: 'Plus ancien', href: '#', value: "asc" },
+    ];
+    
+    const currentSort = ref('desc');
+    const filters = ref({
+        statut_renc: []
+    });
+    
+    const filtersOptions = ref([
+        {
+            id: 'statut_renc',
+            name: 'Statut',
+            options: [
+                { value: 'Z', label: 'Non créée' },
+                { value: 'N', label: 'En cours' },
+                { value: 'L', label: 'Ne l\'a pas vu(e)' },
+                { value: 'P', label: 'Se poursuit' },
+                { value: 'R', label: 'Pas de suite Madame' },
+                { value: 'S', label: 'Pas de suite Monsieur' },
+                { value: 'I', label: 'Madame pas encore décidée' },
+                { value: 'J', label: 'Monsieur pas encore décidé' },
+                { value: 'A', label: 'N\'a pas marché' }
+            ],
+        },
+    ])
+
+    const open = ref(false)
+        
     //#endregion 
 
     //#region METHODS
@@ -77,7 +130,7 @@
         rencontresLoaded.value = false;
         
         pageNumber.value = page;
-        rencontreStore.getRencontres(page)
+        rencontreStore.getRencontres(page, currentSort.value)
         .then(res => {
             rencontres.value = res.rencontres;
             rencontres_count.value = res.count;
@@ -149,33 +202,110 @@
 </script>
 
 <template>
-    <div class="px-4 sm:px-6 lg:px-8">
-        <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between mt-12">
+    <div class="px-4 sm:px-6 lg:px-8 overflow-auto h-screen pb-24">
+        <div class="border-b border-gray-200 pb-5 mt-12">
             <div>
                 <h3 class="text-3xl font-semibold leading-6 text-gray-900">Dernières Rencontres</h3>
             </div>
-            <div class="mt-3 sm:ml-4 sm:mt-0">
-                <label for="mobile-search-candidate" class="sr-only">Search</label>
-                <label for="desktop-search-candidate" class="sr-only">Search</label>
-                <div class="flex rounded-md shadow-sm">
-                    <div class="relative flex-grow focus-within:z-10">
-                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+
+            <!-- #region FILTERS -->
+            <TransitionRoot as="template" :show="open">
+                <Dialog class="relative z-40 sm:hidden" @close="open = false">
+                    <TransitionChild as="template" enter="transition-opacity ease-linear duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="transition-opacity ease-linear duration-300" leave-from="opacity-100" leave-to="opacity-0">
+                    <div class="fixed inset-0 bg-black bg-opacity-25" />
+                    </TransitionChild>
+
+                    <div class="fixed inset-0 z-40 flex">
+                    <TransitionChild as="template" enter="transition ease-in-out duration-300 transform" enter-from="translate-x-full" enter-to="translate-x-0" leave="transition ease-in-out duration-300 transform" leave-from="translate-x-0" leave-to="translate-x-full">
+                        <DialogPanel class="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-white py-4 pb-6 shadow-xl">
+                        <div class="flex items-center justify-between px-4">
+                            <h2 class="text-lg font-medium text-gray-900">Filters</h2>
+                            <button type="button" class="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500" @click="open = false">
+                            <span class="sr-only">Close menu</span>
+                            <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+                            </button>
                         </div>
-                        <input type="text" name="mobile-search-candidate" id="mobile-search-candidate" class="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:hidden" placeholder="Recherche.." />
-                        <input type="text" name="desktop-search-candidate" id="desktop-search-candidate" class="hidden w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 text-sm leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:block" :placeholder="`Rechercher dans ${rencontres_count} clients...`" />
+
+                        <!-- Filters -->
+                        <form class="mt-4">
+                            <Disclosure as="div" v-for="section in filters" :key="section.name" class="border-t border-gray-200 px-4 py-6" v-slot="{ open }">
+                            <h3 class="-mx-2 -my-3 flow-root">
+                                <DisclosureButton class="flex w-full items-center justify-between bg-white px-2 py-3 text-sm text-gray-400">
+                                    <span class="font-medium text-gray-900">{{ section.name }}</span>
+                                    <span class="ml-6 flex items-center">
+                                        <ChevronDownIcon :class="[open ? '-rotate-180' : 'rotate-0', 'h-5 w-5 transform']" aria-hidden="true" />
+                                    </span>
+                                </DisclosureButton>
+                            </h3>
+                            <DisclosurePanel class="pt-6">
+                                <div class="space-y-6">
+                                <div v-for="(option, optionIdx) in section.options" :key="option.value" class="flex items-center">
+                                    <input :id="`filter-mobile-${section.id}-${optionIdx}`" :name="`${section.id}[]`" :value="option.value" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                                    <label :for="`filter-mobile-${section.id}-${optionIdx}`" class="ml-3 text-sm text-gray-500">{{ option.label }}</label>
+                                </div>
+                                </div>
+                            </DisclosurePanel>
+                            </Disclosure>
+                        </form>
+                        </DialogPanel>
+                    </TransitionChild>
                     </div>
-                    <button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                        <BarsArrowUpIcon class="-ml-0.5 h-5 w-5 text-gray-400" aria-hidden="true" />
-                        Filtrer
-                        <ChevronDownIcon class="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-                    </button>
-                </div>
+                </Dialog>
+            </TransitionRoot>
+
+            <div class="flex items-center justify-between mt-6">
+                <Menu as="div" class="relative inline-block text-left">
+                    <div>
+                        <MenuButton class="group inline-flex justify-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                            Trier
+                            <ChevronDownIcon class="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                        </MenuButton>
+                    </div>
+
+                    <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                        <MenuItems class="absolute left-0 z-50 mt-2 w-40 origin-top-left rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="p-4 shadow-2xl">
+                            <form @change="fetchRencontres(pageNumber)" class="space-y-4">
+                                <div v-for="option in sortOptions" :key="option" class="flex items-center">
+                                    <input v-model="currentSort" :id="`filter-${option.value}`" name="sort" :value="option.value" type="radio" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500" />
+                                    <label :for="`filter-${option.value}`" class="ml-3 whitespace-nowrap pr-6 text-sm font-medium text-gray-900">{{ option.name }}</label>
+                                </div>
+                            </form>
+                        </div>
+                    </MenuItems>
+                    </transition>
+                </Menu>
+
+                <button type="button" class="inline-block text-sm font-medium text-gray-700 hover:text-gray-900 sm:hidden" @click="open = true">Filters</button>
+
+                <PopoverGroup class="hidden sm:flex sm:items-baseline sm:space-x-2">
+                    <Popover as="div" v-for="(section, sectionIdx) in filtersOptions" :key="section.name" :id="`desktop-menu-${sectionIdx}`" class="relative inline-block text-left ">
+                        <div>
+                            <PopoverButton class="group inline-flex items-center justify-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                <span>{{ section.name }}</span>
+                                <span v-if="filters[section.id].length > 0" class="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs font-semibold tabular-nums text-gray-700">{{ filters[section.id].length }}</span>
+                                <ChevronDownIcon class="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                            </PopoverButton>
+                        </div>
+
+                        <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                            <PopoverPanel class="absolute right-0 z-50 mt-2 origin-top-right rounded-md bg-white p-4 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <form class="space-y-4">
+                                    <div v-for="(option, optionIdx) in section.options" :key="option.value" class="flex items-center">
+                                        <input v-model="filters[section.id]" :id="`filter-${section.id}-${optionIdx}`" :name="`${section.id}`" :value="option.value" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500" />
+                                        <label :for="`filter-${section.id}-${optionIdx}`" class="ml-3 whitespace-nowrap pr-6 text-sm font-medium text-gray-900">{{ option.label }}</label>
+                                    </div>
+                                </form>
+                            </PopoverPanel>
+                        </transition>
+                    </Popover>
+                </PopoverGroup>
             </div>
+            <!-- #endregion -->
         </div>
 
-        <div class="grid grid-cols-1 gap-4 mt-6 h-[75vh] overflow-auto">
-            <div v-if="rencontres && rencontresLoaded" class="mt-4" v-for="rencontre in rencontres" :key="rencontre.id_renc">
+        <div class="grid grid-cols-1 gap-4 mt-6 overflow-y-auto">
+            <div v-if="rencontres && rencontresLoaded" class="mt-4" v-for="rencontre in filteredRencontres" :key="rencontre.id_renc">
                 <div class="grid gap-8 grid-cols-2 mb-2 relative">
                     <span class="text-sm text-rose-500 text-right">{{ moment(rencontre.dateCre_renc).format('ll') }}</span>
                     <span class="text-sm text-gray-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">-</span>
@@ -247,7 +377,7 @@
             </div>
 
             <!-- #region SKELETON -->
-            <div v-else-if="!rencontresLoaded">
+            <div class="mt-12" v-else-if="!rencontresLoaded">
                 <div v-for="n in 10" class="grid gap-2 grid-cols-2 relative mb-12">
                     <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
                         <div class="flex items-center justify-start space-x-3 grow shrink-0 basis-auto">

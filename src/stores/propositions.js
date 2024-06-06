@@ -10,7 +10,7 @@ const instance = axios.create({
 export const usePropositionsStore = defineStore('propositions-store', () => {    
 	const userStore = useUserStore();
 	
-	const getAllPropositions = (page) => {
+	const getAllPropositions = (page, sort) => {
         return new Promise((resolve, reject) => {
 			instance({
 				url: `propositions`,
@@ -19,7 +19,8 @@ export const usePropositionsStore = defineStore('propositions-store', () => {
                     Authorization: `Bearer ${userStore.userLog.token}`
                 },
 				params: {
-					page: page
+					page: page,
+					sort: sort
 				}
 			})
             .then(res => {
@@ -30,7 +31,6 @@ export const usePropositionsStore = defineStore('propositions-store', () => {
             })
 		})
     }
-
 
     const getPropositions = (id) => {
         return new Promise((resolve, reject) => {

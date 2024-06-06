@@ -46,11 +46,30 @@ export const useMessageStore = defineStore('message-store', () => {
 			})
 		})
 	}
+
+	const getMessagesCount = () => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `messages/count`,
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${userStore.userLog.token}`
+				},
+			})
+			.then(res => {
+				resolve(res.data);
+			})
+			.catch(err => {
+				reject(err);
+			})
+		})
+	}
 	
 	return {
 		// Variables
 		// Functions
 		getMessages,
+		getMessagesCount,
 		deleteMessage,
 	}
 }, { persistedState: { persist: true } })

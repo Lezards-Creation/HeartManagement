@@ -222,7 +222,7 @@ export const useClientsStore = defineStore('clients-store', () => {
 	const getLastClients = () => {
 		return new Promise((resolve, reject) => {
 			instance({
-				url: `newclients`,
+				url: `clients/last/newclients`,
 				method: 'GET', 
 				headers: {
                     Authorization: `Bearer ${userStore.userLog.token}`
@@ -259,6 +259,24 @@ export const useClientsStore = defineStore('clients-store', () => {
 		})
 	}
 
+	const getClientByRef = (ref) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `clients/ref/${ref}`,
+				method: 'GET', 
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
 
 	return {
 		//#region Variables
@@ -274,7 +292,8 @@ export const useClientsStore = defineStore('clients-store', () => {
 			sendMail,
 			getMatch,
 			getLastClients,
-			searchClient
+			searchClient,
+			getClientByRef
 		//#endregion
     }
 }, { persistedState: { persist: false } })

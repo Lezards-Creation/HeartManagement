@@ -341,13 +341,13 @@
 <template>
     <div class="overflow-hidden">
         <div class="lg:flex lg:gap-x-16">
-            <aside class="flex overflow-x-auto border-b border-gray-900/5 lg:block lg:w-72 lg:flex-none lg:border-0">
+            <aside class="flex overflow-x-auto border-b border-gray-900/5 lg:block xl:w-60 2xl:w-72 lg:flex-none lg:border-0">
                 <nav class="flex-none px-4 sm:px-6 lg:px-0">
                     <ul role="list" class="flex gap-x-3 gap-y-1 whitespace-nowrap lg:flex-col">
                     <li @click="active_tab = item.slug" v-for="item in secondaryNavigation" :key="item.name">
-                        <a :href="item.href" :class="[active_tab === item.slug ? 'bg-gray-50 text-rose-600' : 'text-gray-700 hover:text-rose-600 hover:bg-gray-50', 'group flex gap-x-3 rounded-md py-2 pl-2 pr-3 text-sm leading-6 font-semibold']">
-                        <component :is="item.icon" :class="[active_tab === item.slug ? 'text-rose-600' : 'text-gray-400 group-hover:text-rose-600', 'h-6 w-6 shrink-0']" aria-hidden="true" />
-                        {{item.name + ' '}} {{ item.slug === 'choix' ? name : (item.slug === 'demande' ? name : '') }}
+                        <a :href="item.href" :class="[active_tab === item.slug ? 'bg-gray-50 text-rose-600' : 'text-gray-700 hover:text-rose-600 hover:bg-gray-50', 'group flex gap-x-3 rounded-md py-2 pl-2 pr-3 text-xs 2xl:text-sm leading-6 font-semibold']">
+                            <component :is="item.icon" :class="[active_tab === item.slug ? 'text-rose-600' : 'text-gray-400 group-hover:text-rose-600', 'h-5 w-5 2xl:h-6 2xl:w-6 shrink-0']" aria-hidden="true" />
+                            {{item.name + ' '}} {{ item.slug === 'choix' ? name : (item.slug === 'demande' ? name : '') }}
                         </a>
                     </li>
                     </ul>
@@ -398,10 +398,10 @@
                         <ul v-if="choices.length > 0" role="list" class="divide-y divide-gray-100">
                             <li v-if="choicesLoaded" v-for="choice in choices" :key="choice.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                                 <div v-if="choice.client" class="flex min-w-0 gap-x-4">
-                                    <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${choice.client.id_cli}.webp`" alt="" />
+                                    <img @error="event => handleImageError(event)" class="h-10 w-10 2xl:h-12 2xl:w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${choice.client.id_cli}.webp`" alt="" />
                                     <div class="min-w-0 flex-auto">
-                                        <p class="text-sm font-semibold leading-6 text-gray-900">
-                                            <a class="flex gap-2 items-center">
+                                        <p class="text-sm font-semibold 2xl:leading-6 text-gray-900">
+                                            <a class="flex gap-x-2 items-center flex-wrap text-xs 2xl:text-sm">
                                                 {{ choice.client.nom_cli + ' ' + choice.client.pNoms_cli }}
                                                 <span :class="[choice.res_choix === 1 ? 'text-green-700 bg-green-50 ring-green-600/20' : (choice.res_choix === 0 ? 'text-red-800 bg-red-50 ring-red-600/20' : 'text-gray-600 bg-gray-50 ring-gray-500/10'), 'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset']">
                                                     {{ 
@@ -449,10 +449,10 @@
                         <ul v-if="demandes.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl">
                             <li v-if="demandesLoaded" v-for="demande in demandes" :key="demande.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                                 <div v-if="demande.client" class="flex min-w-0 gap-x-4">
-                                    <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${demande.client.id_cli}.webp`" alt="" />
+                                    <img @error="event => handleImageError(event)" class="h-10 w-10 2xl:h-12 2xl:w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${demande.client.id_cli}.webp`" alt="" />
                                     <div class="min-w-0 flex-auto">
-                                        <p class="text-sm font-semibold leading-6 text-gray-900">
-                                            <a class="flex gap-2 items-center">
+                                        <p class="text-sm font-semibold 2xl:leading-6 text-gray-900">
+                                            <a class="flex gap-x-2 items-center flex-wrap text-xs 2xl:text-sm">
                                                 {{ demande.client.nom_cli + ' ' + demande.client.pNoms_cli }}
                                                 <span :class="[demande.res_choix === 1 ? 'text-green-700 bg-green-50 ring-green-600/20' : (demande.res_choix === 0 ? 'text-red-800 bg-red-50 ring-red-600/20' : 'text-gray-600 bg-gray-50 ring-gray-500/10'), 'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset']">
                                                     {{ 
@@ -510,8 +510,8 @@
                                 <div v-if="proposition.client" class="flex min-w-0 gap-x-4">
                                     <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${proposition.client.id_cli}.webp`" alt="" />
                                     <div class="min-w-0 flex-auto">
-                                        <p class="text-sm font-semibold leading-6 text-gray-900">
-                                            <a class="flex gap-2 items-center">
+                                        <p class="text-xs 2xl:text-sm font-semibold 2xl:leading-6 text-gray-900">
+                                            <a class="flex gap-x-2 items-center flex-wrap ">
                                                 {{ proposition.client.nom_cli + ' ' + proposition.client.pNoms_cli }}
                                             </a>
                                         </p>
@@ -562,8 +562,8 @@
                                 <div v-if="rencontre.laureat" class="flex min-w-0 gap-x-4">
                                     <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${rencontre.laureat.id_cli}.webp`" alt="" />
                                     <div class="min-w-0 flex-auto">
-                                        <p class="text-sm font-semibold leading-6 text-gray-900">
-                                            <a class="flex gap-2 items-center">
+                                        <p class="text-xs 2xl:text-sm font-semibold 2xl:leading-6 text-gray-900">
+                                            <a class="flex gap-x-2 items-center flex-wrap">
                                                 {{ rencontre.laureat.nom_cli + ' ' + rencontre.laureat.pNoms_cli }}
                                             </a>
                                         </p>

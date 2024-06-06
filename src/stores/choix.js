@@ -10,7 +10,7 @@ const instance = axios.create({
 export const useChoixStore = defineStore('choix-store', () => {    
 	const userStore = useUserStore();
 	
-    const getAllCommonChoices = (page) => {
+    const getAllCommonChoices = (page, sort) => {
 		return new Promise((resolve, reject) => {
 			instance({
 				url: `choix/all/communs`,
@@ -19,7 +19,8 @@ export const useChoixStore = defineStore('choix-store', () => {
 					Authorization: `Bearer ${userStore.userLog.token}`
 				},
 				params: {
-					page: page
+					page: page,
+					sort: sort
 				}
 			})
 			.then(res => {
@@ -32,7 +33,7 @@ export const useChoixStore = defineStore('choix-store', () => {
 		
 	}
 
-	const getAllChoices = (page) => {
+	const getAllChoices = (page, sort) => {
 		return new Promise((resolve, reject) => {
 			instance({
 				url: `choix/all/choix`,
@@ -41,7 +42,8 @@ export const useChoixStore = defineStore('choix-store', () => {
 					Authorization: `Bearer ${userStore.userLog.token}`
 				},
 				params: {
-					page: page
+					page: page,
+					sort: sort
 				}
 			})
 			.then(res => {

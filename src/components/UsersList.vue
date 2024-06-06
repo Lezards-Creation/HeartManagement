@@ -11,7 +11,11 @@
 
 	const fetchNewClients = () => {
 		clientsStore.getLastClients()
-		.then(res => people.value = res.clients)
+		.then(res => 
+		{
+			console.log(res)
+			people.value = res.clients
+		})
 		.catch(err => console.error(err))
 	}
 	fetchNewClients()

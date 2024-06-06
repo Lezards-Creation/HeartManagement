@@ -11,8 +11,6 @@
 	const uri = import.meta.env.VITE_URL;
 	const route = useRoute();
 
-	
-
 	const clientsStore = useClientsStore()
 
 	const clients = ref({});
@@ -588,9 +586,9 @@
 				<ul role="list" class="divide-y divide-gray-100">
 					<li v-for="person in filtered_clients.filteredDirectory[letter]" :key="person.email">
 						<router-link class="flex gap-x-4 px-3 py-5 hover:bg-rose-50 items-center transition-all pointer" :to="{ name: 'Client', params: { id: person.id_cli }}" >
-							<img @error="event => handleImageError(event, person.id_cli)" class="h-12 w-12 flex-none object-cover object-center rounded-full bg-gray-50" :src="`${uri}/storage/img/cli/${person.id_cli}.webp`" loading="lazy" />
+							<img @error="event => handleImageError(event, person.id_cli)" class="h-8 w-8 2xl:h-12 2xl:w-12 flex-none object-cover object-center rounded-full bg-gray-50" :src="`${uri}/storage/img/cli/${person.id_cli}.webp`" loading="lazy" />
 							<div class="min-w-0">
-								<p class="text-sm font-medium  text-gray-900">{{ person.pNoms_cli }} {{ person.nom_cli }}</p>
+								<p class="xl:text-xs 2xl:text-sm font-medium  text-gray-900">{{ person.pNoms_cli }} {{ person.nom_cli }}</p>
 								<p class="truncate text-xs text-gray-500">{{ person.ville_cli }} - {{ person.dateNaiss_cli ? calculateAge(person.dateNaiss_cli) + ' ans' : '' }}</p>
 							</div>
 						</router-link>

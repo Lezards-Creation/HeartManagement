@@ -1,7 +1,8 @@
 <script setup>
     import { ref, computed } from 'vue';
     import { useRouter } from 'vue-router';
-    import { PrinterIcon, AtSymbolIcon, MagnifyingGlassIcon, ChevronDownIcon, BarsArrowUpIcon, BoltIcon, ArrowRightIcon, CheckIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, UsersIcon, ArrowPathIcon, HomeModernIcon } from '@heroicons/vue/24/outline';
+    import { Dialog, DialogPanel, Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems, Popover, PopoverButton, PopoverGroup, PopoverPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
+    import { PrinterIcon, AtSymbolIcon, ChevronDownIcon, BoltIcon, ArrowRightIcon, CheckIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, UsersIcon, ArrowPathIcon, HomeModernIcon } from '@heroicons/vue/24/outline';
     import { useClientsStore } from '../stores/clients';
     import { useChoixStore } from '../stores/choix';
     import { useRencontresStore } from '../stores/rencontres';
@@ -47,15 +48,19 @@
     const generateBase64Courrier = ref(false);
 
     const tabs = [
-        { name: 'Choix communs', slug: 'communs', icon: UsersIcon},
+        { name: 'Choix communs', slug: 'communs', icon: UsersIcon, callback: 'fetchAllCommonChoices'},
         { name: 'Choix et Demandes', slug: 'choix', icon: ArrowPathIcon, callback: 'fetchAllChoices'},
         { name: 'Propositions', slug: 'propositions', icon: HomeModernIcon, callback: 'fetchAllPropositions'},
     ]
 
     const currentPage = ref(1);
-    const totalPages = ref(1); // or set dynamically based on your data
+    const totalPages = ref(1);
     const fetchType = ref('commonChoices');
 
+    const functionMap = {
+        fetchAllChoices, fetchAllPropositions, fetchAllCommonChoices
+    };
+    
     const pages = computed(() => {
         const range = 2;
         const pageList = [];
@@ -90,6 +95,13 @@
         }
         return pageList;
     });
+
+    const sortOptions = [
+        { name: 'Plus récent', value: "desc" },
+        { name: 'Plus ancien', value: "asc" },
+    ]
+    const currentSort = ref('desc')
+
 
     const goToPage = (page) => {
         if (page >= 1 && page <= totalPages.value) {
@@ -149,19 +161,6 @@
         }
     }
 
-    const functionMap = {
-        fetchAllChoices, fetchAllPropositions
-    };
-
-    function handleFunctionCall(functionName) {
-        const func = functionMap[functionName];
-        if (typeof func === 'function') {
-            func();
-        } else {
-            console.warn(`Function ${functionName} is not defined`);
-        }
-    }
-
     const handeUpdateChoice = (idChoix, state) => {
         stateToast.value = false;
         let data = {
@@ -198,14 +197,23 @@
         .catch(err => console.error(err))
     }
 
+    function handleFunctionCall(functionName) {
+        const func = functionMap[functionName];
+        if (typeof func === 'function') {
+            func();
+        } else {
+            console.warn(`Function ${functionName} is not defined`);
+        }
+    }
+
     function handleImageError(event) {
         event.target.src = fallbackImage;
 	}
 
-    const fetchAllCommonChoices = (page = 1) => {
+    function fetchAllCommonChoices(page = 1){
         pageNumber.value = page;
         communsLoaded.value = false;
-        choixStore.getAllCommonChoices(page)
+        choixStore.getAllCommonChoices(page, currentSort.value)
         .then(res => {
             communs.value = res.choices;
             count_communs.value = res.count;
@@ -220,7 +228,7 @@
     function fetchAllChoices(page = 1){
         pageNumberChoix.value = page;
         choixLoaded.value = false;
-        choixStore.getAllChoices(page)
+        choixStore.getAllChoices(page, currentSort.value)
         .then(res => {
             console.log(res)
             choix.value = res.choices;
@@ -236,7 +244,7 @@
         console.log(page);
         pageNumberPropositions.value = page;
         propositionsLoaded.value = false
-        propositionsStore.getAllPropositions(page)
+        propositionsStore.getAllPropositions(page, currentSort.value)
         .then(res => {
             console.log(res)
             propositions.value = res.propositions;
@@ -328,37 +336,17 @@
 	}
 </script>
 
-
 <template>
-    <div class="px-4 sm:px-6 lg:px-8">
-        <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between mt-12">
+    <div class="px-4 sm:px-6 lg:px-8 overflow-auto h-screen">
+        <div class="pb-5 mt-12">
             <div>
                 <h3 class="text-3xl font-semibold leading-6 text-gray-900">Dernières intéractions clients</h3>
-            </div>
-            <div class="mt-3 sm:ml-4 sm:mt-0">
-                <label for="mobile-search-candidate" class="sr-only">Search</label>
-                <label for="desktop-search-candidate" class="sr-only">Search</label>
-                <div class="flex rounded-md shadow-sm">
-                    <div class="relative flex-grow focus-within:z-10">
-                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                            <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                        </div>
-                        <input type="text" name="mobile-search-candidate" id="mobile-search-candidate" class="block w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:hidden" placeholder="Recherche.." />
-                        <input type="text" name="desktop-search-candidate" id="desktop-search-candidate" class="hidden w-full rounded-none rounded-l-md border-0 py-1.5 pl-10 text-sm leading-6 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:block" :placeholder="`Rechercher clients...`" />
-                    </div>
-                    <button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                        <BarsArrowUpIcon class="-ml-0.5 h-5 w-5 text-gray-400" aria-hidden="true" />
-                        Filtrer
-                        <ChevronDownIcon class="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-                    </button>
-                </div>
             </div>
         </div>
         
         <div class="mt-8 sm:mt-12">
             <div class="sm:hidden">
                 <label for="tabs" class="sr-only">Select a tab</label>
-                <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
                 <select id="tabs" name="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
                     <option v-for="tab in tabs" :key="tab.name" :selected="tab.current">{{ tab.name }}</option>
                 </select>
@@ -375,8 +363,34 @@
             </div>
         </div>
 
+        <!-- #region FILTERS -->
+        <div class="flex items-center justify-between mt-6">
+            <Menu as="div" class="relative inline-block text-left">
+                <div>
+                    <MenuButton class="group inline-flex justify-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        Trier
+                        <ChevronDownIcon class="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                    </MenuButton>
+                </div>
+
+                <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                    <MenuItems class="absolute left-0 z-50 mt-2 w-40 origin-top-left rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="p-4 shadow-2xl">
+                            <form @change="handleFunctionCall(tabs.find((obj) => obj.slug === active_tab).callback)" class="space-y-4">
+                                <div v-for="option in sortOptions" :key="option" class="flex items-center">
+                                    <input v-model="currentSort" :id="`filter-${option.value}`" name="sort" :value="option.value" type="radio" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500" />
+                                    <label :for="`filter-${option.value}`" class="ml-3 whitespace-nowrap pr-6 text-sm font-medium text-gray-900">{{ option.name }}</label>
+                                </div>
+                            </form>
+                        </div>
+                    </MenuItems>
+                </transition>
+            </Menu>
+        </div>
+        <!-- #endregion -->
+
         <!-- #region CHOIX COMMUNS -->
-        <div class="grid grid-cols-1 gap-4 mt-6 h-[75vh] overflow-auto" v-if="active_tab === 'communs'"> 
+        <div class="grid grid-cols-1 gap-4 pb-24" v-if="active_tab === 'communs'"> 
             <div v-if="communs && communsLoaded" class="mt-4" v-for="commun in communs" :key="commun.id_choix">
                 <div class="mb-2 relative">
                     <span class="text-sm text-rose-500 text-center block">{{ moment(commun.date_choix).format('ll') }}</span>
@@ -426,7 +440,7 @@
             </div>
 
             <!-- #region SKELETON -->
-            <div v-else-if="!communsLoaded">
+            <div class="mt-12" v-else-if="!communsLoaded">
                 <div v-for="n in 10" class="grid gap-2 grid-cols-2 relative mb-12">
                     <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
                         <div class="flex items-center justify-start space-x-3 grow shrink-0 basis-auto">
@@ -504,9 +518,8 @@
         </div>
         <!-- #endregion  -->
 
-
         <!-- #region CHOIX -->
-        <div class="grid grid-cols-1 gap-4 mt-6 h-[75vh] overflow-auto" v-if="active_tab === 'choix'"> 
+        <div class="grid grid-cols-1 gap-4 pb-24" v-if="active_tab === 'choix'"> 
             <div v-if="choix && choixLoaded" class="mt-4" v-for="ch in choix" :key="ch.id_choix">
                 <div class="mb-2 relative grid gap-8 grid-cols-2 items-center">
                     <span class="text-sm text-rose-500 text-right block">{{ moment(ch.date_choix).format('ll') }}</span>
@@ -594,7 +607,7 @@
             </div>
 
             <!-- #region SKELETON -->
-            <div v-else-if="!choixLoaded">
+            <div class="mt-12" v-else-if="!choixLoaded">
                 <div v-for="n in 10" class="grid gap-2 grid-cols-2 relative mb-12">
                     <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
                         <div class="flex items-center justify-start space-x-3 grow shrink-0 basis-auto">
@@ -673,7 +686,7 @@
         <!-- #endregion -->
 
         <!-- #region PROPOSITIONS -->
-        <div class="grid grid-cols-1 gap-4 mt-6 h-[75vh] overflow-auto" v-if="active_tab === 'propositions'"> 
+        <div class="grid grid-cols-1 gap-4 pb-24" v-if="active_tab === 'propositions'"> 
             <div v-if="propositions && propositionsLoaded" class="mt-4" v-for="proposition in propositions" :key="proposition.id_prop">
                 <div class="mb-2 relative grid gap-8 grid-cols-2 items-center">
                     <span class="text-sm text-rose-500 text-right block">{{ moment(proposition.date_prop).format('ll') }}</span>
@@ -684,28 +697,37 @@
                     <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
                         <div class="flex items-center justify-start space-x-3 grow shrink-0 basis-auto">
                             <div class="flex-shrink-0">
-                                <img class="h-10 w-10 rounded-full object-cover" @error="handleImageError" :src="`${uri}/storage/img/cli/${proposition.client1.id_cli}.webp`" alt="" />
+                                <img class="h-10 w-10 rounded-full object-cover" @error="handleImageError" :src="`${uri}/storage/img/cli/${proposition.client2.id_cli}.webp`" alt="" />
                             </div>
-                            <div class="min-w-0 flex-1">
+
+                            <div>
                                 <a href="#" class="focus:outline-none">
-                                    <p class="text-sm font-medium text-gray-900">{{ proposition.client1.pNoms_cli }} {{ proposition.client1.nom_cli }}</p>
-                                    <p class="truncate text-sm text-gray-500">{{ proposition.client1.ref_cli }}</p>
+                                    <p class="text-sm font-medium text-gray-900 text-left">{{ proposition.client2.pNoms_cli }} {{ proposition.client2.nom_cli }}</p>
+                                    <p class="truncate text-sm text-gray-500 text-left">{{ proposition.client2.ref_cli }}</p>
                                 </a>
                             </div>
                         </div>
+                        
+                        <div class="flex items-center gap-2 basis-auto">
+                            <a v-if="proposition.res_prop === null" @click="handeUpdateProposition(proposition.id_prop, true)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-green-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                <CheckIcon class="w-5 h-5"/>
+                            </a>
 
-                        <div class="flex gap-2 items-center basis-auto">
-                            <a @click="handleSendingAttachment(proposition.client1.id_cli, 'prop', proposition.client2)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a v-if="proposition.res_prop === null" @click="handeUpdateProposition(proposition.id_prop, false)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                <XMarkIcon class="w-5 h-5"/>
+                            </a>
+
+                            <a @click="handlePrint(proposition.client2.id_cli, 'prop', proposition.client1)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                <PrinterIcon class="w-5 h-5"/>
+                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
+                            </a>
+                            
+                            <a @click="handleSendingAttachment(proposition.client2.id_cli, 'prop', proposition.client1)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <AtSymbolIcon class="w-5 h-5"/>
                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                             </a>
 
-                            <a @click="handlePrint(proposition.client1.id_cli, 'prop', proposition.client2)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                <PrinterIcon class="w-5 h-5"/>
-                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
-                            </a>
-
-                            <button @click="goToFicheClient(proposition.client1.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
+                            <button @click="goToFicheClient(proposition.client2.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
                         </div>
                     </div>
 
@@ -715,37 +737,30 @@
                     </span>
 
                     <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-                        <div class="flex items-center gap-2 basis-auto">
-                            <button @click="goToFicheClient(proposition.client2.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
-
-                            <a @click="handleSendingAttachment(proposition.client2.id_cli, 'prop', proposition.client1)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                        <div class="flex gap-2 items-center basis-auto">
+                            <button @click="goToFicheClient(proposition.client1.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
+                            
+                            <a @click="handleSendingAttachment(proposition.client1.id_cli, 'prop', proposition.client2)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <AtSymbolIcon class="w-5 h-5"/>
                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                             </a>
 
-                            <a @click="handlePrint(proposition.client2.id_cli, 'prop', proposition.client1)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                            <a @click="handlePrint(proposition.client1.id_cli, 'prop', proposition.client2)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <PrinterIcon class="w-5 h-5"/>
                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
-                            </a>
-
-                            <a v-if="proposition.res_prop === null" @click="handeUpdateProposition(proposition.id_prop, true)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-green-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                <CheckIcon class="w-5 h-5"/>
-                            </a>
-
-                            <a v-if="proposition.res_prop === null" @click="handeUpdateProposition(proposition.id_prop, false)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                <XMarkIcon class="w-5 h-5"/>
                             </a>
                         </div>
 
                         <div class="flex items-center justify-end space-x-3 grow shrink-0 basis-auto">
-                            <div>
+                            <div class="min-w-0 flex-1">
                                 <a href="#" class="focus:outline-none">
-                                    <p class="text-sm font-medium text-gray-900 text-right">{{ proposition.client2.pNoms_cli }} {{ proposition.client2.nom_cli }}</p>
-                                    <p class="truncate text-sm text-gray-500 text-right">{{ proposition.client2.ref_cli }}</p>
+                                    <p class="text-sm font-medium text-gray-900 text-right">{{ proposition.client1.pNoms_cli }} {{ proposition.client1.nom_cli }}</p>
+                                    <p class="truncate text-sm text-gray-500 text-right">{{ proposition.client1.ref_cli }}</p>
                                 </a>
                             </div>
+
                             <div class="flex-shrink-0">
-                                <img class="h-10 w-10 rounded-full object-cover" @error="handleImageError" :src="`${uri}/storage/img/cli/${proposition.client2.id_cli}.webp`" alt="" />
+                                <img class="h-10 w-10 rounded-full object-cover" @error="handleImageError" :src="`${uri}/storage/img/cli/${proposition.client1.id_cli}.webp`" alt="" />
                             </div>
                         </div>
                     </div>
@@ -753,7 +768,7 @@
             </div>
 
             <!-- #region SKELETON -->
-            <div v-else-if="!propositionsLoaded">
+            <div class="mt-12" v-else-if="!propositionsLoaded">
                 <div v-for="n in 10" class="grid gap-2 grid-cols-2 relative mb-12">
                     <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
                         <div class="flex items-center justify-start space-x-3 grow shrink-0 basis-auto">

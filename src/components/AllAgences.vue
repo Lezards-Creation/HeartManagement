@@ -51,8 +51,8 @@
 				<ul role="list" class="divide-y divide-gray-100 mt-4">
 					<li v-for="agence in agences" :key="agence.id">
 						<router-link :to="{ name: 'Agence', params: { id: agence.id }}" :active-class="'!text-rose-600'" class="'text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-xs leading-6 font-medium items-center">
-							<span class="text-gray-400 border-gray-200 group-hover:border-rose-600 group-hover:text-rose-600 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-lg font-medium bg-white group-[.router-link-exact-active]:text-rose-600 group-[.router-link-exact-active]:border-rose-600">{{ agence.initial }}</span>
-							<span class="text-sm font-medium  text-gray-900">{{ agence.name }}</span>
+							<span class="text-gray-400 border-gray-200 group-hover:border-rose-600 group-hover:text-rose-600 flex h-6 w-6 2xl:h-8 2xl:w-8 shrink-0 items-center justify-center rounded-lg border text-md 2xl:text-lg font-medium bg-white group-[.router-link-exact-active]:text-rose-600 group-[.router-link-exact-active]:border-rose-600">{{ agence.initial }}</span>
+							<span class="2xl:text-sm text-xs font-medium  text-gray-900">{{ agence.name }}</span>
 						</router-link>
 					</li>
 				</ul>				

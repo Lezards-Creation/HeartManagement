@@ -8,10 +8,12 @@
 	import { useAgencesStore } from '../stores/agences';
 	import { useUserStore } from '../stores/user';
 	import { useClientsStore } from "../stores/clients";
+	import { useMessageStore } from '../stores/messages';
 
 	const agencesStore = useAgencesStore();
 	const userStore = useUserStore();
 	const clientsStore = useClientsStore();
+	const messageStore = useMessageStore();
 
 	const route = useRoute();
 	const router = useRouter();
@@ -36,7 +38,8 @@
 	const openSearch = ref(false);
 	const query = ref('');
 	const recent = ref([]);
-
+	const countNotif = ref(0);
+	
 	const filteredPeople = computed(() =>
 		query.value === '' ? [] : clientsStore.clients.filter((person) => {
 			return person.nom_cli.toLowerCase().includes(query.value.toLowerCase())
@@ -79,6 +82,14 @@
 		})
 	}
 	fetchAgences();
+
+
+	const fetchNotifCount = () => {
+		messageStore.getMessagesCount()
+		.then(res => countNotif.value = res.count)
+		.catch(err => console.error(err))
+	}
+	fetchNotifCount();
 
 	const sidebarOpen = ref(false);
 </script>
@@ -159,7 +170,7 @@
 		<!-- #endregion -->
 
 		<!-- #region SIDEBAR -->
-		<div class="hidden xl:fixed xl:inset-y-0 xl:left-0 xl:z-50 xl:w-64 xl:block xl:overflow-y-auto xl:pb-4 border-r border-gray-200 bg-white">
+		<div class="hidden xl:fixed xl:inset-y-0 xl:left-0 xl:z-50 xl:w-36 2xl:w-64 xl:block xl:overflow-y-auto xl:pb-4 border-r border-gray-200 bg-white">
 			<div class="flex h-16 shrink-0 items-center justify-center pt-4">
 				<svg class="w-32 h-auto" viewBox="0 0 311 146" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 					<g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -177,12 +188,12 @@
 					</g>
 				</svg>	
 			</div>
-			<nav class="mt-0 p-4">
+			<nav class="mt-0 xl:px-2 xl:py-4 2xl:p-4">
 				<ul role="list" class="flex flex-col space-y-1">
 					<li v-for="item in navigation" :key="item.name">
-						<router-link :to="{path: item.href}" :active-class="'!text-rose-600 bg-rose-100'" class="text-gray-700 hover:text-rose hover:bg-gray-200/25 group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-medium">
-							<component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
-							<span>{{ item.name }}</span>
+						<router-link :to="{path: item.href}" :active-class="'!text-rose-600 bg-rose-100'" class="text-gray-700 hover:text-rose hover:bg-gray-200/25 group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-medium items-center">
+							<component :is="item.icon" class="2xl:h-6 2xl:w-6 xl:h-5 xl:w-5 shrink-0 " aria-hidden="true" />
+							<span class="xl:text-xs 2xl:text-sm">{{ item.name }}</span>
 						</router-link>
 					</li>
 
@@ -190,16 +201,20 @@
 						<div class="text-xs font-semibold leading-6 text-gray-400 mt-12 mb-2">Agences</div>
 						<ul role="list" class="flex flex-col space-y-1">
 							<li>
-								<router-link :to="{path: '/clients', query: {agence: '0'}}" href="#" :class="$route.query.agence == 0 ? 'active bg-rose-100' : false"  class="'text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-xs leading-6 font-medium">
-									<span class="text-gray-400 border-gray-200 group-[.active]:text-rose-600 group-[.active]:border-rose group-hover:border-rose-600 group-hover:text-rose-600 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white">T</span>
-									<span class="group-[.active]:text-rose-600">TOUTES</span>
+								<router-link :to="{path: '/clients', query: {agence: '0'}}" href="#" :class="$route.query.agence == 0 ? 'active bg-rose-100' : false"  class="'text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-xs 2xl:leading-6 font-medium items-center">
+									<span class="text-gray-400 border-gray-200 group-[.active]:text-rose-600 group-[.active]:border-rose group-hover:border-rose-600 group-hover:text-rose-600 flex 2xl:h-6 2xl:w-6 xl:h-4 xl:w-4 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white">
+										
+									</span>
+									<span class="group-[.active]:text-rose-600 xl:text-xs 2xl:text-sm">TOUTES</span>
 								</router-link>
 							</li>
 
-							<li v-for="agence in agences" :key="agence.id">
-								<router-link :to="{path: '/clients', query: {agence: agence.id}}" href="#" :class="agence.id == $route.query.agence ? 'active bg-rose-100' : false"  class="'text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-xs leading-6 font-medium">
-									<span class="text-gray-400 border-gray-200 group-[.active]:text-rose-600 group-[.active]:border-rose group-hover:border-rose-600 group-hover:text-rose-600 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white">{{ agence.initial }}</span>
-									<span class="group-[.active]:text-rose-600">{{ agence.name }}</span>
+							<li v-for="agence in agences" :key="agence.id"> 
+								<router-link :to="{path: '/clients', query: {agence: agence.id}}" href="#" :class="agence.id == $route.query.agence ? 'active bg-rose-100' : false"  class="'text-gray-700 hover:text-rose-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-xs 2xl:leading-6 font-medium items-center">
+									<span class="text-gray-400 border-gray-200 group-[.active]:text-rose-600 group-[.active]:border-rose group-hover:border-rose-600 group-hover:text-rose-600 flex 2xl:h-6 2xl:w-6 xl:h-4 xl:w-4 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white">
+										{{ agence.initial }}
+									</span>
+									<span class="group-[.active]:text-rose-600 xl:text-xs 2xl:text-sm">{{ agence.name }}</span>
 								</router-link>
 							</li>
 						</ul>
@@ -210,7 +225,7 @@
 		<!-- #endregion -->
 
 		<!-- #region BAR DU HAUT + ROUTER VIEW -->
-		<div class="xl:pl-64">
+		<div class="xl:pl-36 2xl:pl-64">
 			<div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 xl:px-8">
 				<button type="button" class="-m-2.5 p-2.5 text-gray-700 xl:hidden" @click="sidebarOpen = true">
 					<span class="sr-only">Open sidebar</span>
@@ -223,10 +238,11 @@
 				<div class="flex flex-1 gap-x-4 xl:gap-x-6">
 					<div class="flex-1"></div>
 					<div class="flex items-center gap-x-4 xl:gap-x-6">
-						<button v-if="false" type="button" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
+						<router-link :to="{name: 'Messages'}" class="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500 flex items-center gap-1 group">	
 							<span class="sr-only">View notifications</span>
-							<BellIcon class="h-6 w-6" aria-hidden="true" />
-						</button>
+								<BellIcon :class="countNotif ? 'text-rose' : 'opacity-75 cursor-not-allowed'" class="h-6 w-6 group-hover:text-gray-300 duration-300 ease-out" aria-hidden="true" />
+							<span class="text-xs px-2 py-1 rounded-md bg-rose text-white group-hover:bg-gray-300 duration-300 ease-out">{{ countNotif }}</span>
+						</router-link>
 
 						<!-- Separator -->
 						<div class="hidden xl:block xl:h-6 xl:w-px xl:bg-gray-900/10" aria-hidden="true" />
