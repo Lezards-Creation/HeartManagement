@@ -237,7 +237,6 @@ export const useClientsStore = defineStore('clients-store', () => {
 		})
 	}
 
-
 	const searchClient = (query, sexe) => {
 		return new Promise((resolve, reject) => {
 			instance({
@@ -276,7 +275,6 @@ export const useClientsStore = defineStore('clients-store', () => {
             })
 		})
 	}
-
 
 	return {
 		//#region Variables

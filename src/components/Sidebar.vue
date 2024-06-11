@@ -18,8 +18,13 @@
 	const route = useRoute();
 	const router = useRouter();
 
+	const handleLogout = () => {
+		userStore.logout()
+		.then(res => router.push({name: 'Connexion'}));
+	}
+
 	const userNavigation = [
-		{ name: 'Déconnexion', href: '/connexion' },
+		{ name: 'Déconnexion', callback: handleLogout },
 	]
 
 	const navigation = [
@@ -29,9 +34,9 @@
 		{ name: 'Rencontres', href: '/rencontres', icon: BoltIcon, current: route.path == '/rencontres' },
 		{ name: 'Matchings', href: '/matchings', icon: HeartIcon, current: route.path == '/matchings' },
 		{ name: 'Messages', href: '/messages', icon: ChatBubbleLeftRightIcon, current: route.path == '/messages' },
-		{ name: 'Documents', href: '/factures', icon: FolderIcon, current: route.path == '/factures' },
-		{ name: 'Leads', href: '/leads', icon: BellAlertIcon, current: route.path == '/leads' },
-		{ name: 'Réglages', href: '/reglages', icon: AdjustmentsVerticalIcon, current: route.path == '/reglages' },
+		// { name: 'Documents', href: '/factures', icon: FolderIcon, current: route.path == '/factures' },
+		// { name: 'Leads', href: '/leads', icon: BellAlertIcon, current: route.path == '/leads' },
+		// { name: 'Réglages', href: '/reglages', icon: AdjustmentsVerticalIcon, current: route.path == '/reglages' },
 	];	
 
 	const agences = ref([]);
@@ -266,7 +271,7 @@
 							<transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
 								<MenuItems class="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
 									<MenuItem v-for="item in userNavigation" :key="item.name" v-slot="{ active }">
-										<a :href="item.href" :class="[active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900']">{{ item.name }}</a>
+										<a @click="item.callback" :class="[active ? 'bg-gray-50' : '', 'block px-3 py-1 text-sm leading-6 text-gray-900']">{{ item.name }}</a>
 									</MenuItem>
 								</MenuItems>
 							</transition>

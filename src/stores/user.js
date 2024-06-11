@@ -29,13 +29,41 @@ export const useUserStore = defineStore('user-store', () => {
             })
         }) 
     }
+
+	const logout = () => {
+		return new Promise((resolve) => {
+			userLog.value = null;
+			resolve();
+		})
+    }
 	
-	
+	const checkToken = (id, token) => {
+		return new Promise((resolve, reject) => {
+			let data = new FormData;
+			data.append('id_util', id);
+			data.append('token', token);
+			
+			instance({
+					url: 'checkToken',
+					method: 'POST',
+					data: data
+				})
+				.then(res => {
+					resolve(res);
+				})
+				.catch(err => {
+					reject(err.response.data.error);
+			})
+		}) 
+	}
+
 	return {
 		// Variables
 		userLog,
 		// Functions
-		login
+		login,
+		checkToken,
+		logout
 	}
 }, { persistedState: { persist: true } })
 

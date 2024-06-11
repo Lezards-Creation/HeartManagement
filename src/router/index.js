@@ -117,12 +117,27 @@ const router = createRouter({
 	],
 })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to, from, next) => {
 	const store = useUserStore();
-	if (to.meta.requiresAuth && !store.userLog?.token){
-		return {
-			name: 'Connexion'
-		};
+	const isAuthenticated = store.userLog?.token;
+	let invalidToken = false;
+
+	if (isAuthenticated) {
+		try {
+			const res = await store.checkToken(store.userLog.id_util, store.userLog.token);
+			console.log(res);
+			invalidToken = false;
+		} catch (err) {
+			invalidToken = true;
+		}
+	}
+
+	if (to.meta.requiresAuth && (!isAuthenticated || invalidToken)) {
+		next({ name: 'Connexion' });
+	} else if (to.name === 'Connexion' && isAuthenticated && !invalidToken) {
+		next({ name: 'Dashboard' });
+	} else {
+		next();
 	}
 })
 

@@ -47,6 +47,11 @@
 
 	const searchLoading = ref(false);
 	const matchLoading = ref(false);
+	
+	const sending = ref(false);
+	const stateToast = ref(false);
+	const stateToastPropo = ref(false);
+	const stateToastChoix = ref(false);
 
 	const determineStatus = computed(() => {
 		if (current_user.value && current_user.value.insc_cli) {
@@ -80,6 +85,7 @@
 	}
 
 	const handleAddChoice = (activeOption) => {
+		stateToastChoix.value = false;
 		let client = current_user.value;
 		let choix = activeOption
 
@@ -94,11 +100,14 @@
 		.then(res => {
 			console.log(res);
 			openSearch.value = false;
+			open.value = false;
+			stateToastChoix.value = true;
 		})
 		.catch(err => console.error(err))
 	}
 
 	const handleAddProposition = (activeOption) => {
+		stateToastPropo.value = false;
 		let client = current_user.value;
 		let prop = activeOption
 
@@ -111,8 +120,9 @@
 		
 		propositionStore.addProposition(data)
 		.then(res => {
-			console.log(res);
 			openSearch.value = false;
+			open.value = false;
+			stateToastPropo.value = true;
 		})
 		.catch(err => console.error(err))
 	}
@@ -134,6 +144,8 @@
 	}
 
     const handleMail = (e) => {
+		stateToast.value = false;
+		sending.value = true;
         let data = {
 			subject: e.subject,
             base64: e.file,
@@ -142,7 +154,9 @@
 
         clientsStore.sendMail(e.email, data)
         .then(res => {
+			sending.value = false;
 			openTestPopup.value = false;
+			stateToast.value = true;
         })
         .catch(err => console.error(err))
     }
@@ -446,8 +460,17 @@
 
 							<div class="mt-5 flex items-center justify-center gap-x-2">
 								<a @click="openTestPopup = false" class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Annuler</a>
-								<a @click="generateBase64 = {state: true, email: mail_test}" class="inline-flex gap-2 items-center justify-center rounded-md bg-rose px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-600">Envoyer <span aria-hidden="true">→</span></a>
-							</div>
+								<a @click="generateBase64 = {state: true, email: mail_test}" :class="sending ? 'active opacity-75 pointer-events-none' : false" class="group inline-flex gap-2 items-center justify-center rounded-md bg-rose px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-600">
+									Envoyer 
+									<span class="group-[.active]:hidden" aria-hidden="true">→</span>
+									<span class="group-[.active]:block hidden" aria-hidden="true">
+										<svg class="animate-spin ml-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+											<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+											<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+										</svg>
+									</span>
+								</a>
+							</div> 
 						</div>
 					</DialogPanel>
 				</TransitionChild>
@@ -455,6 +478,10 @@
 		</Dialog>
 	</TransitionRoot>
 	<!-- #endregion -->
+
+	<Toast :state="stateToast" title="Portrait client envoyé avec succès"/>
+	<Toast :state="stateToastPropo" title="Proposition envoyé avec succès"/>
+	<Toast :state="stateToastChoix" title="Choix envoyé avec succès"/>
 
 	<!-- #region PORTRAIT PATIENT -->
 	<PortraitClient v-if="current_user" :client="current_user.id_cli" :isOpen="isModalOpened" :generate="generateBase64" @base64generated="handleMail" @modal-close="isModalOpened = false"/>
