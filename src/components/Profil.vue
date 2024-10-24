@@ -1,9 +1,10 @@
 <script setup>
-    import { computed, ref, watch } from 'vue';
+    import { computed, ref, watch, onMounted } from 'vue';
     import { useRoute } from 'vue-router';
     import { useClientsStore } from '../stores/clients';
     import { useAgencesStore } from '../stores/agences';
     import { CheckIcon } from '@heroicons/vue/24/outline';
+    import { useUserStore } from '../stores/user';
     import StarterKit from '@tiptap/starter-kit';
 	import { useEditor, EditorContent } from '@tiptap/vue-3';
     import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
@@ -19,21 +20,15 @@
     const props = defineProps(['client']);
     const clientsStore = useClientsStore()
     const agencesStore = useAgencesStore();
+    const userStore = useUserStore();
     const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
     const agences = ref(null);
     const active_tab = ref('Profil');
     const updatingPhoto = ref(false);
 
-    const tabs = ref([
-		{ name: 'Profil', href: '#' },
-		{ name: 'Situation', href: '#' },
-		{ name: 'Physique', href: '#' },
-		{ name: 'Matching', href: '#' },
-		{ name: 'Annonces', href: '#' },
-		{ name: 'Autres', href: '#' },
-        { name: 'Rencontres', href: '#' },
-        { name: 'Documents', href: '#' },
-	])
+    const tabs = ref([]);
+    const isReadOnly = ref(false);
+
     const { files, addFiles, removeFile } = useFileList()
     //#endregion
 
@@ -126,11 +121,76 @@
 
             editorAnn1.value.commands.setContent(current_user.value.ann1_cli);
             editorAnn2.value.commands.setContent(current_user.value.ann2_cli);
+
+            if(!isFromAgence(res.client).can){
+                isReadOnly.value = true;
+                tabs.value = [
+                    { name: 'Profil', href: '#' },
+                    { name: 'Situation', href: '#' },
+                    { name: 'Physique', href: '#' },
+                    { name: 'Psychologie et morale', href: '#' },
+                    { name: 'Annonces', href: '#' },
+                    { name: 'Autres', href: '#' },
+                ]
+            } else {
+                isReadOnly.value = false;
+                tabs.value = [
+                    { name: 'Profil', href: '#' },
+                    { name: 'Situation', href: '#' },
+                    { name: 'Physique', href: '#' },
+                    { name: 'Psychologie et morale', href: '#' },
+                    { name: 'Annonces', href: '#' },
+                    { name: 'Autres', href: '#' },
+                    { name: 'Rencontres', href: '#' },
+                    { name: 'Documents', href: '#' },
+                ]
+            }
 		})
 	}
 
+    const isFromAgence = (client) => {
+		if(userStore.userLog.agences.includes(client.idAgence_cli)){
+			return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
+		} else {
+			let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
+			return {name: formattedNomCli, can: false};
+		}
+	} 
+
     watch(() => route.params.id, handleGetClient, {immediate: true})
     //#endregion 
+</script>
+
+<script>
+export default {
+    directives: {
+        readonly: {
+        mounted(el, binding) {
+            // If the binding value (isReadOnly) is true, set the fields to readonly
+            if (binding.value) {
+            const inputs = el.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.setAttribute('readonly', 'readonly');
+                input.setAttribute('disabled', 'disabled');
+            });
+            }
+        },
+        updated(el, binding) {
+            // On update, toggle readonly status based on the binding value
+            const inputs = el.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (binding.value) {
+                    input.setAttribute('readonly', 'readonly');
+                    input.setAttribute('disabled', 'disabled');
+                } else {
+                    input.removeAttribute('readonly');
+                    input.removeAttribute('disabled', 'disabled');
+                }
+            });
+        }
+        }
+    }
+    };
 </script>
 
 <template>
@@ -153,7 +213,7 @@
         </div>
     </div>
 
-    <form method="POST" v-if="current_user" @change="handleUpdateClient">
+    <form v-readonly="isReadOnly" method="POST" v-if="current_user" @change="handleUpdateClient">
         <div class="space-y-10 mt-10" v-if="active_tab === 'Profil'">
             <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
                 <div class="px-4 sm:px-0">
@@ -189,8 +249,8 @@
                                 <div class="droite p-10">
                                     <label for="photo" class="block text-sm font-medium leading-6 text-gray-900">Photo</label>
                                     <div class="mt-2 flex items-center gap-x-3">
-                                        <button v-if="!updatingPhoto" @click="() => updatingPhoto = true" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Modifier</button>
-                                        <button v-else @click="() => {updatingPhoto = false; handleUpdateClient()}" type="button" class="rounded-md bg-rose px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm">Valider</button>
+                                        <button v-if="!updatingPhoto && isFromAgence(current_user).can" @click="() => updatingPhoto = true" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Modifier</button>
+                                        <button v-else-if="isFromAgence(current_user).can" @click="() => {updatingPhoto = false; handleUpdateClient()}" type="button" class="rounded-md bg-rose px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm">Valider</button>
                                     </div>
                                 </div>
                             </div>
@@ -207,8 +267,10 @@
                             <div class="sm:col-span-3">
                                 <label for="nom_cli" class="block text-sm font-medium leading-6 text-gray-900">Nom de famille</label>
                                 <div class="mt-2">
-                                    <input type="text" v-model="current_user.nom_cli" name="nom_cli" id="nom_cli"
+                                    <input v-if="isFromAgence(current_user).can" type="text" v-model="current_user.nom_cli" name="nom_cli" id="nom_cli"
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                    <input v-else type="text" :value="isFromAgence(current_user).name" name="nom_cli" id="nom_cli"
+                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                     <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                 </div>
                             </div>
@@ -281,9 +343,10 @@
                                 <label for="adr_cli"
                                     class="block text-sm font-medium leading-6 text-gray-900">Adresse</label>
                                     <div class="mt-2">
-                                        <input type="text" v-model="current_user.adr_cli" name="adr_cli"
+                                        <input v-if="isFromAgence(current_user).can" type="text" v-model="current_user.adr_cli" name="adr_cli"
                                             id="adr_cli"
                                             class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                        <input v-else type="text" value="*************" name="adr_cli" id="adr_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                         <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                     </div>
                             </div>
@@ -299,20 +362,22 @@
                                 <label for="ville_cli"
                                     class="block text-sm font-medium leading-6 text-gray-900">Ville</label>
                                 <div class="mt-2">
-                                    <input type="text" v-model="current_user.ville_cli" name="ville_cli" id="ville_cli"
+                                    <input v-if="isFromAgence(current_user).can" type="text" v-model="current_user.ville_cli" name="ville_cli" id="ville_cli"
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                    <input v-else type="text" value="*************" name="adr_cli" id="adr_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                     <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                 </div>
                             </div>
                             <div class="sm:col-span-4">
                                 <label for="telPri_cli" class="block text-sm font-medium leading-6 text-gray-900">Téléphone privé</label>
                                 <div class="mt-2">
-                                    <input id="telPri_cli" v-model="current_user.telPri_cli" name="telPri_cli" type="tel"
+                                    <input v-if="isFromAgence(current_user).can" id="telPri_cli" v-model="current_user.telPri_cli" name="telPri_cli" type="tel"
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                    <input v-else type="text" value="*************" name="adr_cli" id="adr_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                     <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                 </div>
                             </div>
-                            <div class="sm:col-span-2 self-end mb-2">
+                            <div class="sm:col-span-2 self-end mb-2" v-if="isFromAgence(current_user).can">
                                 <SwitchGroup as="div" class="flex items-center">
                                     <Switch @click="debouncedFunction" v-model="current_user.affTelPri_cli" name="affTelPri_cli"
                                         :class="[current_user.affTelPri_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
@@ -327,12 +392,13 @@
                             <div class="sm:col-span-4">
                                 <label for="telPro_cli" class="block text-sm font-medium leading-6 text-gray-900">Téléphone pro</label>
                                 <div class="mt-2">
-                                    <input id="telPro_cli" v-model="current_user.telPro_cli" name="telPro_cli" type="tel"
+                                    <input v-if="isFromAgence(current_user).can" id="telPro_cli" v-model="current_user.telPro_cli" name="telPro_cli" type="tel"
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                    <input v-else type="text" value="*************" name="adr_cli" id="adr_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                     <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                 </div>
                             </div>
-                            <div class="sm:col-span-2 self-end mb-2">
+                            <div class="sm:col-span-2 self-end mb-2" v-if="isFromAgence(current_user).can">
                                 <SwitchGroup as="div" class="flex items-center">
                                     <Switch @click="debouncedFunction" v-model="current_user.affTelPro_cli" name="affTelPro_cli"
                                         :class="[current_user.affTelPro_cli  ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
@@ -347,13 +413,14 @@
                             <div class="sm:col-span-4">
                                 <label for="telGsm_cli" class="block text-sm font-medium leading-6 text-gray-900">Numéro de portable</label>
                                 <div class="mt-2">
-                                    <input id="telGsm_cli" v-model="current_user.telGsm_cli" name="telGsm_cli" type="tel"
+                                    <input v-if="isFromAgence(current_user).can" id="telGsm_cli" v-model="current_user.telGsm_cli" name="telGsm_cli" type="tel"
                                         autocomplete="tel"
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                    <input v-else type="text" value="*************" name="adr_cli" id="adr_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                     <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                 </div>
                             </div>
-                            <div class="sm:col-span-2 self-end mb-2">
+                            <div class="sm:col-span-2 self-end mb-2" v-if="isFromAgence(current_user).can">
                                 <SwitchGroup as="div" class="flex items-center">
                                     <Switch @click="debouncedFunction" v-model="current_user.affTelGsm_cli" name="affTelGsm_cli"
                                         :class="[current_user.affTelGsm_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
@@ -368,12 +435,13 @@
                             <div class="sm:col-span-full">
                                 <label for="mail_cli" class="block text-sm font-medium leading-6 text-gray-900">Adresse email</label>
                                 <div class="mt-2">
-                                    <input id="mail_cli" v-model="current_user.mail_cli" name="mail_cli" type="email"
+                                    <input v-if="isFromAgence(current_user).can" id="mail_cli" v-model="current_user.mail_cli" name="mail_cli" type="email"
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                    <input v-else type="text" value="*************" name="adr_cli" id="adr_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                     <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                 </div>
                             </div>
-                            <div class="sm:col-span-2 self-start mb-2">
+                            <div class="sm:col-span-2 self-start mb-2" v-if="isFromAgence(current_user).can">
                                 <SwitchGroup as="div" class="flex items-center flex-wrap">
                                     <Switch @click="debouncedFunction" v-model="current_user.nl_cli" name="nl_cli"
                                         :class="[current_user.nl_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
@@ -851,7 +919,7 @@
             </div>
         </div>
 
-        <div class="space-y-10 mt-10" v-if="active_tab === 'Matching'">
+        <div class="space-y-10 mt-10" v-if="active_tab === 'Psychologie et morale'">
             <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
                 <div class="px-4 sm:px-0">
                     <h2 class="text-base font-semibold leading-7 text-gray-900">Psychologie et morale</h2>
@@ -1321,6 +1389,42 @@
                                                 </div>
                                                 <div class="ml-3 text-sm leading-6">
                                                     <label for="nature" class="font-medium text-gray-900">La nature</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.gouts_cli" id="danse" value="14" name="danse" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="danse" class="font-medium text-gray-900">La danse</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.gouts_cli" id="voyages" value="15" name="voyages" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="voyages" class="font-medium text-gray-900">Les voyages</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.gouts_cli" id="gastronomie" value="16" name="gastronomie" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="gastronomie" class="font-medium text-gray-900">La gastronomie</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.gouts_cli" id="culturelle" value="17" name="culturelle" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="culturelle" class="font-medium text-gray-900">La vie culturelle</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -1949,6 +2053,42 @@
                                                     <label for="nature" class="font-medium text-gray-900">La nature</label>
                                                 </div>
                                             </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.desGouts_cli" id="danse" value="14" name="danse" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="danse" class="font-medium text-gray-900">La danse</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.desGouts_cli" id="voyages" value="15" name="voyages" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="voyages" class="font-medium text-gray-900">Les voyages</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.desGouts_cli" id="gastronomie" value="16" name="gastronomie" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="gastronomie" class="font-medium text-gray-900">La gastronomie</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.desGouts_cli" id="culturelle" value="17" name="culturelle" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="culturelle" class="font-medium text-gray-900">La vie culturelle</label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -2299,6 +2439,12 @@
     button.updated ~ span.status {
         display: flex;
         flex: 1 0 100%;
+    }
+
+    input[disabled],
+    select[disabled],
+    textarea[disabled] {
+        opacity: 0.60;
     }
 
 </style>

@@ -276,6 +276,15 @@
 		return color;
 	}
 
+	const isFromAgence = (client) => {
+		if(userStore.userLog.agences.includes(client.idAgence_cli)){
+			return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
+		} else {
+			let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
+			return {name: client.pNoms_cli + ' ' + formattedNomCli, can: false};
+		}
+	} 
+
 	function debounce(func, delay) {
         let timerId;
         
@@ -309,7 +318,7 @@
 					</div>
 				</div>
 				<div class="pt-1.5">
-					<h1 class="text-2xl font-bold" :style="`color: ${setColorName()}`">{{ current_user.pNoms_cli }} {{ current_user.nom_cli }}</h1>
+					<h1 class="text-2xl font-bold" :style="`color: ${setColorName()}`">{{ isFromAgence(current_user).name }}</h1>
 					<p class="text-sm font-medium text-gray-500">
 						<a href="#" class="text-gray-900">{{ current_user.prof_cli }}</a>, de {{ current_user.ville_cli}}, {{ current_user.dateNaiss_cli ? calculateAge(current_user.dateNaiss_cli) + ' ans' : '' }}
 					</p>
@@ -318,14 +327,14 @@
 			</div>
 			<div>
 				<div class="mt-3 flex justify-end gap-x-3">
-					<button @click="openTestPopup = true" type="button"
+					<button v-if="isFromAgence(current_user).can" @click="openTestPopup = true" type="button"
 						class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
 						Envoyer un test
 						<EnvelopeIcon class="text-gray-600 w-5 h-5"/>
 					</button>
-					<button @click="() => {open = true;}" type="button"
+					<button v-if="isFromAgence(current_user).can" @click="() => {open = true;}" type="button"
 						class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-						Lancer un match
+						Ajouter un choix
 						<ArrowPathRoundedSquareIcon class="text-gray-600 w-5 h-5" />
 					</button>
 				</div>

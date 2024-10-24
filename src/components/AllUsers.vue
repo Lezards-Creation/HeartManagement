@@ -3,6 +3,7 @@
 	import { useRoute } from "vue-router";
 	import { useClientsStore } from '../stores/clients'
 	import { useAgencesStore } from "../stores/agences";
+	import { useUserStore } from "../stores/user";
 	import { AdjustmentsHorizontalIcon, PlusIcon, CheckIcon, ChevronDownIcon, IdentificationIcon, AdjustmentsVerticalIcon, BuildingOffice2Icon, ListBulletIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 	import { Popover, PopoverButton, PopoverPanel, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 
@@ -12,6 +13,7 @@
 	const route = useRoute();
 
 	const clientsStore = useClientsStore()
+	const userStore = useUserStore();
 
 	const clients = ref({});
 	const clients_count = ref(0);
@@ -49,6 +51,7 @@
 		{ title: 'Anciens adhérents', filter: 'anc_adh', current: false },
 		{ title: 'Fiches supprimées', filter: 'id_cli', current: false },
 		{ title: 'Liste noire', filter: 'ln_cli', current: false },
+		{ title: 'Tous', filter: 'all' ,current: false },
 	]
 
 	const selected = ref(filterOptions[0])
@@ -253,6 +256,15 @@
 
 		return color;
 	}
+
+	const isFromAgence = (client) => {
+		if(userStore.userLog.agences.includes(client.idAgence_cli)){
+			return client.pNoms_cli + ' ' + client.nom_cli;
+		} else {
+			let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
+			return client.pNoms_cli + ' ' + formattedNomCli;
+		}
+	} 
 
 	const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
 	function handleImageError(event) {
@@ -653,7 +665,7 @@
 							<img @error="event => handleImageError(event, person.id_cli)" class="h-8 w-8 2xl:h-12 2xl:w-12 flex-none object-cover object-center rounded-full bg-gray-50" :src="`${uri}/storage/img/cli/${person.id_cli}.webp`" loading="lazy" />
 							<div class="min-w-0">
 								<p class="flex gap-2 items-center xl:text-xs 2xl:text-sm font-medium" :style="'color: ' + setColorName(person)">
-									{{ person.pNoms_cli }} {{ person.nom_cli }}
+									{{ isFromAgence(person) }}
 									<svg class="h-2 w-2" viewBox="0 0 6 6" aria-hidden="true">
 										<circle cx="3" cy="3" r="3" :fill="setColorTag(person)"/>
 									</svg>

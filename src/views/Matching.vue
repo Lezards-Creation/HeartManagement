@@ -340,6 +340,65 @@
 		router.push({name: 'Client', params: {id: id}})
 	}
 
+    const setColorName = (client) => {
+		let color = 'rgb(17 24 39)'
+		if(!client.libre_cli){
+			color = 'rgb(17 24 39)';
+			if(client.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+
+		let anc_adh = false;
+		let a = moment(client.insc_cli).add(client.duree_cli, 'M');
+		let b = moment();
+		if (!b.isBefore(a)){
+			anc_adh = true;
+		} 
+		
+		if(client.prosp_cli || client.cont_cli || anc_adh){
+			color = 'rgb(239,68,68)'
+		}
+
+		return color;
+	}
+	
+	const setColorTag = (client) => {
+		let color = 'rgb(12, 159, 67)';
+		if(!client.libre_cli){
+			color = 'rgb(17 24 39)';
+			if(client.probPaie_cli){
+				color = 'rgb(17, 24, 39)';
+			}
+		} else {
+			if(client.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+		let anc_adh = false;
+		let a = moment(client.insc_cli).add(client.duree_cli, 'M');
+		let b = moment();
+		if (!b.isBefore(a)){
+			anc_adh = true;
+		} 
+
+		if(client.prosp_cli || client.cont_cli || anc_adh){
+			color = 'rgb(17, 24, 39)';
+
+			if(!client.libre_cli){
+				color = 'rgb(239,68,68)';
+			}
+
+			if(client.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+		return color;
+	}
+
     onMounted(() => {
         agencesStore.getAgences()
         .then(res => {
@@ -450,8 +509,8 @@
                             </div>
                             <div class="min-w-0 flex-1">
                                 <a href="#" class="focus:outline-none">
-                                    <p class="text-sm font-medium text-gray-900">{{ commun.client.pNoms_cli }} {{ commun.client.nom_cli }}</p>
-                                    <p class="truncate text-sm text-gray-500">{{ commun.client.ref_cli }}</p>
+                                    <p class="text-sm font-medium text-gray-900" :style="`color: ${setColorName(commun.client)}`">{{ commun.client.pNoms_cli }} {{ commun.client.nom_cli }}</p>
+                                    <p class="truncate text-sm text-gray-500" :style="`color: ${setColorTag(commun.client)}`">{{ commun.client.ref_cli }}</p>
                                 </a>
                             </div>
                         </div>
@@ -474,8 +533,8 @@
                         <div class="flex items-center justify-end space-x-3 grow shrink-0 basis-auto">
                             <div>
                                 <a href="#" class="focus:outline-none">
-                                    <p class="text-sm font-medium text-gray-900 text-right">{{ commun.demandeur.pNoms_cli }} {{ commun.demandeur.nom_cli }}</p>
-                                    <p class="truncate text-sm text-gray-500 text-right">{{ commun.demandeur.ref_cli }}</p>
+                                    <p class="text-sm font-medium text-gray-900 text-right" :style="`color: ${setColorName(commun.demandeur)}`">{{ commun.demandeur.pNoms_cli }} {{ commun.demandeur.nom_cli }}</p>
+                                    <p class="truncate text-sm text-gray-500 text-right" :style="`color: ${setColorTag(commun.demandeur)}`">{{ commun.demandeur.ref_cli }}</p>
                                 </a>
                             </div>
                             <div class="flex-shrink-0">
@@ -594,8 +653,8 @@
                             </div>
                             <div class="min-w-0 flex-1">
                                 <a href="#" class="focus:outline-none">
-                                    <p class="text-sm font-medium text-gray-900">{{ ch.client.pNoms_cli }} {{ ch.client.nom_cli }}</p>
-                                    <p class="truncate text-sm text-gray-500">{{ ch.client.ref_cli }}</p>
+                                    <p class="text-sm font-medium text-gray-900" :style="`color: ${setColorName(ch.client)}`">{{ ch.client.pNoms_cli }} {{ ch.client.nom_cli }}</p>
+                                    <p class="truncate text-sm text-gray-500" :style="`color: ${setColorTag(ch.client)}`">{{ ch.client.ref_cli }}</p>
                                 </a>
                             </div>
                         </div>
@@ -646,8 +705,8 @@
                         <div class="flex items-center justify-end space-x-3 grow shrink-0 basis-auto">
                             <div>
                                 <a href="#" class="focus:outline-none">
-                                    <p class="text-sm font-medium text-gray-900 text-right">{{ ch.demandeur.pNoms_cli }} {{ ch.demandeur.nom_cli }}</p>
-                                    <p class="truncate text-sm text-gray-500 text-right">{{ ch.demandeur.ref_cli }}</p>
+                                    <p class="text-sm font-medium text-gray-900 text-right" :style="`color: ${setColorName(ch.demandeur)}`">{{ ch.demandeur.pNoms_cli }} {{ ch.demandeur.nom_cli }}</p>
+                                    <p class="truncate text-sm text-gray-500 text-right" :style="`color: ${setColorTag(ch.demandeur)}`">{{ ch.demandeur.ref_cli }}</p>
                                 </a>
                             </div>
                             <div class="flex-shrink-0">
@@ -770,8 +829,8 @@
 
                             <div>
                                 <a href="#" class="focus:outline-none">
-                                    <p class="text-sm font-medium text-gray-900 text-left">{{ proposition.client2.pNoms_cli }} {{ proposition.client2.nom_cli }}</p>
-                                    <p class="truncate text-sm text-gray-500 text-left">{{ proposition.client2.ref_cli }}</p>
+                                    <p class="text-sm font-medium text-gray-900 text-left" :style="`color: ${setColorName(proposition.client2)}`">{{ proposition.client2.pNoms_cli }} {{ proposition.client2.nom_cli }}</p>
+                                    <p class="truncate text-sm text-gray-500 text-left" :style="`color: ${setColorTag(proposition.client2)}`">{{ proposition.client2.ref_cli }}</p>
                                 </a>
                             </div>
                         </div>
@@ -822,8 +881,8 @@
                         <div class="flex items-center justify-end space-x-3 grow shrink-0 basis-auto">
                             <div class="min-w-0 flex-1">
                                 <a href="#" class="focus:outline-none">
-                                    <p class="text-sm font-medium text-gray-900 text-right">{{ proposition.client1.pNoms_cli }} {{ proposition.client1.nom_cli }}</p>
-                                    <p class="truncate text-sm text-gray-500 text-right">{{ proposition.client1.ref_cli }}</p>
+                                    <p class="text-sm font-medium text-gray-900 text-right" :style="`color: ${setColorName(proposition.client1)}`">{{ proposition.client1.pNoms_cli }} {{ proposition.client1.nom_cli }}</p>
+                                    <p class="truncate text-sm text-gray-500 text-right" :style="`color: ${setColorTag(proposition.client1)}`">{{ proposition.client1.ref_cli }}</p>
                                 </a>
                             </div>
 

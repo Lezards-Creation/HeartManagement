@@ -241,6 +241,65 @@
 		router.push({name: 'Client', params: {id: id}})
 	}
 
+    const setColorName = (client) => {
+		let color = 'rgb(17 24 39)'
+		if(!client.libre_cli){
+			color = 'rgb(17 24 39)';
+			if(client.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+
+		let anc_adh = false;
+		let a = moment(client.insc_cli).add(client.duree_cli, 'M');
+		let b = moment();
+		if (!b.isBefore(a)){
+			anc_adh = true;
+		} 
+		
+		if(client.prosp_cli || client.cont_cli || anc_adh){
+			color = 'rgb(239,68,68)'
+		}
+
+		return color;
+	}
+	
+	const setColorTag = (client) => {
+		let color = 'rgb(12, 159, 67)';
+		if(!client.libre_cli){
+			color = 'rgb(17 24 39)';
+			if(client.probPaie_cli){
+				color = 'rgb(17, 24, 39)';
+			}
+		} else {
+			if(client.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+		let anc_adh = false;
+		let a = moment(client.insc_cli).add(client.duree_cli, 'M');
+		let b = moment();
+		if (!b.isBefore(a)){
+			anc_adh = true;
+		} 
+
+		if(client.prosp_cli || client.cont_cli || anc_adh){
+			color = 'rgb(17, 24, 39)';
+
+			if(!client.libre_cli){
+				color = 'rgb(239,68,68)';
+			}
+
+			if(client.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+		return color;
+	}
+
     onMounted(() => {
         agencesStore.getAgences()
         .then(res => {
@@ -381,8 +440,8 @@
                             </div>
                             <div class="min-w-0 flex-1">
                                 <a href="#" class="focus:outline-none">
-                                    <p class="text-sm font-medium text-gray-900">{{ rencontre.laureat.pNoms_cli }} {{ rencontre.laureat.nom_cli }}</p>
-                                    <p class="truncate text-sm text-gray-500">{{ rencontre.laureat.ref_cli }}</p>
+                                    <p class="text-sm font-medium text-gray-900" :style="`color: ${setColorName(rencontre.laureat)}`">{{ rencontre.laureat.pNoms_cli }} {{ rencontre.laureat.nom_cli }}</p>
+                                    <p class="truncate text-sm text-gray-500" :style="`color: ${setColorTag(rencontre.laureat)}`">{{ rencontre.laureat.ref_cli }}</p>
                                 </a>
                             </div>
                         </div>
@@ -426,8 +485,8 @@
                         <div class="flex items-center justify-end space-x-3 grow shrink-0 basis-auto">
                             <div>
                                 <a href="#" class="focus:outline-none">
-                                    <p class="text-sm font-medium text-gray-900 text-right">{{ rencontre.pretendant.pNoms_cli }} {{ rencontre.pretendant.nom_cli }}</p>
-                                    <p class="truncate text-sm text-gray-500 text-right">{{ rencontre.pretendant.ref_cli }}</p>
+                                    <p class="text-sm font-medium text-gray-900 text-right" :style="`color: ${setColorName(rencontre.pretendant)}`">{{ rencontre.pretendant.pNoms_cli }} {{ rencontre.pretendant.nom_cli }}</p>
+                                    <p class="truncate text-sm text-gray-500 text-right" :style="`color: ${setColorTag(rencontre.pretendant)}`">{{ rencontre.pretendant.ref_cli }}</p>
                                 </a>
                             </div>
                             <div class="flex-shrink-0">

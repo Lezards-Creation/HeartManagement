@@ -407,7 +407,7 @@
 </script>
 
 <template>
-    <div class="overflow-hidden">
+    <div class="">
         <div class="lg:flex lg:gap-x-16">
             <div class="px-4 sm:px-6 lg:flex-auto lg:px-0">
                 <div class="mx-auto max-w-2xl space-y-16 sm:space-y-20 lg:mx-0 lg:max-w-none">
@@ -418,7 +418,7 @@
                             Choix communs
                         </h2>
                         <div class="bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl md:col-span-2">
-                            <ul v-if="communs.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+                            <ul v-if="communs.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
                                 <li v-if="communsLoaded" v-for="commun in communs" :key="commun.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                                     <div v-if="commun.client" class="flex min-w-0 gap-x-4">
                                         <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${commun.client.id_cli}.webp`" alt="" />
@@ -639,7 +639,7 @@
                             Rencontres
                         </h2>
                         <div class="bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl md:col-span-2">
-                            <ul v-if="rencontres.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl">
+                            <ul v-if="rencontres.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl">
                                 <li v-if="rencontresLoaded" v-for="rencontre in rencontres" :key="rencontre.id_renc" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
                                     <div v-if="rencontre.laureat" class="flex min-w-0 gap-x-4">
                                         <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${rencontre.laureat.id_cli}.webp`" alt="" />
@@ -683,10 +683,10 @@
                                                     <div class="mt-4">
                                                         <div class="grid grid-cols-6 gap-x-4">
                                                             <div class="col-span-3">
-                                                                <img class="aspect-[3/2] w-full rounded-2xl object-cover" :src="`${uri}/storage/img/cli/${props.client}.webp`" alt="" />
+                                                                <img class="aspect-[3/2] w-full rounded-2xl object-contain" :src="`${uri}/storage/img/cli/${props.client}.webp`" alt="" />
                                                             </div>
                                                             <div class="col-span-3">
-                                                                <img class="aspect-[3/2] w-full rounded-2xl object-cover" :src="`${uri}/storage/img/cli/${rencontre_ref.laureat.id_cli}.webp`" alt="" />
+                                                                <img class="aspect-[3/2] w-full rounded-2xl object-contain" :src="`${uri}/storage/img/cli/${rencontre_ref.laureat.id_cli}.webp`" alt="" />
                                                             </div>
                                                             <div class="col-span-3 mt-4">
                                                                 <label for="comm_renc" class="block text-center text-xs font-medium leading-6 text-gray-700">Comm. - {{ name }} </label>

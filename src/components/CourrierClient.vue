@@ -166,7 +166,7 @@
     <!-- #region POPUP COURRIER -->
     <div v-if="current_user && current_agence && target_user" :class="isPDFOpen ? 'pointer-events-all left-0' : 'pointer-events-none -left-[9999px]'" class="overflow-hidden fixed top-0 w-full h-full z-50">
         <div class="wrapperPDF">
-            <button @click="isPDFOpen = false" class="absolute top-8 right-8 z-[2] w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer">
+            <button type="button" @click="() => {isPDFOpen = false}" class="absolute top-8 right-8 z-[2] w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer bg-rose">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
                     <path fill="white" d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
                 </svg>
@@ -237,7 +237,7 @@
                                 </p>
                             </div>
                             <div v-if="blobImage" class="w-[310px] h-[200px] relative rounded-[60px] overflow-hidden mt-4">
-                                <img class="absolute top-0 left-0 object-cover w-full h-full" :src="blobImage" alt="">
+                                <img class="absolute top-0 left-0 object-contain w-full h-full" :src="blobImage" alt="">
                             </div>
                         </div>
 
@@ -310,7 +310,7 @@
 
                         <!-- #region FOOTER -->
                         <div class="border-y border-bleu/20 mt-4 py-4">
-                            <div class="font-[Avenir]" v-if="type !== 'renc'">
+                            <div class="font-[Avenir]" v-if="current_type !== 'renc'">
                                 <div class="flex items-center gap-8">
                                     <span class="text-bleu text-sm font-semibold underline">Je souhaitre rencontrer cette personne* : </span>
                                     
@@ -415,7 +415,6 @@
     </div>
     <!-- #endregion -->
     
-
     <!-- #region POPUP CHOIX AGENCE -->
     <TransitionRoot appear :show="isOpen" as="template">
         <Dialog as="div" @close="isOpen = false" class="relative z-50">

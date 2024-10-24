@@ -207,7 +207,7 @@
                         <div class="grid grid-cols-12 mt-2 items-start gap-x-16">
                             <div class="col-span-3">
                                 <div class="w-[170px] h-[200px] relative border-[3px] border-rose-600 rounded-xl overflow-hidden">
-                                    <img class="absolute top-0 left-0 object-cover w-full h-full" :src="blobImage" alt="">
+                                    <img class="absolute top-0 left-0 object-contain w-full h-full" :src="blobImage" alt="">
                                 </div>
                             </div>
                             <div class="col-span-9 grid-cols-12 grid">
@@ -496,7 +496,7 @@
                                 </p>
                             </div>
                             <div v-if="blobImage" class="w-[310px] h-[200px] relative rounded-[60px] overflow-hidden mt-4">
-                                <img class="absolute top-0 left-0 object-cover w-full h-full" :src="blobImage" alt="">
+                                <img class="absolute top-0 left-0 object-contain w-full h-full" :src="blobImage" alt="">
                             </div>
                         </div>
 
