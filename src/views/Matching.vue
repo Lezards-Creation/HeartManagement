@@ -1,13 +1,15 @@
 <script setup>
-    import { ref, computed } from 'vue';
+    import { ref, computed, onMounted } from 'vue';
     import { useRouter } from 'vue-router';
-    import { Dialog, DialogPanel, Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems, Popover, PopoverButton, PopoverGroup, PopoverPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
+    import { Menu, MenuButton, MenuItem, MenuItems, Popover, PopoverButton, PopoverGroup, PopoverPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
     import { PrinterIcon, AtSymbolIcon, ChevronDownIcon, BoltIcon, ArrowRightIcon, CheckIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, UsersIcon, ArrowPathIcon, HomeModernIcon } from '@heroicons/vue/24/outline';
     import { useClientsStore } from '../stores/clients';
     import { useChoixStore } from '../stores/choix';
     import { useRencontresStore } from '../stores/rencontres';
     import { useUserStore } from '../stores/user';
     import { usePropositionsStore } from '../stores/propositions';
+    import { useAgencesStore } from '../stores/agences';
+
     import moment from "moment";
     import fr from 'moment/dist/locale/fr';
     
@@ -23,6 +25,7 @@
     const choixStore = useChoixStore();
     const userStore = useUserStore();
     const propositionsStore = usePropositionsStore();
+    const agencesStore = useAgencesStore();
 
     const stateToast = ref(false);
     const communs = ref([]);
@@ -102,6 +105,11 @@
     ]
     const currentSort = ref('desc')
 
+    const filters = ref({
+        idAgence_cli: []
+    });
+    
+    const filtersOptions = ref([])
 
     const goToPage = (page) => {
         if (page >= 1 && page <= totalPages.value) {
@@ -213,7 +221,7 @@
     function fetchAllCommonChoices(page = 1){
         pageNumber.value = page;
         communsLoaded.value = false;
-        choixStore.getAllCommonChoices(page, currentSort.value)
+        choixStore.getAllCommonChoices(page, currentSort.value, filters.value)
         .then(res => {
             communs.value = res.choices;
             count_communs.value = res.count;
@@ -228,9 +236,8 @@
     function fetchAllChoices(page = 1){
         pageNumberChoix.value = page;
         choixLoaded.value = false;
-        choixStore.getAllChoices(page, currentSort.value)
+        choixStore.getAllChoices(page, currentSort.value, filters.value)
         .then(res => {
-            console.log(res)
             choix.value = res.choices;
             count_choix.value = res.count;
             totalPages.value = Math.ceil(count_choix.value / 100)
@@ -241,12 +248,10 @@
     }
 
     function fetchAllPropositions(page = 1){
-        console.log(page);
         pageNumberPropositions.value = page;
         propositionsLoaded.value = false
-        propositionsStore.getAllPropositions(page, currentSort.value)
+        propositionsStore.getAllPropositions(page, currentSort.value, filters.value)
         .then(res => {
-            console.log(res)
             propositions.value = res.propositions;
             count_propositions.value = res.count;
             totalPages.value = Math.ceil(count_propositions.value / 100)
@@ -297,22 +302,22 @@
     }
 
     const handleSendingAttachment = (obj, type, inverse, mail) => {
-        popupCourrier.value = true; 
-        currentType.value = type; 
-        currentClient.value = obj
-        targetClient.value = inverse;
+        // popupCourrier.value = true; 
+        // currentType.value = type; 
+        // currentClient.value = obj
+        // targetClient.value = inverse;
 
-        let email;
-        if(mail){
-            email = mail
-        } else {
-            email = !inverse ? obj.mail_cli : inverse.mail_cli
-        }
+        // let email;
+        // if(mail){
+        //     email = mail
+        // } else {
+        //     email = !inverse ? obj.mail_cli : inverse.mail_cli
+        // }
         
-        generateBase64Courrier.value = { 
-            state: true, 
-            email: email,
-        }
+        // generateBase64Courrier.value = { 
+        //     state: true, 
+        //     email: email,
+        // }
     }
 
     const handlePrint = (obj, type, inverse) => {
@@ -334,6 +339,25 @@
 		open.value = false;
 		router.push({name: 'Client', params: {id: id}})
 	}
+
+    onMounted(() => {
+        agencesStore.getAgences()
+        .then(res => {
+            let options = [];
+
+            res.agences.forEach(agence => {
+                options.push(  { value: agence.id_agence, label: agence.lib_agence } )
+            })
+
+            let data = {
+                id: 'idAgence_cli',
+                name: 'Agence',
+                options: options,
+            }
+            filtersOptions.value.push(data)
+        });
+    
+    })
 </script>
 
 <template>
@@ -386,6 +410,29 @@
                     </MenuItems>
                 </transition>
             </Menu>
+
+            <PopoverGroup class="hidden sm:flex sm:items-baseline sm:space-x-2">
+                <Popover as="div" v-for="(section, sectionIdx) in filtersOptions" :key="section.name" :id="`desktop-menu-${sectionIdx}`" class="relative inline-block text-left ">
+                    <div>
+                        <PopoverButton class="group inline-flex items-center justify-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                            <span>{{ section.name }}</span>
+                            <span v-if="filters[section.id].length > 0" class="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-xs font-semibold tabular-nums text-gray-700">{{ filters[section.id].length }}</span>
+                            <ChevronDownIcon class="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500" aria-hidden="true" />
+                        </PopoverButton>
+                    </div>
+
+                    <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                        <PopoverPanel class="absolute right-0 z-50 mt-2 origin-top-right rounded-md bg-white p-4 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <form @change="handleFunctionCall(tabs.find((obj) => obj.slug === active_tab).callback)" class="space-y-4">
+                                <div v-for="(option, optionIdx) in section.options" :key="option.value" class="flex items-center">
+                                    <input v-model="filters[section.id]" :id="`filter-${section.id}-${optionIdx}`" :name="`${section.id}`" :value="option.value" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500" />
+                                    <label :for="`filter-${section.id}-${optionIdx}`" class="ml-3 whitespace-nowrap pr-6 text-sm font-medium text-gray-900">{{ option.label }}</label>
+                                </div>
+                            </form>
+                        </PopoverPanel>
+                    </transition>
+                </Popover>
+            </PopoverGroup>
         </div>
         <!-- #endregion -->
 
@@ -480,6 +527,11 @@
                 </div>
             </div>
             <!-- #endregion -->
+
+            <div v-if="communs?.length === 0">
+                <h3 class="text-center text-gray-300 font-light ">Aucun choix communs correspond à votre sélection de filtre.</h3>
+            </div>
+
 
             <div v-if="communs" class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 sticky bottom-0 z-20">
                 <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
@@ -648,6 +700,11 @@
             </div>
             <!-- #endregion -->
 
+            <div v-if="choix?.length === 0">
+                <h3 class="text-center text-gray-300 font-light ">Aucun choix/demande correspond à votre sélection de filtre.</h3>
+            </div>
+
+
             <div v-if="choix" class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 sticky bottom-0 z-20">
                 <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                     <div>
@@ -691,7 +748,18 @@
                 <div class="mb-2 relative grid gap-8 grid-cols-2 items-center">
                     <span class="text-sm text-rose-500 text-right block">{{ moment(proposition.date_prop).format('ll') }}</span>
                     <span class="text-sm text-gray-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">-</span>
-                    <span class="text-sm text-gray-500">Effectué par {{ proposition.idUtil_prop }}</span>
+                    <div>
+                        <span :class="[proposition.res_prop === 1 ? 'text-green-700 bg-green-50 ring-green-600/20' : (proposition.res_prop === 0 ? 'text-red-800 bg-red-50 ring-red-600/20' : 'text-gray-600 bg-gray-50 ring-gray-500/10'), 'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset']">
+                            {{
+                                proposition.res_prop === 1 ? `Acceptée le ${moment(proposition.dateRes_prop).format('ll')}`
+                                : proposition.res_prop === 0 ? `Refusée le ${moment(proposition.dateRes_prop).format('ll')}`
+                                : proposition.res_prop === null && proposition.dateEnv_prop ? `Proposition le ${moment(proposition.dateEnv_prop).format('ll')}` : 'Aucune proposition'
+                            }}
+                        </span>
+                        <span class="text-xs text-gray-500"> - Effectué par {{ proposition.idUtil_prop }}</span>
+                    </div>
+
+                    
                 </div>
                 <div class="grid gap-2 grid-cols-2 relative">
                     <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
@@ -808,6 +876,11 @@
                 </div>
             </div>
             <!-- #endregion -->
+
+            <div v-if="propositions?.length === 0">
+                <h3 class="text-center text-gray-300 font-light ">Aucune proposition corresponde à votre sélection de filtre.</h3>
+            </div>
+
 
             <div v-if="propositions" class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 sticky bottom-0 z-20">
                 <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">

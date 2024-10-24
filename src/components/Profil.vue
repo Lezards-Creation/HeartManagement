@@ -413,6 +413,7 @@
                                     <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                 </SwitchGroup>
                             </div>
+
                             <div class="sm:col-span-2 self-start mb-2">
                                 <SwitchGroup as="div" class="flex items-center flex-wrap">
                                     <Switch @click="debouncedFunction" v-model="current_user.situation_cli.veuf_cli" name="veuf_cli"
@@ -426,6 +427,7 @@
                                     <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                 </SwitchGroup>
                             </div>
+
                             <div class="sm:col-span-2 self-start mb-2">
                                 <SwitchGroup as="div" class="flex items-center flex-wrap">
                                     <Switch @click="debouncedFunction" v-model="current_user.situation_cli.div_cli" name="div_cli"
@@ -439,9 +441,10 @@
                                     <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                 </SwitchGroup>
                             </div>
+
                             <div class="sm:col-span-2 self-start mb-2">
                                 <SwitchGroup as="div" class="flex items-center flex-wrap">
-                                    <Switch @click="debouncedFunction" v-model="current_user.sep_cli" name="sep_cli"
+                                    <Switch @click="debouncedFunction" v-model="current_user.situation_cli.sep_cli" name="sep_cli"
                                         :class="[current_user.situation_cli?.sep_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                         <span aria-hidden="true"
                                             :class="[current_user.situation_cli?.sep_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
@@ -867,6 +870,7 @@
                                         </div>
                                         <p class="mt-3 text-sm leading-6 text-gray-600">Décrivez rapidement votre client.</p>
                                     </div>
+
                                     <div class="col-span-full">
                                         <label for="desc_cli" class="block text-sm font-medium leading-6 text-gray-900">Description/Caractère</label>
                                         <div class="mt-2">
@@ -875,6 +879,7 @@
                                         </div>
                                         <p class="mt-3 text-sm leading-6 text-gray-600">Décrivez rapidement votre client.</p>
                                     </div>
+
                                     <div class="col-span-full">
                                         <label for="milieu_cli" class="block text-sm font-medium leading-6 text-gray-900">Milieu dans lequel vous avez été élevé</label>
                                         <div class="mt-2">
@@ -965,6 +970,24 @@
                                                 </div>
                                                 <div class="ml-3 text-sm leading-6">
                                                     <label for="solide" class="font-medium text-gray-900">Solide</label>
+                                                </div>
+                                            </div>
+
+                                            <div v-if="current_user.sexe_cli === 'H'" class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.allure_cli" id="viril" value="9" name="viril" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="viril" class="font-medium text-gray-900">Viril</label>
+                                                </div>
+                                            </div>
+
+                                            <div v-if="current_user.sexe_cli === 'F'" class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.allure_cli" id="feminine" value="10" name="feminine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="feminine" class="font-medium text-gray-900">Féminine</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -1114,6 +1137,59 @@
                                                 </div>
                                                 <div class="ml-3 text-sm leading-6">
                                                     <label for="tendre" class="font-medium text-gray-900">Tendre</label>
+                                                </div>
+                                            </div>
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.personnalite_cli" id="fidele" value="16" name="fidele" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="fidele" class="font-medium text-gray-900">Fidèle</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.personnalite_cli" id="realiste" value="17" name="realiste" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="realiste" class="font-medium text-gray-900">Réaliste</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.personnalite_cli" id="affectueux" value="18" name="affectueux" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="affectueux" class="font-medium text-gray-900">Affectueux(se)</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.personnalite_cli" id="securisant" value="19" name="securisant" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="securisant" class="font-medium text-gray-900">Sécurisant(e)</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.personnalite_cli" id="sociable" value="20" name="sociable" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="sociable" class="font-medium text-gray-900">Sociable</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.personnalite_cli" id="tolerant" value="21" name="tolerant" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="tolerant" class="font-medium text-gray-900">Tolérant(e)</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -1267,6 +1343,7 @@
                                 <legend class="text-sm font-semibold leading-6 text-gray-900">Situation</legend>
                                 <div class="mt-6 grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                                     <div class="sm:col-span-2 self-start mb-2">
+
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.desCelib_cli" name="desCelib_cli"
                                                 :class="[current_user.desCelib_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
@@ -1519,6 +1596,25 @@
                                                     <label for="solide" class="font-medium text-gray-900">Solide</label>
                                                 </div>
                                             </div>
+
+                                            <div v-if="current_user.sexe_cli === 'H'" class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.desAllure_cli" id="feminine" value="10" name="feminine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="feminine" class="font-medium text-gray-900">Féminine</label>
+                                                </div>
+
+                                            </div>
+
+                                            <div v-if="current_user.sexe_cli === 'F'" class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.desAllure_cli" id="viril" value="9" name="viril" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="viril" class="font-medium text-gray-900">Viril</label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -1666,6 +1762,60 @@
                                                 </div>
                                                 <div class="ml-3 text-sm leading-6">
                                                     <label for="tendre" class="font-medium text-gray-900">Tendre</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.desPersonnalite_cli" id="fidele" value="16" name="fidele" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="fidele" class="font-medium text-gray-900">Fidèle</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.desPersonnalite_cli" id="realiste" value="17" name="realiste" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="realiste" class="font-medium text-gray-900">Réaliste</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.desPersonnalite_cli" id="affectueux" value="18" name="affectueux" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="affectueux" class="font-medium text-gray-900">Affectueux(se)</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.desPersonnalite_cli" id="securisant" value="19" name="securisant" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="securisant" class="font-medium text-gray-900">Sécurisant(e)</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.desPersonnalite_cli" id="sociable" value="20" name="sociable" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="sociable" class="font-medium text-gray-900">Sociable</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="relative flex items-start">
+                                                <div class="flex h-6 items-center">
+                                                    <input v-model="current_user.desPersonnalite_cli" id="tolerant" value="21" name="tolerant" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                </div>
+                                                <div class="ml-3 text-sm leading-6">
+                                                    <label for="tolerant" class="font-medium text-gray-900">Tolérant(e)</label>
                                                 </div>
                                             </div>
                                         </div>

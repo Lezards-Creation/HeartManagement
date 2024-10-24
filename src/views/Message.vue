@@ -14,7 +14,6 @@
     const router = useRouter();
 
     const uri = import.meta.env.VITE_URL;
-    const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
 
     const messageStore = useMessageStore();
     const messages = ref(null)
@@ -79,7 +78,6 @@
     const fetchMessages = () => {
         messageStore.getMessages()
         .then(res => {
-            console.log(res)
             messages.value = res.messages
         })
         .catch(err => console.error(err))
@@ -105,46 +103,57 @@
 	fetchAgences();
 
     const handleCreationFiche = (obj, type) => {
-        stateToast.value = false;
-        dataCreation.value.type_cli = type;
-        dataCreation.value.mail_cli = obj.mail_site;
-        dataCreation.value.nl_cli = obj.nl_site;
-        dataCreation.value.sexe_cli = obj.sexe_site;
-        
-        let data = {
-            celib_cli: false,
-            veuf_cli: false,
-            div_cli: false,
-            sep_cli: false,
-            instDiv_cli: false,
-        }
-
-        if(obj.ec_site == 1){
-            data.veuf_cli = true;
-        }
-
-        if(obj.ec_site == 2){
-            data.div_cli = true;
-        }
-
-        if(obj.ec_site == 3){
-            data.sep_cli = true;
-        }
-
-        if(obj.ec_site == 4){
-            data.celib_cli = true;
-        }
-        dataCreation.value.situation_cli = data;
-        
-        dataCreation.value.idAgence_cli = obj.idAgence_site;
-        clientsStore.createClient(dataCreation.value)
-        .then(res => {
-            stateToast.value = true;
-            if(res.arr){
-                newlyClient.value = res.arr.id_cli
+        return new Promise((resolve, reject) => {
+            stateToast.value = false;
+            dataCreation.value.type_cli = type;
+            dataCreation.value.mail_cli = obj.mail_site;
+            dataCreation.value.nl_cli = obj.nl_site;
+            dataCreation.value.sexe_cli = obj.sexe_site;
+            
+            let data = {
+                celib_cli: false,
+                veuf_cli: false,
+                div_cli: false,
+                sep_cli: false,
+                instDiv_cli: false,
             }
+
+            if(obj.ec_site == 1){
+                data.veuf_cli = true;
+            }
+
+            if(obj.ec_site == 2){
+                data.div_cli = true;
+            }
+
+            if(obj.ec_site == 3){
+                data.sep_cli = true;
+            }
+
+            if(obj.ec_site == 4){
+                data.celib_cli = true;
+            }
+            dataCreation.value.situation_cli = data;
+            
+            dataCreation.value.idAgence_cli = obj.idAgence_site;
+            clientsStore.createClient(dataCreation.value)
+            .then(res => {
+                stateToast.value = true;
+                if(res.arr){
+                    newlyClient.value = res.arr.id_cli
+
+
+                    let status = type === 'contact' ? 2 : 1
+                    messageStore.updateMessageStatus(status, obj.id_site)
+                    .then(res => {
+                        fetchMessages();
+                        resolve(res);
+                    })                
+                    .catch(err => {})
+                }
+            })
+            .catch(err => console.error(err))
         })
-        .catch(err => console.error(err))
     }
 
     const handleDeleteMessage = (id) => {
@@ -188,6 +197,22 @@
         }
     }
 
+    const bulkCreatingFiche = (type) => {
+        if(selectedPeople.value.length){
+            selectedPeople.value.forEach(async (el) => {
+                await handleCreationFiche(el, type)
+            })
+        }
+    }
+
+    const bulkDeletingMessage = () => {
+        console.log(selectedPeople.value);
+        if(selectedPeople.value.length){
+            selectedPeople.value.forEach(el => {
+                handleDeleteMessage(el.id_site)
+            })
+        }
+    }
 
     function calculateAge(dateString) {
 		let today = new Date()
@@ -198,10 +223,6 @@
 			age--
 		}
 		return age
-	}
-
-	function handleImageError(event) {
-        event.target.src = fallbackImage;
 	}
 </script>
 
@@ -218,9 +239,9 @@
                 <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8 h-[90vh] pb-32 overflow-auto">
                     <div class="relative">
                         <div v-if="selectedPeople.length > 0" class="absolute left-14 top-0 flex h-12 items-center space-x-3 bg-white sm:left-12">
-                            <button type="button" class="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white">Enregistrer en tant que contact</button>
-                            <button type="button" class="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white">Enregistrer en tant que prospect</button>
-                            <button type="button" class="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white">Supprimer la sélection</button>
+                            <button @click="bulkCreatingFiche('contact')" type="button" class="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white">Enregistrer en tant que contact</button>
+                            <button @click="bulkCreatingFiche('prospect')" type="button" class="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white">Enregistrer en tant que prospect</button>
+                            <button @click="bulkDeletingMessage()" type="button" class="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white">Supprimer la sélection</button>
                         </div>
                         <table class="min-w-full table-fixed divide-y divide-gray-300" v-if="messages">
                             <thead>
@@ -243,12 +264,14 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 bg-white">
-                                <tr v-for="message in messages" :key="message.id_site" :class="[selectedPeople.includes(message.id_site) && 'bg-gray-50']">
+                                <tr v-for="message in messages" :key="message.id_site" :class="[selectedPeople.includes(message) && 'bg-gray-50']">
                                     <td class="relative px-7 sm:w-12 sm:px-6">
-                                        <div v-if="selectedPeople.includes(message.id_site)" class="absolute inset-y-0 left-0 w-0.5 bg-rose-600"></div>
-                                        <input type="checkbox" class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" :value="message.id_site" v-model="selectedPeople" />
+                                        <div v-if="selectedPeople.includes(message)" class="absolute inset-y-0 left-0 w-0.5 bg-rose-600"></div>
+                                        <div v-if="message.statut_site === 1" class="absolute inset-y-0 left-0 w-1 bg-blue-600"></div>
+                                        <div v-if="message.statut_site === 2" class="absolute inset-y-0 left-0 w-1 bg-green-600"></div>
+                                        <input type="checkbox" class="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" :value="message" v-model="selectedPeople" />
                                     </td>
-                                    <td :class="['whitespace-nowrap py-4 pr-3 text-sm font-medium', selectedPeople.includes(message.id_site) ? 'text-rose-600' : 'text-gray-900']">
+                                    <td :class="['whitespace-nowrap py-4 pr-3 text-sm font-medium', selectedPeople.includes(message) ? 'text-rose-600' : 'text-gray-900']">
                                         {{ moment(message.tps_site).format('ll') }}
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">

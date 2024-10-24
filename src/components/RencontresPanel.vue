@@ -43,7 +43,6 @@
     const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
     const rencontre_ref = ref(null);
 
-    const active_tab = ref('communs');
     const secondaryNavigation = [
         { name: 'Choix en communs', slug: 'communs', href: '#', icon: UsersIcon, current: true },
         { name: 'Choix de', href: '#', slug: 'choix', icon: ArrowRightCircleIcon, current: false },
@@ -61,6 +60,8 @@
     const generateBase64Courrier = ref(false);
 
     const clientViewed = ref(null);
+
+    const creatingRencontre = ref(false);
     
     //#endregion
 
@@ -213,14 +214,15 @@
         .then(res => {
             isOpen.value = false;
             console.log(res);
+            fetchRencontresData();
         })
         .catch(err => console.log(err))
     }
 
     const handleCreateRencontre = (id) => {
+        creatingRencontre.value = true;
         let client = props.client
         let autre = id;
-
 
 		let data = {
             idUtil_renc: userStore.userLog.id_util,
@@ -233,6 +235,8 @@
 		rencontresStore.createRencontre(data)
 		.then(res => {
 			console.log(res);
+            creatingRencontre.value = false;
+            fetchRencontresData();
 		})
 		.catch(err => console.error(err))
     }
@@ -249,20 +253,25 @@
         }
 
         choixStore.updateChoice(data)
-        .then(res => console.log(res))
+        .then(res => {
+            console.log(res)
+            fetchRencontresData();
+        })
         .catch(err => console.error(err))
     }
 
     const handeUpdateProposition = (idProp, state) => {
         let data = {
             id_prop: idProp,
-            idUtil_choix: userStore.userLog.id_util,
-            dateRes_Prop: moment().format('YYYY-MM-DD'),
+            dateRes_prop: moment().format('YYYY-MM-DD'),
             res_prop: state ? 1 : 0
         }
 
         propositionsStore.updateProposition(data)
-        .then(res => console.log(res))
+        .then(res => {
+            console.log(res)
+            fetchRencontresData();
+        })
         .catch(err => console.error(err))
     }
 
@@ -284,25 +293,25 @@
     }
 
     const handleSendingAttachment = (obj, type, inverse, mail) => {
-        popupCourrier.value = true; 
-        currentType.value = type; 
-        targetClient.value = obj; 
+        // popupCourrier.value = true; 
+        // currentType.value = type; 
+        // targetClient.value = obj; 
 
-        let email;
-        if(mail){
-            email = mail
-        } else {
-            email = !inverse ? obj.mail_cli : inverse.mail_cli
-        }
+        // let email;
+        // if(mail){
+        //     email = mail
+        // } else {
+        //     email = !inverse ? obj.mail_cli : inverse.mail_cli
+        // }
         
-        generateBase64Courrier.value = { 
-            state: true, 
-            email: email,
-        }
+        // generateBase64Courrier.value = { 
+        //     state: true, 
+        //     email: email,
+        // }
 
-        if(inverse){
-            isInverse.value = inverse;
-        }
+        // if(inverse){
+        //     isInverse.value = inverse;
+        // }
     }
 
     const handlePrint = (obj, type, inverse) => {
@@ -334,6 +343,65 @@
 		router.push({name: 'Client', params: {id: clientViewed.value.id_cli}})
 	}
 
+    const setColorName = (client) => {
+		let color = 'rgb(17 24 39)'
+		if(!client.libre_cli){
+			color = 'rgb(17 24 39)';
+			if(client.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+
+		let anc_adh = false;
+		let a = moment(client.insc_cli).add(client.duree_cli, 'M');
+		let b = moment();
+		if (!b.isBefore(a)){
+			anc_adh = true;
+		} 
+		
+		if(client.prosp_cli || client.cont_cli || anc_adh){
+			color = 'rgb(239,68,68)'
+		}
+
+		return color;
+	}
+	
+	const setColorTag = (client) => {
+		let color = 'rgb(12, 159, 67)';
+		if(!client.libre_cli){
+			color = 'rgb(17 24 39)';
+			if(client.probPaie_cli){
+				color = 'rgb(17, 24, 39)';
+			}
+		} else {
+			if(client.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+		let anc_adh = false;
+		let a = moment(client.insc_cli).add(client.duree_cli, 'M');
+		let b = moment();
+		if (!b.isBefore(a)){
+			anc_adh = true;
+		} 
+
+		if(client.prosp_cli || client.cont_cli || anc_adh){
+			color = 'rgb(17, 24, 39)';
+
+			if(!client.libre_cli){
+				color = 'rgb(239,68,68)';
+			}
+
+			if(client.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+		return color;
+	}
+
     watch(() => props.client, fetchRencontresData, {immediate: true});
     //#endregion
 </script>
@@ -341,346 +409,351 @@
 <template>
     <div class="overflow-hidden">
         <div class="lg:flex lg:gap-x-16">
-            <aside class="flex overflow-x-auto border-b border-gray-900/5 lg:block xl:w-60 2xl:w-72 lg:flex-none lg:border-0">
-                <nav class="flex-none px-4 sm:px-6 lg:px-0">
-                    <ul role="list" class="flex gap-x-3 gap-y-1 whitespace-nowrap lg:flex-col">
-                    <li @click="active_tab = item.slug" v-for="item in secondaryNavigation" :key="item.name">
-                        <a :href="item.href" :class="[active_tab === item.slug ? 'bg-gray-50 text-rose-600' : 'text-gray-700 hover:text-rose-600 hover:bg-gray-50', 'group flex gap-x-3 rounded-md py-2 pl-2 pr-3 text-xs 2xl:text-sm leading-6 font-semibold']">
-                            <component :is="item.icon" :class="[active_tab === item.slug ? 'text-rose-600' : 'text-gray-400 group-hover:text-rose-600', 'h-5 w-5 2xl:h-6 2xl:w-6 shrink-0']" aria-hidden="true" />
-                            {{item.name + ' '}} {{ item.slug === 'choix' ? name : (item.slug === 'demande' ? name : '') }}
-                        </a>
-                    </li>
-                    </ul>
-                </nav>
-            </aside>
-
             <div class="px-4 sm:px-6 lg:flex-auto lg:px-0">
                 <div class="mx-auto max-w-2xl space-y-16 sm:space-y-20 lg:mx-0 lg:max-w-none">
                     <!-- #region CHOIX COMMUNS -->
-                    <div class="bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl md:col-span-2" v-if="active_tab === 'communs'">
-                        <ul v-if="communs.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
-                            <li v-if="communsLoaded" v-for="commun in communs" :key="commun.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
-                                <div v-if="commun.client" class="flex min-w-0 gap-x-4">
-                                    <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${commun.client.id_cli}.webp`" alt="" />
-                                    <div class="min-w-0 flex-auto">
-                                        <p class="text-sm font-semibold leading-6 text-gray-900">
-                                            <a class="flex gap-2 items-center">
-                                                {{ commun.client.nom_cli + ' ' + commun.client.pNoms_cli }}
+                    <div>
+                        <h2 class="px-4 text-base font-medium leading-7 text-gray-900 sm:px-6 lg:px-8 mb-2 flex items-center gap-2">
+                            <UsersIcon class="text-rose w-5 h-5"/>
+                            Choix communs
+                        </h2>
+                        <div class="bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl md:col-span-2">
+                            <ul v-if="communs.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+                                <li v-if="communsLoaded" v-for="commun in communs" :key="commun.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
+                                    <div v-if="commun.client" class="flex min-w-0 gap-x-4">
+                                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${commun.client.id_cli}.webp`" alt="" />
+                                        <div class="min-w-0 flex-auto">
+                                            <p class="text-sm font-semibold leading-6 text-gray-900">
+                                                <a class="flex gap-2 items-center" :style="`color: ${setColorName(commun.client)}`">
+                                                    {{ commun.client.nom_cli + ' ' + commun.client.pNoms_cli }}
+                                                </a>
+                                            </p>
+                                            <p class="mt-1 flex text-xs leading-5" :style="`color: ${setColorTag(commun.client)}`">
+                                                Réf. {{ commun.client.ref_cli }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex shrink-0 items-center gap-x-4">
+                                        <div v-if="commun.client" class="flex flex-none items-center gap-x-4">
+                                            <a @click="handleCreateRencontre(commun.client.id_cli)" :class="creatingRencontre ? 'active opacity-75 pointer-events-none' : false" class="hidden group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:flex items-center gap-2">
+                                                Initier une rencontre
+                                                <svg class="hidden animate-spin h-4 w-4 text-gray-500 group-[.active]:inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
                                             </a>
-                                        </p>
-                                        <p class="mt-1 flex text-xs leading-5 text-gray-500">
-                                            Réf. {{ commun.client.ref_cli }}
-                                        </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="flex shrink-0 items-center gap-x-4">
-                                    <div v-if="commun.client" class="flex flex-none items-center gap-x-4">
-                                        <a @click="handleCreateRencontre(commun.client.id_cli)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            Initier une rencontre
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-
-                            <SkeletonRow v-else/>
-                        </ul>     
-                        <div v-else-if="communsLoaded">
-                            <p class="text-gray-500 text-center py-4">Aucun choix communs de possible pour le moment...</p>
+                                </li>
+                                <SkeletonRow v-else/>
+                            </ul>
+                            <div v-else-if="communsLoaded">
+                                <p class="text-gray-500 text-center py-4">Aucun choix communs de possible pour le moment...</p>
+                            </div>
+                            <ul v-else role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl">
+                                <SkeletonRow />
+                            </ul>
                         </div>
-                        <ul v-else role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl">
-                            <SkeletonRow />
-                        </ul>
                     </div>
                     <!-- #endregion -->
 
                     <!-- #region CHOIX -->
-                    <div class="bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl md:col-span-2" v-if="active_tab === 'choix'">
-                        <ul v-if="choices.length > 0" role="list" class="divide-y divide-gray-100">
-                            <li v-if="choicesLoaded" v-for="choice in choices" :key="choice.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
-                                <div v-if="choice.client" class="flex min-w-0 gap-x-4">
-                                    <img @error="event => handleImageError(event)" class="h-10 w-10 2xl:h-12 2xl:w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${choice.client.id_cli}.webp`" alt="" />
-                                    <div class="min-w-0 flex-auto">
-                                        <p class="text-sm font-semibold 2xl:leading-6 text-gray-900">
-                                            <a class="flex gap-x-2 items-center flex-wrap text-xs 2xl:text-sm">
-                                                {{ choice.client.nom_cli + ' ' + choice.client.pNoms_cli }}
-                                                <span :class="[choice.res_choix === 1 ? 'text-green-700 bg-green-50 ring-green-600/20' : (choice.res_choix === 0 ? 'text-red-800 bg-red-50 ring-red-600/20' : 'text-gray-600 bg-gray-50 ring-gray-500/10'), 'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset']">
-                                                    {{ 
-                                                        choice.res_choix === 1 ? `Acceptée le ${moment(choice.dateRes_choix).format('ll')}` 
-                                                        : choice.res_choix === 0 ? `Refusée le ${moment(choice.dateRes_choix).format('ll')}`  
-                                                        : choice.res_choix === null && choice.dateEnv_choix ? `Envoyée le ${moment(choice.dateEnv_choix).format('ll')}` : 'Aucune proposition' 
-                                                    }}
-                                                </span>
+                    <div>
+                        <h2 class="px-4 text-base font-medium leading-7 text-gray-900 sm:px-6 lg:px-8 mb-2 flex items-center gap-2">
+                            <ArrowRightCircleIcon class="text-rose w-5 h-5"/>
+                            Choix de {{ name }}
+                        </h2>
+                        <div class="bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl md:col-span-2">
+                            <ul v-if="choices.length > 0" role="list" class="divide-y divide-gray-100">
+                                <li v-if="choicesLoaded" v-for="choice in choices" :key="choice.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
+                                    <div v-if="choice.client" class="flex min-w-0 gap-x-4">
+                                        <img @error="event => handleImageError(event)" class="h-10 w-10 2xl:h-12 2xl:w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${choice.client.id_cli}.webp`" alt="" />
+                                        <div class="min-w-0 flex-auto">
+                                            <p class="text-sm font-semibold 2xl:leading-6 text-gray-900">
+                                                <a class="flex gap-x-2 items-center flex-wrap text-xs 2xl:text-sm" :style="`color: ${setColorName(choice.client)}`">
+                                                    {{ choice.client.nom_cli + ' ' + choice.client.pNoms_cli }}
+                                                    <span :class="[choice.res_choix === 1 ? 'text-green-700 bg-green-50 ring-green-600/20' : (choice.res_choix === 0 ? 'text-red-800 bg-red-50 ring-red-600/20' : 'text-gray-600 bg-gray-50 ring-gray-500/10'), 'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset']">
+                                                        {{
+                                                            choice.res_choix === 1 ? `Acceptée le ${moment(choice.dateRes_choix).format('ll')}`
+                                                            : choice.res_choix === 0 ? `Refusée le ${moment(choice.dateRes_choix).format('ll')}`
+                                                            : choice.res_choix === null && choice.dateEnv_choix ? `Envoyée le ${moment(choice.dateEnv_choix).format('ll')}` : 'Aucune proposition'
+                                                        }}
+                                                    </span>
+                                                </a>
+                                            </p>
+                                            <p class="mt-1 flex text-xs leading-5" :style="`color: ${setColorTag(choice.client)}`">
+                                                Réf. {{ choice.client.ref_cli }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex shrink-0 items-center gap-x-4">
+                                        <div v-if="choice.client" class="flex flex-none items-center gap-x-2">
+                                            <button @click="handleOpeningFiche(choice.client)" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                                Voir la fiche
+                                            </button>
+                                            <a @click="handleSendingAttachment(choice.client, 'choix')" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <AtSymbolIcon class="w-5 h-5"/>
+                                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                                             </a>
-                                        </p>
-                                        <p class="mt-1 flex text-xs leading-5 text-gray-500">
-                                            Réf. {{ choice.client.ref_cli }}
-                                        </p>
+                                            <a @click="handlePrint(client, 'choix', choice.client)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <PrinterIcon class="w-5 h-5"/>
+                                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="flex shrink-0 items-center gap-x-4">
-                                    <div v-if="choice.client" class="flex flex-none items-center gap-x-2">
-                                        <button @click="handleOpeningFiche(choice.client)" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                                            Voir la fiche
-                                        </button>
-
-                                        <a @click="handleSendingAttachment(choice.client, 'choix')" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <AtSymbolIcon class="w-5 h-5"/>
-                                            <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
-                                        </a>
-
-                                        <a @click="handlePrint(client, 'choix', choice.client)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <PrinterIcon class="w-5 h-5"/>
-                                            <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-
-                            <SkeletonRow v-else/>
-                        </ul>
-                        <div v-else-if="choicesLoaded">
-                            <p class="text-gray-500 text-center py-4">Aucun choix réalisé(e) par {{ name }}...</p>
+                                </li>
+                                <SkeletonRow v-else/>
+                            </ul>
+                            <div v-else-if="choicesLoaded">
+                                <p class="text-gray-500 text-center py-4">Aucun choix réalisé(e) par {{ name }}...</p>
+                            </div>
                         </div>
                     </div>
                     <!-- #endregion -->
 
                     <!-- #region DEMANDE -->
-                    <div class="bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl md:col-span-2" v-if="active_tab === 'demande'">
-                        <ul v-if="demandes.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl">
-                            <li v-if="demandesLoaded" v-for="demande in demandes" :key="demande.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
-                                <div v-if="demande.client" class="flex min-w-0 gap-x-4">
-                                    <img @error="event => handleImageError(event)" class="h-10 w-10 2xl:h-12 2xl:w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${demande.client.id_cli}.webp`" alt="" />
-                                    <div class="min-w-0 flex-auto">
-                                        <p class="text-sm font-semibold 2xl:leading-6 text-gray-900">
-                                            <a class="flex gap-x-2 items-center flex-wrap text-xs 2xl:text-sm">
-                                                {{ demande.client.nom_cli + ' ' + demande.client.pNoms_cli }}
-                                                <span :class="[demande.res_choix === 1 ? 'text-green-700 bg-green-50 ring-green-600/20' : (demande.res_choix === 0 ? 'text-red-800 bg-red-50 ring-red-600/20' : 'text-gray-600 bg-gray-50 ring-gray-500/10'), 'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset']">
-                                                    {{ 
-                                                        demande.res_choix === 1 ? `Acceptée le ${moment(demande.dateRes_choix).format('ll')}` 
-                                                        : demande.res_choix === 0 ? `Refusée le ${moment(demande.dateRes_choix).format('ll')}`  
-                                                        : demande.res_choix === null && demande.dateEnv_choix ? `Envoyée le ${moment(demande.dateEnv_choix).format('ll')}` : 'Aucune proposition' 
-                                                    }}
-                                                </span>
+                    <div>
+                        <h2 class="px-4 text-base font-medium leading-7 text-gray-900 sm:px-6 lg:px-8 mb-2 flex items-center gap-2">
+                            <ArrowLeftCircleIcon class="text-rose w-5 h-5"/>
+                            Ont choisi {{ name }}
+                        </h2>
+                        <div class="bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl md:col-span-2">
+                            <ul v-if="demandes.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl">
+                                <li v-if="demandesLoaded" v-for="demande in demandes" :key="demande.id_choix" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
+                                    <div v-if="demande.client" class="flex min-w-0 gap-x-4">
+                                        <img @error="event => handleImageError(event)" class="h-10 w-10 2xl:h-12 2xl:w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${demande.client.id_cli}.webp`" alt="" />
+                                        <div class="min-w-0 flex-auto">
+                                            <p class="text-sm font-semibold 2xl:leading-6 text-gray-900">
+                                                <a class="flex gap-x-2 items-center flex-wrap text-xs 2xl:text-sm" :style="`color: ${setColorName(demande.client)}`">
+                                                    {{ demande.client.nom_cli + ' ' + demande.client.pNoms_cli }}
+                                                    <span :class="[demande.res_choix === 1 ? 'text-green-700 bg-green-50 ring-green-600/20' : (demande.res_choix === 0 ? 'text-red-800 bg-red-50 ring-red-600/20' : 'text-gray-600 bg-gray-50 ring-gray-500/10'), 'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset']">
+                                                        {{
+                                                            demande.res_choix === 1 ? `Acceptée le ${moment(demande.dateRes_choix).format('ll')}`
+                                                            : demande.res_choix === 0 ? `Refusée le ${moment(demande.dateRes_choix).format('ll')}`
+                                                            : demande.res_choix === null && demande.dateEnv_choix ? `Envoyée le ${moment(demande.dateEnv_choix).format('ll')}` : 'Aucune proposition'
+                                                        }}
+                                                    </span>
+                                                </a>
+                                            </p>
+                                            <p class="mt-1 flex text-xs leading-5" :style="`color: ${setColorTag(demande.client)}`">
+                                                Réf. {{ demande.client.ref_cli }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex shrink-0 items-center gap-x-4">
+                                        <div v-if="demande.client" class="flex flex-none items-center gap-x-2">
+                                            <button @click="handleOpeningFiche(demande.client)" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                                Voir la fiche
+                                            </button>
+                                            <a @click="handleSendingAttachment(demande.client, 'choix', false, mail)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <AtSymbolIcon class="w-5 h-5"/>
+                                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                                             </a>
-                                        </p>
-                                        <p class="mt-1 flex text-xs leading-5 text-gray-500">
-                                            Réf. {{ demande.client.ref_cli }}
-                                        </p>
+                                            <a @click="handlePrint(demande.client, 'choix')" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <PrinterIcon class="w-5 h-5"/>
+                                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
+                                            </a>
+                                            <a v-if="demande.res_choix === null" @click="handeUpdateChoice(demande.id_choix, true)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-green-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <CheckIcon class="w-5 h-5"/>
+                                            </a>
+                                            <a v-if="demande.res_choix === null" @click="handeUpdateChoice(demande.id_choix, false)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <XMarkIcon class="w-5 h-5"/>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="flex shrink-0 items-center gap-x-4">
-                                    <div v-if="demande.client" class="flex flex-none items-center gap-x-2">
-                                        <button @click="handleOpeningFiche(demande.client)" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                                            Voir la fiche
-                                        </button>
-
-                                        <a @click="handleSendingAttachment(demande.client, 'choix', false, mail)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <AtSymbolIcon class="w-5 h-5"/>
-                                            <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
-                                        </a>
-
-                                        <a @click="handlePrint(demande.client, 'choix')" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <PrinterIcon class="w-5 h-5"/>
-                                            <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
-                                        </a>
-
-                                        <a v-if="demande.res_choix === null" @click="handeUpdateChoice(demande.id_choix, true)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-green-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <CheckIcon class="w-5 h-5"/>
-                                        </a>
-
-                                        <a v-if="demande.res_choix === null" @click="handeUpdateChoice(demande.id_choix, false)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <XMarkIcon class="w-5 h-5"/>
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-
-                            <SkeletonRow v-else/>
-                        </ul>
-                        <div v-else-if="demandesLoaded">
-                            <p class="text-gray-500 text-center py-4">Aucun choix réalisés concernant {{ name }}...</p>
+                                </li>
+                                <SkeletonRow v-else/>
+                            </ul>
+                            <div v-else-if="demandesLoaded">
+                                <p class="text-gray-500 text-center py-4">Aucun choix réalisés concernant {{ name }}...</p>
+                            </div>
                         </div>
                     </div>
                     <!-- #endregion -->
 
                     <!-- #region PROPOSITION -->
-                    <div class="bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl md:col-span-2" v-if="active_tab === 'propositions'">
-                        <ul v-if="propositions.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl">
-                            <li v-if="propositionsLoaded" v-for="proposition in propositions" :key="proposition.id_prop" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
-                                <div v-if="proposition.client" class="flex min-w-0 gap-x-4">
-                                    <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${proposition.client.id_cli}.webp`" alt="" />
-                                    <div class="min-w-0 flex-auto">
-                                        <p class="text-xs 2xl:text-sm font-semibold 2xl:leading-6 text-gray-900">
-                                            <a class="flex gap-x-2 items-center flex-wrap ">
-                                                {{ proposition.client.nom_cli + ' ' + proposition.client.pNoms_cli }}
+                    <div>
+                        <h2 class="px-4 text-base font-medium leading-7 text-gray-900 sm:px-6 lg:px-8 mb-2 flex items-center gap-2">
+                            <HomeModernIcon class="text-rose w-5 h-5"/>
+                            Propositions
+                        </h2>
+                        <div class="bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl md:col-span-2">
+                            <ul v-if="propositions.length > 0" role="list" class="divide-y divide-gray-100 bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl">
+                                <li v-if="propositionsLoaded" v-for="proposition in propositions" :key="proposition.id_prop" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
+                                    <div v-if="proposition.client" class="flex min-w-0 gap-x-4">
+                                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${proposition.client.id_cli}.webp`" alt="" />
+                                        <div class="min-w-0 flex-auto">
+                                            <p class="text-xs 2xl:text-sm font-semibold 2xl:leading-6 text-gray-900">
+                                                <a class="flex gap-x-2 items-center flex-wrap" :style="`color: ${setColorName(proposition.client)}`">
+                                                    {{ proposition.client.nom_cli + ' ' + proposition.client.pNoms_cli }}
+                                                    <span :class="[proposition.res_prop  === 1 ? 'text-green-700 bg-green-50 ring-green-600/20' : (proposition.res_prop  === 0 ? 'text-red-800 bg-red-50 ring-red-600/20' : 'text-gray-600 bg-gray-50 ring-gray-500/10'), 'rounded-md whitespace-nowrap mt-0.5 px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset']">
+                                                        {{
+                                                            proposition.res_prop  === 1 ? `Acceptée le ${moment(proposition.dateRes_prop).format('ll')}`
+                                                            : proposition.res_prop  === 0 ? `Refusée le ${moment(proposition.dateRes_prop).format('ll')}`
+                                                            : proposition.res_prop  === null && proposition.dateEnv_choix ? `Envoyée le ${moment(proposition.dateEnv_prop).format('ll')}` : 'Aucune proposition'
+                                                        }}
+                                                    </span>
+                                                </a>
+                                            </p>
+                                            <p class="mt-1 flex text-xs leading-5" :style="`color: ${setColorTag(proposition.client)}`">
+                                                Réf. {{ proposition.client.ref_cli }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex shrink-0 items-center gap-x-4">
+                                        <div v-if="proposition.client" class="flex flex-none items-center gap-x-2">
+                                            <button @click="handleOpeningFiche(proposition.client)" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                                Voir la fiche
+                                            </button>
+                        
+                                            <a @click="handleSendingAttachment(proposition.client, 'prop', false, mail)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <AtSymbolIcon class="w-5 h-5"/>
+                                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                                             </a>
-                                        </p>
-                                        <p class="mt-1 flex text-xs leading-5 text-gray-500">
-                                            Réf. {{ proposition.client.ref_cli }}
-                                        </p>
+                                            <a @click="handlePrint(proposition.client, 'prop')" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <PrinterIcon class="w-5 h-5"/>
+                                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
+                                            </a>
+                                            <a v-if="proposition.res_prop === null" @click="handeUpdateProposition(proposition.id_prop, true)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-green-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <CheckIcon class="w-5 h-5"/>
+                                            </a>
+                                            <a v-if="proposition.res_prop === null" @click="handeUpdateProposition(proposition.id_prop, false)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <XMarkIcon class="w-5 h-5"/>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="flex shrink-0 items-center gap-x-4">
-                                    <div v-if="proposition.client" class="flex flex-none items-center gap-x-2">
-                                        <button @click="handleOpeningFiche(proposition.client)" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                                            Voir la fiche
-                                        </button>
-                                        
-                                        <a @click="handleSendingAttachment(proposition.client, 'prop', false, mail)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <AtSymbolIcon class="w-5 h-5"/>
-                                            <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
-                                        </a>
-
-                                        <a @click="handlePrint(proposition.client, 'prop')" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <PrinterIcon class="w-5 h-5"/>
-                                            <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
-                                        </a>
-
-                                        <a @click="handeUpdateProposition(proposition.id_prop, true)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-green-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <CheckIcon class="w-5 h-5"/>
-                                        </a>
-
-                                        <a @click="handeUpdateProposition(proposition.id_prop, false)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                            <XMarkIcon class="w-5 h-5"/>
-                                        </a>
-                                    </div>
-                                </div>
-                            </li>
-
-                            <SkeletonRow v-else/>
-                        </ul>
-                        <div v-else-if="propositionsLoaded">
-                            <p class="text-gray-500 text-center py-4">Aucune proposition de l'agence.</p>
+                                </li>
+                                <SkeletonRow v-else/>
+                            </ul>
+                            <div v-else-if="propositionsLoaded">
+                                <p class="text-gray-500 text-center py-4">Aucune proposition de l'agence.</p>
+                            </div>
                         </div>
                     </div>
                     <!-- #endregion -->
 
                     <!-- #region RENCONTRES -->
-                    <div class="bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl md:col-span-2" v-if="active_tab === 'rencontres'">
-                        <ul v-if="rencontres.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl">
-                            <li v-if="rencontresLoaded" v-for="rencontre in rencontres" :key="rencontre.id_renc" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
-                                <div v-if="rencontre.laureat" class="flex min-w-0 gap-x-4">
-                                    <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${rencontre.laureat.id_cli}.webp`" alt="" />
-                                    <div class="min-w-0 flex-auto">
-                                        <p class="text-xs 2xl:text-sm font-semibold 2xl:leading-6 text-gray-900">
-                                            <a class="flex gap-x-2 items-center flex-wrap">
-                                                {{ rencontre.laureat.nom_cli + ' ' + rencontre.laureat.pNoms_cli }}
-                                            </a>
-                                        </p>
-                                        <p class="mt-1 flex text-xs leading-5 text-gray-500">
-                                            Réf. {{ rencontre.laureat.ref_cli }}
-                                        </p>
+                    <div>
+                        <h2 class="px-4 text-base font-medium leading-7 text-gray-900 sm:px-6 lg:px-8 mb-2 flex items-center gap-2">
+                            <BoltIcon class="text-rose w-5 h-5"/>
+                            Rencontres
+                        </h2>
+                        <div class="bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl md:col-span-2">
+                            <ul v-if="rencontres.length > 0" role="list" class="divide-y divide-gray-100 overflow-hidden bg-white shadow-sm ring-1 ring-inset ring-gray-900/5 sm:rounded-xl">
+                                <li v-if="rencontresLoaded" v-for="rencontre in rencontres" :key="rencontre.id_renc" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
+                                    <div v-if="rencontre.laureat" class="flex min-w-0 gap-x-4">
+                                        <img @error="event => handleImageError(event)" class="h-12 w-12 flex-none rounded-full bg-gray-50 object-cover" :src="`${uri}/storage/img/cli/${rencontre.laureat.id_cli}.webp`" alt="" />
+                                        <div class="min-w-0 flex-auto">
+                                            <p class="text-xs 2xl:text-sm font-semibold 2xl:leading-6 text-gray-900">
+                                                <a class="flex gap-x-2 items-center flex-wrap" :style="`color: ${setColorName(rencontre.laureat)}`">
+                                                    {{ rencontre.laureat.nom_cli + ' ' + rencontre.laureat.pNoms_cli }}
+                                                </a>
+                                            </p>
+                                            <p class="mt-1 flex text-xs leading-5" :style="`color: ${setColorTag(rencontre.laureat)}`">
+                                                Réf. {{ rencontre.laureat.ref_cli }}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="flex shrink-0 items-center gap-x-4">
-                                    <div v-if="rencontre.laureat" class="flex flex-none items-center gap-x-4">
-                                        <span @click="setIsOpen(true, rencontre)" class="text-xs underline cursor-pointer">{{ setComment(rencontre.statut_renc) }}</span>
+                                    <div class="flex shrink-0 items-center gap-x-4">
+                                        <div v-if="rencontre.laureat" class="flex flex-none items-center gap-x-4">
+                                            <span @click="setIsOpen(true, rencontre)" class="text-xs underline cursor-pointer">{{ setComment(rencontre.statut_renc) }}</span>
+                                        </div>
+                                        <button @click="handleOpeningFiche(rencontre.laureat)" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                            Voir la fiche
+                                        </button>
                                     </div>
-
-                                    <button @click="handleOpeningFiche(rencontre.laureat)" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                                        Voir la fiche
-                                    </button>
-                                </div>
-                            </li>
-                            <SkeletonRow v-else/>
-                        </ul>
-                        <div v-else-if="rencontresLoaded">
-                            <p class="text-gray-500 text-center py-4">Aucune rencontre n'a eu lieu...</p>
-                        </div>
-
-                        <TransitionRoot appear :show="isOpen" as="template">
-                            <Dialog as="div" @close="setIsOpen(false)" class="relative z-50">
-                                <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0" enter-to="opacity-100" leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
-                                    <div class="fixed inset-0 bg-black/25" />
-                                </TransitionChild>
-
-                                <div class="fixed inset-0 overflow-y-auto">
-                                    <div class="flex min-h-full items-center justify-center p-4 text-center">
-                                        <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0 scale-95" enter-to="opacity-100 scale-100" leave="duration-200 ease-in" leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
-                                            <DialogPanel class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                                <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900 text-center">
-                                                    Résumé de la rencontre
-                                                </DialogTitle>
-                                                <div class="mt-4">
-                                                    <div class="grid grid-cols-6 gap-x-4">
-                                                        <div class="col-span-3">
-                                                            <img class="aspect-[3/2] w-full rounded-2xl object-cover" :src="`${uri}/storage/img/cli/${props.client}.webp`" alt="" />
-                                                        </div>
-
-                                                        <div class="col-span-3">
-                                                            <img class="aspect-[3/2] w-full rounded-2xl object-cover" :src="`${uri}/storage/img/cli/${rencontre_ref.laureat.id_cli}.webp`" alt="" />
-                                                        </div>
-
-                                                        <div class="col-span-3 mt-4">
-                                                            <label for="comm_renc" class="block text-center text-xs font-medium leading-6 text-gray-700">Comm. - {{ name }} </label>
-                                                            <div class="mt-1">
-                                                                <textarea v-model="rencontre_ref.comm_renc" id="comm_renc" name="comm_renc" rows="3" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6"/>
-                                                                <div class="flex gap-x-2 mt-1">
-                                                                    <a @click="handleSendingAttachment(rencontre_ref.laureat, 'renc', false, mail)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                                                        <AtSymbolIcon class="w-5 h-5"/>
-                                                                    </a>
-                                                                    <a @click="handlePrint(rencontre_ref.laureat, 'renc')" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                                                        <PrinterIcon class="w-5 h-5"/>
-                                                                    </a>
+                                </li>
+                                <SkeletonRow v-else/>
+                            </ul>
+                            <div v-else-if="rencontresLoaded">
+                                <p class="text-gray-500 text-center py-4">Aucune rencontre n'a eu lieu...</p>
+                            </div>
+                            <TransitionRoot appear :show="isOpen" as="template">
+                                <Dialog as="div" @close="setIsOpen(false)" class="relative z-50">
+                                    <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0" enter-to="opacity-100" leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
+                                        <div class="fixed inset-0 bg-black/25" />
+                                    </TransitionChild>
+                                    <div class="fixed inset-0 overflow-y-auto">
+                                        <div class="flex min-h-full items-center justify-center p-4 text-center">
+                                            <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0 scale-95" enter-to="opacity-100 scale-100" leave="duration-200 ease-in" leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
+                                                <DialogPanel class="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                                    <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900 text-center">
+                                                        Résumé de la rencontre
+                                                    </DialogTitle>
+                                                    <div class="mt-4">
+                                                        <div class="grid grid-cols-6 gap-x-4">
+                                                            <div class="col-span-3">
+                                                                <img class="aspect-[3/2] w-full rounded-2xl object-cover" :src="`${uri}/storage/img/cli/${props.client}.webp`" alt="" />
+                                                            </div>
+                                                            <div class="col-span-3">
+                                                                <img class="aspect-[3/2] w-full rounded-2xl object-cover" :src="`${uri}/storage/img/cli/${rencontre_ref.laureat.id_cli}.webp`" alt="" />
+                                                            </div>
+                                                            <div class="col-span-3 mt-4">
+                                                                <label for="comm_renc" class="block text-center text-xs font-medium leading-6 text-gray-700">Comm. - {{ name }} </label>
+                                                                <div class="mt-1">
+                                                                    <textarea v-model="rencontre_ref.comm_renc" id="comm_renc" name="comm_renc" rows="3" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6"/>
+                                                                    <div class="flex gap-x-2 mt-1">
+                                                                        <a @click="handleSendingAttachment(rencontre_ref.laureat, 'renc', false, mail)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                                            <AtSymbolIcon class="w-5 h-5"/>
+                                                                        </a>
+                                                                        <a @click="handlePrint(rencontre_ref.laureat, 'renc')" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                                            <PrinterIcon class="w-5 h-5"/>
+                                                                        </a>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-
-                                                        <div class="col-span-3 mt-4">
-                                                            <label for="comm1_renc" class="block text-center text-xs font-medium leading-6 text-gray-700">Comm. - {{ rencontre_ref.laureat.sexe_cli === 'F' ? 'Mme' : 'Mr' }} {{ rencontre_ref.laureat.nom_cli }}</label>
-                                                            <div class="mt-1">
-                                                                <textarea v-model="rencontre_ref.comm1_renc" id="comm1_renc" name="comm_renc1" rows="3" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6"/>
-                                                                <div class="flex justify-end gap-x-2 mt-1">
-                                                                    <a @click="handleSendingAttachment(client, 'renc', rencontre_ref.laureat)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                                                        <AtSymbolIcon class="w-5 h-5"/>
-                                                                    </a>
-                                                                    <a @click="handlePrint(client, 'renc', rencontre_ref.laureat)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
-                                                                        <PrinterIcon  class="w-5 h-5"/>
-                                                                    </a>
+                                                            <div class="col-span-3 mt-4">
+                                                                <label for="comm1_renc" class="block text-center text-xs font-medium leading-6 text-gray-700">Comm. - {{ rencontre_ref.laureat.sexe_cli === 'F' ? 'Mme' : 'Mr' }} {{ rencontre_ref.laureat.nom_cli }}</label>
+                                                                <div class="mt-1">
+                                                                    <textarea v-model="rencontre_ref.comm1_renc" id="comm1_renc" name="comm_renc1" rows="3" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6"/>
+                                                                    <div class="flex justify-end gap-x-2 mt-1">
+                                                                        <a @click="handleSendingAttachment(client, 'renc', rencontre_ref.laureat)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                                            <AtSymbolIcon class="w-5 h-5"/>
+                                                                        </a>
+                                                                        <a @click="handlePrint(client, 'renc', rencontre_ref.laureat)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                                            <PrinterIcon  class="w-5 h-5"/>
+                                                                        </a>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-
-                                                        <div class="col-span-full my-6">
-                                                            <div class="flex gap-2 items-center ">
-                                                                <label for="cheveux_cli" class="block text-sm font-medium leading-6 text-gray-900">Statut</label>
-                                                                <select name="statut_renc" id="statut_renc" v-model="rencontre_ref.statut_renc"
-                                                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
-                                                                    <option value="Z">Non créée</option>
-                                                                    <option value="N">En cours</option>
-                                                                    <option value="L">Ne l'a pas vu(e)</option>
-                                                                    <option value="P">Se poursuit</option>
-                                                                    <option value="R">Pas de suite Madame</option>
-                                                                    <option value="S">Pas de suite Monsieur</option>
-                                                                    <option value="I">Madame pas encore décidée</option>
-                                                                    <option value="J">Monsieur pas encore décidé</option>
-                                                                    <option value="A">N'a pas marché</option>
-                                                                </select>
+                                                            <div class="col-span-full my-6">
+                                                                <div class="flex gap-2 items-center ">
+                                                                    <label for="cheveux_cli" class="block text-sm font-medium leading-6 text-gray-900">Statut</label>
+                                                                    <select name="statut_renc" id="statut_renc" v-model="rencontre_ref.statut_renc"
+                                                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+                                                                        <option value="Z">Non créée</option>
+                                                                        <option value="N">En cours</option>
+                                                                        <option value="L">Ne l'a pas vu(e)</option>
+                                                                        <option value="P">Se poursuit</option>
+                                                                        <option value="R">Pas de suite Madame</option>
+                                                                        <option value="S">Pas de suite Monsieur</option>
+                                                                        <option value="I">Madame pas encore décidée</option>
+                                                                        <option value="J">Monsieur pas encore décidé</option>
+                                                                        <option value="A">N'a pas marché</option>
+                                                                    </select>
+                                                                </div>
+                                                                <span class="text-[14px] text-gray-700 text-center block font-medium mt-2">
+                                                                    Rencontre créée le {{  moment(rencontre_ref.dateCre_renc).format('ll')  }} par {{ rencontre_ref.idUtil_renc }}
+                                                                </span>
                                                             </div>
-
-                                                            <span class="text-[14px] text-gray-700 text-center block font-medium mt-2">
-                                                                Rencontre créée le {{  moment(rencontre_ref.dateCre_renc).format('ll')  }} par {{ rencontre_ref.idUtil_renc }}
-                                                            </span>
                                                         </div>
                                                     </div>
-                                                </div>
-
-                                                <div class="mt-4 justify-center gap-2 flex">
-                                                    <button type="button" class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" @click="setIsOpen(false)" >
-                                                        Fermer
-                                                    </button>
-
-                                                    <button type="button" class="inline-flex justify-center rounded-md border border-transparent bg-rose-500 px-4 py-2 text-sm font-medium text-white hover:bg-rose-400 duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2" @click="handleUpdateRencontre">
-                                                        Modifier
-                                                    </button>
-                                                </div>
-                                            </DialogPanel>
-                                        </TransitionChild>
+                                                    <div class="mt-4 justify-center gap-2 flex">
+                                                        <button type="button" class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" @click="setIsOpen(false)" >
+                                                            Fermer
+                                                        </button>
+                                                        <button type="button" class="inline-flex justify-center rounded-md border border-transparent bg-rose-500 px-4 py-2 text-sm font-medium text-white hover:bg-rose-400 duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2" @click="handleUpdateRencontre">
+                                                            Modifier
+                                                        </button>
+                                                    </div>
+                                                </DialogPanel>
+                                            </TransitionChild>
+                                        </div>
                                     </div>
-                                </div>
-                            </Dialog>
-                        </TransitionRoot>
-                    </div>        
+                                </Dialog>
+                            </TransitionRoot>
+                        </div>
+                    </div>   
                     <!-- #endregion -->
                 </div>
             </div>

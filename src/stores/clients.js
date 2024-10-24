@@ -24,8 +24,6 @@ export const useClientsStore = defineStore('clients-store', () => {
                 }
 			})
             .then(res => {
-				console.log(res.data);
-
 				clients.value = res.data.clients.map(obj=> {
 					return {...obj, situation_cli: JSON.parse(obj.situation_cli)};
 				});
@@ -120,6 +118,7 @@ export const useClientsStore = defineStore('clients-store', () => {
                 }
 			})
             .then(res => {
+				clients.value = [...clients.value, res.data.client]				
 				resolve(res.data);
             })
             .catch(err => {
@@ -201,11 +200,14 @@ export const useClientsStore = defineStore('clients-store', () => {
 		})
 	}
 
-	const getMatch = (id) => {
+	const getMatch = (id, filters) => {
 		return new Promise((resolve, reject) => {
 			instance({
 				url: `clients/${id}/match`,
 				method: 'GET', 
+				params: {
+					filters: filters
+				},
 				headers: {
                     Authorization: `Bearer ${userStore.userLog.token}`
                 }

@@ -16,7 +16,7 @@ const clientsStore = useClientsStore();
 const { files, addFiles, removeFile } = useFileList()
 const current_step = ref('reference');
 const step_index = ref(0);
-
+const loadingCreate = ref(false)
 const steps = ref([
     { id: '01', name: 'Données de base', slug: 'reference', status: 'current' },
     { id: '02', name: 'Données personnelles (opt)', slug: 'donnees_personnelles', status: 'upcoming' },
@@ -96,11 +96,55 @@ const previousStep = () => {
 }
 
 const handleCreationFiche = () => {
+    loadingCreate.value = true;
     clientsStore.createClient(dataCreation.value, files.value)
     .then(res => {
         stateToast.value = true;
+        loadingCreate.value = false;
         if(res.arr){
             newlyClient.value = res.arr.id_cli
+            dataCreation.value = {
+                idAgence_cli: 0,
+                ref_cli: '',
+                nom_cli: '',
+                pNoms_cli: '',
+                sexe_cli: '0',
+                type_cli : 'adherent',
+                duree_cli: 1,
+                adr_cli : '',
+                cp_cli : '',
+                ville_cli : '',
+                telPri_cli : '',
+                affTelPri_cli : 0,
+                telPro_cli : '',
+                affTelPro_cli : 0,
+                telGsm_cli : '',
+                affTelGsm_cli : 0,
+                mail_cli : '',
+                nl_cli : 0,
+                situation_cli: {
+                    celib_cli: false,
+                    veuf_cli: false,
+                    div_cli: false,
+                    sep_cli: false,
+                    instDiv_cli: false,
+                },
+                desCelib_cli: 0,
+                desVeuf_cli: 0,
+                desDiv_cli: 0,
+                desSep_cli: 0,
+                desAge_cli_min: 0,
+                desAge_cli_max: 0,
+                desNbEn_cli: 0,
+                desPhy_cli: '',
+                desCaract_cli: '',
+                desReg_cli: 0,
+                desInst_cli: 0,
+                desProf_cli: 0,
+                desCarctIndisp_cli: '',
+                msRech_cli: '_0',
+                msRechPrec_cli: '',
+            }
         }
     })
     .catch(err => console.error(err))
@@ -147,7 +191,7 @@ const onInputChange = (e) => {
                         </span>
                     </a>
                     <template v-if="stepIdx !== steps.length - 1">
-                        <!-- Arrow separator for lg screens and up -->
+
                         <div class="absolute right-0 top-0 hidden h-full w-5 md:block" aria-hidden="true">
                             <svg class="h-full w-full text-gray-300" viewBox="0 0 22 80" fill="none"
                                 preserveAspectRatio="none">
@@ -676,13 +720,13 @@ const onInputChange = (e) => {
                 <div class="flex items-center justify-end gap-x-6">
                     <button v-if="step_index > 0" type="button" class="text-sm font-semibold leading-6 text-gray-900" @click="previousStep">Précedent</button>
                     <button v-if="step_index !== steps.length - 1" type="button" class="text-sm font-semibold leading-6 text-gray-900 hover:text-rose-500 duration-300 ease-out" @click="nextStep">Suivant</button>
-                    <button type="submit" class="rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 duration-300 ease-out">Finaliser</button>
+                    <button type="submit" :class="[loadingCreate ? 'animate-pulse pointer-events-none' : 'pointer-events-auto' , 'rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 duration-300 ease-out']">Finaliser</button>
                 </div>
             </div>
         </form>
         
-        <Toast :state="stateToast" title="Fiche client ajouté">
-            <router-link :to="{name: 'Client', params: {id: newlyClient}}" class="inline-block mt-2 rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 duration-300 ease-out">
+        <Toast :state="stateToast" title="Fiche client ajoutée">
+            <router-link :to="{name: 'Client', params: {id: newlyClient}}" class="inline-block rounded-md px-3 py-2 text-sm font-semibold text-white hover:text-black duration-300 ease-out">
                 Voir la fiche
             </router-link>
         </Toast>

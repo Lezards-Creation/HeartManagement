@@ -54,12 +54,17 @@
 	const selected = ref(filterOptions[0])
 	
 	const filtered_clients = computed(() => {
-		const searchTermLower = search_term.value?.toLowerCase() || "";
+		const normalizeString = (str) => {
+			return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\s-]/g, '').toLowerCase();
+		};
+
+		const searchTermLower = normalizeString(search_term.value || "");
 		let totalCount = 0;
 
 		const filteredDirectory = Object.keys(clients.value).reduce((acc, initialLetter) => {
 			const filteredUsers = clients.value[initialLetter].filter(user => {
-				const searchMatch = searchTermLower.length >= 3 ? (user.pNoms_cli.toLowerCase() + user.nom_cli.toLowerCase()).includes(searchTermLower) || user.ref_cli.toLowerCase().includes(searchTermLower) : true;
+				const normalizedUserName = normalizeString(user.pNoms_cli + user.nom_cli);
+				const searchMatch = searchTermLower.length >= 3 ? normalizedUserName.includes(searchTermLower) || user.ref_cli.toLowerCase().includes(searchTermLower) : true;
 				let filtersMatch = true;
 				Object.entries(filters.value).forEach(([key, value]) => {
 					if(filters.value[key] !== undefined){
@@ -121,6 +126,8 @@
 
 				return searchMatch && filtersMatch;
 			});
+
+			filteredUsers.sort((a, b) => a.nom_cli.localeCompare(b.nom_cli));
 
 			if (filteredUsers.length) {
 				acc[initialLetter] = filteredUsers;
@@ -202,6 +209,51 @@
 	}
 	fetchAgences();
 
+
+	const setColorName = (client) => {
+		let color = 'rgb(17 24 39)'
+		if(!client.libre_cli){
+			color = 'rgb(17 24 39)';
+			if(client.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+		if(selected.value.filter !== 'insc_cli'){
+			color = 'rgb(239,68,68)'
+		}
+
+		return color;
+	}
+	
+	const setColorTag = (client) => {
+		let color = '#22c55e';
+		if(!client.libre_cli){
+			color = 'rgb(17 24 39)';
+			if(client.probPaie_cli){
+				color = 'rgb(17, 24, 39)';
+			}
+		} else {
+			if(client.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+		if(selected.value.filter !== 'insc_cli'){
+			color = 'rgb(17, 24, 39)';
+
+			if(!client.libre_cli){
+				color = 'rgb(239,68,68)';
+			}
+
+			if(client.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+		return color;
+	}
+
 	const fallbackImage = `${uri}/storage/img/cli/vide.webp`;
 	function handleImageError(event) {
 		event.target.src = fallbackImage;
@@ -213,11 +265,23 @@
 		}
 	})
 
-	watch(() => route?.query?.agence, () => {
-		if(route?.query?.agence){
-			filters.value.idAgence_cli = parseInt(route.query.agence)
+	watch(
+		() => route?.query?.agence, 
+		() => {
+			if(route?.query?.agence){
+				filters.value.idAgence_cli = parseInt(route.query.agence)
+			}
+		},
+	)
+
+	watch(
+  		() => clientsStore.clients, // Watching clients list in the store
+		(newClients, oldClients) => {
+			if (JSON.stringify(newClients) !== JSON.stringify(oldClients)) {
+				fetchClients(); // Only fetch if clients have actually changed
+			}
 		}
-	})
+	);
 </script>
 
 <template>
@@ -588,7 +652,12 @@
 						<router-link class="flex gap-x-4 px-3 py-5 hover:bg-rose-50 items-center transition-all pointer" :to="{ name: 'Client', params: { id: person.id_cli }}" >
 							<img @error="event => handleImageError(event, person.id_cli)" class="h-8 w-8 2xl:h-12 2xl:w-12 flex-none object-cover object-center rounded-full bg-gray-50" :src="`${uri}/storage/img/cli/${person.id_cli}.webp`" loading="lazy" />
 							<div class="min-w-0">
-								<p class="xl:text-xs 2xl:text-sm font-medium  text-gray-900">{{ person.pNoms_cli }} {{ person.nom_cli }}</p>
+								<p class="flex gap-2 items-center xl:text-xs 2xl:text-sm font-medium" :style="'color: ' + setColorName(person)">
+									{{ person.pNoms_cli }} {{ person.nom_cli }}
+									<svg class="h-2 w-2" viewBox="0 0 6 6" aria-hidden="true">
+										<circle cx="3" cy="3" r="3" :fill="setColorTag(person)"/>
+									</svg>
+								</p>
 								<p class="truncate text-xs text-gray-500">{{ person.ville_cli }} - {{ person.dateNaiss_cli ? calculateAge(person.dateNaiss_cli) + ' ans' : '' }}</p>
 							</div>
 						</router-link>

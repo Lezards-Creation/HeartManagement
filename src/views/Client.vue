@@ -33,6 +33,7 @@
 	const isModalOpened = ref(false);
     const generateBase64 = ref(false);
 	const mail_test = ref(null);
+	const typePortrait = ref('court');
 
 	const scoring = ref(null); 
 
@@ -65,6 +66,13 @@
 		}
 		return '';
 	})
+
+	const filters = ref({
+		age_min_cli: "",
+		age_max_cli: "",
+		taille_min_cli: "",
+		taille_max_cli: "",
+	})
 	//#endregion
 
 	//#region METHODS
@@ -96,12 +104,16 @@
 			date_choix: moment().format('YYYY-MM-DD'),
 		}
 		
+		matchLoading.value = true;
+		searchLoading.value = true;
+
 		choixStore.addChoice(data)
 		.then(res => {
-			console.log(res);
 			openSearch.value = false;
 			open.value = false;
 			stateToastChoix.value = true;
+			matchLoading.value = false;
+			searchLoading.value = false;
 		})
 		.catch(err => console.error(err))
 	}
@@ -117,12 +129,16 @@
 			idCli1_prop: prop.id_cli,
 			date_prop: moment().format('YYYY-MM-DD'),
 		}
+		matchLoading.value = true;
+		searchLoading.value = true;
 		
 		propositionStore.addProposition(data)
 		.then(res => {
 			openSearch.value = false;
 			open.value = false;
 			stateToastPropo.value = true;
+			matchLoading.value = false;
+			searchLoading.value = false;
 		})
 		.catch(err => console.error(err))
 	}
@@ -139,6 +155,12 @@
 		clientsStore.getClient(route.params.id)
 		.then(res => {
 			current_user.value = res.client
+
+			let age = res.client.desAge_cli.split('-');
+
+			filters.value.age_min_cli = age[0];
+			filters.value.age_max_cli = age[1];
+
 			imageSource.value = `${uri}/storage/img/cli/${current_user.value.id_cli}.webp?` + new Date().getTime()
 		})
 	}
@@ -163,7 +185,7 @@
 
 	const seekMatch = () => {
 		matchLoading.value = true;
-		clientsStore.getMatch(current_user.value.id_cli)
+		clientsStore.getMatch(current_user.value.id_cli, filters.value)
 		.then((res) => {
 			matchLoading.value = false;
 			scoring.value = res.scoring
@@ -193,6 +215,65 @@
 			clientListed.value = [];
 			searchLoading.value = false;
 		}
+	}
+
+	const setColorName = () => {
+		let color = 'rgb(17 24 39)'
+		if(!current_user.value.libre_cli){
+			color = 'rgb(17 24 39)';
+			if(current_user.value.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+
+		let anc_adh = false;
+		let a = moment(current_user.value.insc_cli).add(current_user.value.duree_cli, 'M');
+		let b = moment();
+		if (!b.isBefore(a)){
+			anc_adh = true;
+		} 
+		
+		if(current_user.value.prosp_cli || current_user.value.cont_cli || anc_adh){
+			color = 'rgb(239,68,68)'
+		}
+
+		return color;
+	}
+	
+	const setColorTag = () => {
+		let color = 'rgb(12, 159, 67)';
+		if(!current_user.value.libre_cli){
+			color = 'rgb(17 24 39)';
+			if(current_user.value.probPaie_cli){
+				color = 'rgb(17, 24, 39)';
+			}
+		} else {
+			if(current_user.value.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+		let anc_adh = false;
+		let a = moment(current_user.value.insc_cli).add(current_user.value.duree_cli, 'M');
+		let b = moment();
+		if (!b.isBefore(a)){
+			anc_adh = true;
+		} 
+
+		if(current_user.value.prosp_cli || current_user.value.cont_cli || anc_adh){
+			color = 'rgb(17, 24, 39)';
+
+			if(!current_user.value.libre_cli){
+				color = 'rgb(239,68,68)';
+			}
+
+			if(current_user.value.probPaie_cli){
+				color = 'rgb(249, 115, 22)';
+			}
+		}
+
+		return color;
 	}
 
 	function debounce(func, delay) {
@@ -228,11 +309,11 @@
 					</div>
 				</div>
 				<div class="pt-1.5">
-					<h1 class="text-2xl font-bold text-gray-900">{{ current_user.pNoms_cli }} {{ current_user.nom_cli }}</h1>
+					<h1 class="text-2xl font-bold" :style="`color: ${setColorName()}`">{{ current_user.pNoms_cli }} {{ current_user.nom_cli }}</h1>
 					<p class="text-sm font-medium text-gray-500">
 						<a href="#" class="text-gray-900">{{ current_user.prof_cli }}</a>, de {{ current_user.ville_cli}}, {{ current_user.dateNaiss_cli ? calculateAge(current_user.dateNaiss_cli) + ' ans' : '' }}
 					</p>
-					<p class="text-xs font-medium text-gray-500 mt-1">Réf. {{ current_user.ref_cli }} - {{ determineStatus }}</p>
+					<p class="text-xs font-medium mt-1" :style="`color: ${setColorTag()}`">Réf. {{ current_user.ref_cli }} - {{ determineStatus }}</p>
 				</div>
 			</div>
 			<div>
@@ -242,7 +323,7 @@
 						Envoyer un test
 						<EnvelopeIcon class="text-gray-600 w-5 h-5"/>
 					</button>
-					<button @click="() => {open = true; seekMatch()}" type="button"
+					<button @click="() => {open = true;}" type="button"
 						class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
 						Lancer un match
 						<ArrowPathRoundedSquareIcon class="text-gray-600 w-5 h-5" />
@@ -295,7 +376,58 @@
 									</div>
 								</div>
 								<div v-if="currentTabs === 'Matching'">
-									<ul v-if="scoring" role="list" class="flex-1 divide-y divide-gray-200 overflow-y-auto mt-6">
+									<div class="container grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6 pt-6 pb-4 px-6">
+										<div class="sm:col-span-full">
+											<label for="age_min_cli" class="block text-sm font-medium leading-6 text-gray-500">Sélectionner une tranche d'âge</label>
+											
+											<div class="mt-2 flex items-center gap-2">
+												<span>De</span>
+												<div class="relative">
+													<input v-model="filters.age_min_cli" type="text" name="age_min_cli" id="age_min_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+													<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+														<span class="text-gray-500 text-xs" id="price-currency">ans</span>
+													</div>
+												</div>
+											
+												<span>à</span>
+												<div class="relative">
+													<input v-model="filters.age_max_cli" type="text" name="age_max_cli" id="age_max_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+													<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+														<span class="text-gray-500 text-xs" id="price-currency">ans</span>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="sm:col-span-full">
+											<label for="taille_min_cli" class="block text-sm font-medium leading-6 text-gray-500">Sélectionner une tranche de taille</label>
+											
+											<div class="mt-2 flex items-center gap-2">
+												<span>De</span>
+												<div class="relative">
+													<input v-model="filters.taille_min_cli" type="text" name="taille_min_cli" id="taille_min_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+													<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+														<span class="text-gray-500 text-xs" id="price-currency">cm</span>
+													</div>
+												</div>
+												<span>à</span>
+												<div class="relative">
+													<input v-model="filters.taille_max_cli" type="text" name="taille_max_cli" id="taille_max_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+													<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+														<span class="text-gray-500 text-xs" id="price-currency">cm</span>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<div class="sm:col-span-full text-center border-b pb-4 mt-2">
+											<button class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" @click="seekMatch">
+												Valider la sélection
+											</button>
+										</div>
+									</div>
+									
+									<ul v-if="scoring && !matchLoading" role="list" class="flex-1 divide-y divide-gray-200 overflow-y-auto mt-6">
 										<li v-for="score in scoring" :key="score.client.id_cli">
 											<div class="group relative flex items-center px-5 py-6">
 												<a href="#" class="-m-1 block flex-1 p-1">
@@ -340,6 +472,7 @@
 											<p class="text-center text-base text-gray-500 font-normal">Aucun matchs potentiels</p>
 										</li>
 									</ul>
+
 									<ul v-else-if="matchLoading" role="list" class="divide-y divide-gray-100 mt-6">
 										<li class="relative flex justify-between gap-x-6 px-4 py-5" v-for="n in 10">
 											<div class="flex min-w-0 gap-x-4 items-center animate-pulse">
@@ -367,7 +500,7 @@
 										</div>
 									</div>
 								
-									<ul v-if="clientListed" role="list" class="flex-1 divide-y divide-gray-200 overflow-y-auto mt-6 pb-24">
+									<ul v-if="clientListed && !searchLoading" role="list" class="flex-1 divide-y divide-gray-200 overflow-y-auto mt-6 pb-24">
 										<li v-for="client in clientListed" :key="client.id_cli">
 											<div class="group relative flex items-center px-5 py-6">
 												<a href="#" class="-m-1 block flex-1 p-1">
@@ -451,6 +584,14 @@
 								<p class="mt-6 text-sm leading-6">Envoyer la fiche portrait du client sélectioné à un email personalisé.</p>
 							</div>
 
+							<div class="mt-4">
+								<label for="type_portrait" class="block text-sm leading-6 text-gray-800">Type de portrait</label>
+								<select v-model="typePortrait" id="type_portrait" name="type_portrait" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+									<option value="court" selected>Court</option>
+									<option value="complet">Complet</option>
+								</select>
+							</div>
+
 							<div class="relative mt-2 rounded-md shadow-sm">
 								<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
 									<EnvelopeIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -484,7 +625,7 @@
 	<Toast :state="stateToastChoix" title="Choix envoyé avec succès"/>
 
 	<!-- #region PORTRAIT PATIENT -->
-	<PortraitClient v-if="current_user" :client="current_user.id_cli" :isOpen="isModalOpened" :generate="generateBase64" @base64generated="handleMail" @modal-close="isModalOpened = false"/>
+	<PortraitClient v-if="current_user" :type="typePortrait" :client="current_user.id_cli" :isOpen="isModalOpened" :generate="generateBase64" @base64generated="handleMail" @modal-close="isModalOpened = false"/>
 	<!-- #endregion -->
 </template>
 

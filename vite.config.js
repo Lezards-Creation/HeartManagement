@@ -16,7 +16,7 @@ export default defineConfig({
       },
       server: {
             host: 'test.heartmanagement.fr',
-            port: 443, // your desired port number
+            port: 443,
             https: {
                   key: fs.readFileSync('./cert/test.heartmanagement.fr-key.pem'),
                   cert: fs.readFileSync('./cert/test.heartmanagement.fr.pem'),

@@ -52,7 +52,7 @@ export const useUserStore = defineStore('user-store', () => {
 					resolve(res);
 				})
 				.catch(err => {
-					reject(err.response.data.error);
+					reject(err);
 			})
 		}) 
 	}

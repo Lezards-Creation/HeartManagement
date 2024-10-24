@@ -64,6 +64,27 @@ export const useMessageStore = defineStore('message-store', () => {
 			})
 		})
 	}
+
+	const updateMessageStatus = (type, id) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `message/${id}`,
+				method: 'POST',
+				params: {
+					status: type
+				},
+				headers: {
+					Authorization: `Bearer ${userStore.userLog.token}`
+				},
+			})
+			.then(res => {
+				resolve(res.data);
+			})
+			.catch(err => {
+				reject(err);
+			})
+		})
+	}
 	
 	return {
 		// Variables
@@ -71,6 +92,7 @@ export const useMessageStore = defineStore('message-store', () => {
 		getMessages,
 		getMessagesCount,
 		deleteMessage,
+		updateMessageStatus
 	}
 }, { persistedState: { persist: true } })
 

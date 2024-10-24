@@ -1,8 +1,6 @@
 <script setup>
 	import { useRouter, useRoute } from 'vue-router'
 	const location = useRoute();
-
-	console.log(location.name)
 </script>
 
 <template>

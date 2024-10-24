@@ -10,7 +10,7 @@ const instance = axios.create({
 export const useRencontresStore = defineStore('rencontres-store', () => {    
 	const userStore = useUserStore();
 	
-	const getRencontres = (page, sort) => {
+	const getRencontres = (page, sort, filters) => {
 		return new Promise((resolve, reject) => {
 			instance({
 				url: `rencontres`,
@@ -20,7 +20,8 @@ export const useRencontresStore = defineStore('rencontres-store', () => {
                 },
 				params: {
 					page: page,
-					sort: sort
+					sort: sort,
+					filters: filters
 				}
 			})
             .then(res => {

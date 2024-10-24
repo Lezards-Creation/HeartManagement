@@ -125,7 +125,6 @@ router.beforeEach(async (to, from, next) => {
 	if (isAuthenticated) {
 		try {
 			const res = await store.checkToken(store.userLog.id_util, store.userLog.token);
-			console.log(res);
 			invalidToken = false;
 		} catch (err) {
 			invalidToken = true;
