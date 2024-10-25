@@ -21,7 +21,8 @@ export const useChoixStore = defineStore('choix-store', () => {
 				params: {
 					page: page,
 					sort: sort,
-					filters: filters
+					filters: filters,
+					user_agences: userStore.userLog.agences
 				}
 			})
 			.then(res => {
@@ -45,7 +46,8 @@ export const useChoixStore = defineStore('choix-store', () => {
 				params: {
 					page: page,
 					sort: sort,
-					filters: filters
+					filters: filters,
+					user_agences: userStore.userLog.agences
 				}
 			})
 			.then(res => {

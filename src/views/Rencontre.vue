@@ -6,6 +6,7 @@
     import { useRencontresStore } from '../stores/rencontres';
     import { useClientsStore } from '../stores/clients';
     import { useAgencesStore } from '../stores/agences';
+    import { useUserStore } from '../stores/user';
     import moment from "moment";
     import fr from 'moment/dist/locale/fr';
     moment.updateLocale('fr', fr);
@@ -16,6 +17,7 @@
     const rencontreStore = useRencontresStore();   
     const agencesStore = useAgencesStore();
     const clientsStore = useClientsStore();
+    const userStore = useUserStore();
     const rencontres = ref(null);
     const rencontresLoaded = ref(false);
     const rencontres_count = ref(0);
@@ -173,6 +175,7 @@
         rencontreStore.getRencontres(page, currentSort.value, filters.value)
         .then(res => {
             rencontres.value = res.rencontres;
+
             rencontres_count.value = res.count;
             totalPages.value = Math.ceil(rencontres_count.value / 100)
             rencontresLoaded.value = true;
@@ -299,6 +302,16 @@
 
 		return color;
 	}
+
+    const isFromAgence = (client) => {
+		if(userStore.userLog.agences.includes(client.idAgence_cli)){
+			return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
+		} else {
+			let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
+			return {name: formattedNomCli, can: false};
+		}
+	} 
+
 
     onMounted(() => {
         agencesStore.getAgences()
@@ -440,7 +453,9 @@
                             </div>
                             <div class="min-w-0 flex-1">
                                 <a href="#" class="focus:outline-none">
-                                    <p class="text-sm font-medium text-gray-900" :style="`color: ${setColorName(rencontre.laureat)}`">{{ rencontre.laureat.pNoms_cli }} {{ rencontre.laureat.nom_cli }}</p>
+                                    <p class="text-sm font-medium text-gray-900" :style="`color: ${setColorName(rencontre.laureat)}`">
+                                        {{ rencontre.laureat.pNoms_cli }} {{ rencontre.laureat.nom_cli }}
+                                    </p>
                                     <p class="truncate text-sm text-gray-500" :style="`color: ${setColorTag(rencontre.laureat)}`">{{ rencontre.laureat.ref_cli }}</p>
                                 </a>
                             </div>
@@ -553,11 +568,11 @@
                             {{ ' ' }}
                             à
                             {{ ' ' }}
-                            <span class="font-medium">{{ 100 * (pageNumber) > count_rencontres ? count_rencontres : 100 * (pageNumber)}}</span>
+                            <span class="font-medium">{{ 100 * (pageNumber) > rencontres_count ? rencontres_count : 100 * (pageNumber)}}</span>
                             {{ ' ' }}
                             sur
                             {{ ' ' }}
-                            <span class="font-medium">{{ count_rencontres }}</span>
+                            <span class="font-medium">{{ rencontres_count }}</span>
                             {{ ' ' }}
                             résultats
                         </p>

@@ -21,7 +21,8 @@ export const useRencontresStore = defineStore('rencontres-store', () => {
 				params: {
 					page: page,
 					sort: sort,
-					filters: filters
+					filters: filters,
+					user_agences: userStore.userLog.agences
 				}
 			})
             .then(res => {

@@ -22,6 +22,7 @@ export const usePropositionsStore = defineStore('propositions-store', () => {
 					page: page,
 					sort: sort,
 					filters: filters,
+					user_agences: userStore.userLog.agences
 				}
 			})
             .then(res => {

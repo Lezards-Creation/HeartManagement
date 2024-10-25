@@ -471,7 +471,7 @@ export default {
                             <div class="sm:col-span-2 self-start mb-2">
                                 <SwitchGroup as="div" class="flex items-center flex-wrap">
                                     <Switch @click="debouncedFunction" v-model="current_user.situation_cli.celib_cli" name="celib_cli"
-                                        :class="[current_user.situation_cli.celib_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                        :class="[current_user.situation_cli.celib_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                         <span aria-hidden="true"
                                             :class="[current_user.situation_cli.celib_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                     </Switch>
@@ -485,7 +485,7 @@ export default {
                             <div class="sm:col-span-2 self-start mb-2">
                                 <SwitchGroup as="div" class="flex items-center flex-wrap">
                                     <Switch @click="debouncedFunction" v-model="current_user.situation_cli.veuf_cli" name="veuf_cli"
-                                        :class="[current_user.situation_cli.veuf_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                        :class="[current_user.situation_cli.veuf_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                         <span aria-hidden="true"
                                             :class="[current_user.situation_cli.veuf_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                     </Switch>
@@ -499,7 +499,7 @@ export default {
                             <div class="sm:col-span-2 self-start mb-2">
                                 <SwitchGroup as="div" class="flex items-center flex-wrap">
                                     <Switch @click="debouncedFunction" v-model="current_user.situation_cli.div_cli" name="div_cli"
-                                        :class="[current_user.situation_cli?.div_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                        :class="[current_user.situation_cli?.div_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                         <span aria-hidden="true"
                                             :class="[current_user.situation_cli?.div_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                     </Switch>
@@ -513,7 +513,7 @@ export default {
                             <div class="sm:col-span-2 self-start mb-2">
                                 <SwitchGroup as="div" class="flex items-center flex-wrap">
                                     <Switch @click="debouncedFunction" v-model="current_user.situation_cli.sep_cli" name="sep_cli"
-                                        :class="[current_user.situation_cli?.sep_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                        :class="[current_user.situation_cli?.sep_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                         <span aria-hidden="true"
                                             :class="[current_user.situation_cli?.sep_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                     </Switch>
@@ -526,7 +526,7 @@ export default {
                             <div class="sm:col-span-4 self-start mb-2">
                                 <SwitchGroup as="div" class="flex items-center flex-wrap">
                                     <Switch @click="debouncedFunction" v-model="current_user.situation_cli.instDiv_cli" name="instDiv_cli"
-                                        :class="[current_user.situation_cli?.instDiv_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                        :class="[current_user.situation_cli?.instDiv_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                         <span aria-hidden="true"
                                             :class="[current_user.situation_cli?.instDiv_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                     </Switch>
@@ -693,7 +693,7 @@ export default {
                                 <div class="sm:col-span-3 self-start mb-2">
                                     <SwitchGroup as="div" class="flex items-center flex-wrap">
                                         <Switch @click="debouncedFunction" v-model="current_user.veh_cli" name="veh_cli"
-                                            :class="[current_user.veh_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                            :class="[current_user.veh_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                             <span aria-hidden="true"
                                                 :class="[current_user.veh_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                         </Switch>
@@ -707,7 +707,7 @@ export default {
                                 <div class="sm:col-span-3 self-start mb-2">
                                     <SwitchGroup as="div" class="flex items-center flex-wrap">
                                         <Switch @click="debouncedFunction" v-model="current_user.permis_cli" name="permis_cli"
-                                            :class="[current_user.permis_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                            :class="[current_user.permis_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                             <span aria-hidden="true"
                                                 :class="[current_user.permis_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                         </Switch>
@@ -860,10 +860,8 @@ export default {
                                     </div>
                                     <div class="sm:col-span-3">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
-                                            <Switch @click="debouncedFunction" v-model="current_user.lun_cli" name="lun_cli"
-                                                :class="[current_user.lun_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
-                                                <span aria-hidden="true"
-                                                    :class="[current_user.lun_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                                            <Switch @click="debouncedFunction" v-model="current_user.lun_cli" name="lun_cli" :class="[current_user.lun_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                <span aria-hidden="true" :class="[current_user.lun_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
                                             <SwitchLabel as="span" class="ml-3 text-sm">
                                                 <span class="font-medium text-gray-900">Porte des lunettes</span>
@@ -874,7 +872,7 @@ export default {
                                     <div class="sm:col-span-3">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.fum_cli" name="fum_cli"
-                                                :class="[current_user.fum_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.fum_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.fum_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
@@ -1450,7 +1448,7 @@ export default {
 
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.desCelib_cli" name="desCelib_cli"
-                                                :class="[current_user.desCelib_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.desCelib_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.desCelib_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
@@ -1463,7 +1461,7 @@ export default {
                                     <div class="sm:col-span-2 self-start mb-2">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.desVeuf_cli" name="desVeuf_cli"
-                                                :class="[current_user.desVeuf_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.desVeuf_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.desVeuf_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
@@ -1476,7 +1474,7 @@ export default {
                                     <div class="sm:col-span-2 self-start mb-2">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.desDiv_cli" name="desDiv_cli"
-                                                :class="[current_user.desDiv_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.desDiv_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.desDiv_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
@@ -1489,7 +1487,7 @@ export default {
                                     <div class="sm:col-span-2 self-end mb-2">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.desSep_cli" name="desSep_cli"
-                                                :class="[current_user.desSep_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.desSep_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.desSep_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
@@ -1551,7 +1549,7 @@ export default {
                                     <div class="sm:col-span-full self-start mb-2">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.desReg_cli" name="desReg_cli"
-                                                :class="[current_user.desReg_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.desReg_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.desReg_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
@@ -2111,7 +2109,7 @@ export default {
                             <fieldset>
                                 <span class="block text-sm font-medium leading-6 text-gray-900 mb-2">Annonce 1</span>
                                 <div class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6">
-                                    <div class="flex gap-4 justify-between items-center mb-4 shadow-md py-2 px-4" v-if="editorAnn1">
+                                    <div class="flex gap-4 justify-between items-center mb-4 shadow-md py-2 px-4" v-if="editorAnn1 && isFromAgence(current_user).can">
                                         <div class="flex gap-1 items-center">
                                             <button type="button" @click="editorAnn1.chain().focus().toggleBold().run()"
                                                 :disabled="!editorAnn1.can().chain().focus().toggleBold().run()"
@@ -2156,13 +2154,14 @@ export default {
                                             </button>
                                         </div>
                                     </div>
-                                    <editor-content class="px-4" :editor="editorAnn1" />
+                                    <editor-content class="px-4" :editor="editorAnn1" v-if="isFromAgence(current_user).can"/>
+                                    <div class="p-5 opacity-60" v-else v-html="current_user.ann1_cli"></div>
                                 </div>
                             </fieldset>
                             <fieldset>
                                 <span class="block text-sm font-medium leading-6 text-gray-900 mb-2">Annonce 2</span>
                                 <div class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6">
-                                    <div class="flex gap-4 justify-between items-center mb-4 shadow-md py-2 px-4" v-if="editorAnn2">
+                                    <div class="flex gap-4 justify-between items-center mb-4 shadow-md py-2 px-4" v-if="editorAnn2 && isFromAgence(current_user).can">
                                         <div class="flex gap-1 items-center">
                                             <button type="button" @click="editorAnn2.chain().focus().toggleBold().run()"
                                                 :disabled="!editorAnn2.can().chain().focus().toggleBold().run()"
@@ -2207,7 +2206,8 @@ export default {
                                             </button>
                                         </div>
                                     </div>
-                                    <editor-content class="px-4" :editor="editorAnn2" />
+                                    <editor-content v-if="isFromAgence(current_user).can" class="px-4" :editor="editorAnn2" />
+                                    <div class="p-5 opacity-60" v-else v-html="current_user.ann2_cli"></div>
                                 </div>
                             </fieldset>
                             <fieldset>
@@ -2250,7 +2250,7 @@ export default {
                                     <div class="sm:col-span-2 self-start mb-2">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.proc_cli" name="proc_cli"
-                                                :class="[current_user.proc_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.proc_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.proc_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
@@ -2310,7 +2310,7 @@ export default {
                                     <div class="sm:col-span-3">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.vip_cli" name="vip_cli"
-                                                :class="[current_user.vip_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.vip_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.vip_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
@@ -2323,7 +2323,7 @@ export default {
                                     <div class="sm:col-span-3">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.ln_cli" name="ln_cli"
-                                                :class="[current_user.ln_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.ln_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.ln_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
@@ -2336,7 +2336,7 @@ export default {
                                     <div class="sm:col-span-3">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.cont_cli" name="cont_cli"
-                                                :class="[current_user.cont_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.cont_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.cont_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
@@ -2349,7 +2349,7 @@ export default {
                                     <div class="sm:col-span-3">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.prosp_cli" name="prosp_cli"
-                                                :class="[current_user.prosp_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.prosp_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.prosp_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
@@ -2379,7 +2379,7 @@ export default {
                                     <div class="sm:col-span-3">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.libre_cli" name="libre_cli"
-                                                :class="[current_user.libre_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.libre_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.libre_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
@@ -2392,7 +2392,7 @@ export default {
                                     <div class="sm:col-span-3">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.probPaie_cli" name="probPaie_cli"
-                                                :class="[current_user.probPaie_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                                :class="[current_user.probPaie_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true"
                                                     :class="[current_user.probPaie_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
                                             </Switch>
