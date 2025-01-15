@@ -7,302 +7,28 @@
     import DropZone from './DropZone.vue';
     import FilesListPreview from './FilesListPreview.vue';
     import useFileList from '../compositions/file-list'
+    import { useClientsStore } from '../stores/clients'
+    import { useAgencesStore } from '../stores/agences'
     
     const uri = import.meta.env.VITE_URL;
     const props = defineProps(['client']);
     const { files, addFiles, removeFile } = useFileList()
-
+    const clientsStore = useClientsStore();
     const isOpen = ref(false);
     const currentModel = ref({});
-    const pdf_model = ref({
-        portrait: {
-            model: 'portrait',
-            input_list: [
-                {
-                    label: 'Nom / Prénom',
-                    name: 'nom_prenom',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Référence',
-                    name: 'ref',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Age',
-                    name: 'age',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Né(e) le',
-                    name: 'naissance',
-                    type: 'date',
-                    value: '01/01/2024',
-                },
-                {
-                    label: 'Nationalité',
-                    name: 'nationalite',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'CVDS',
-                    name: 'cvds',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Fumeur',
-                    name: 'fumeur',
-                    type: 'checkbox',
-                    value: '',
-                },
-                {
-                    label: 'Enfants',
-                    name: 'enfants',
-                    type: 'number',
-                    value: 0,
-                },
-                {
-                    label: 'F(âges)',
-                    name: 'f_ages',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'G(âges)',
-                    name: 'g_ages',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'À charge',
-                    name: 'a_charge',
-                    type: 'checkbox',
-                    value: '',
-                },
-                {
-                    label: 'Tendances politiques',
-                    name: 'tendances',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Religion',
-                    name: 'religion',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Code',
-                    name: 'code',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Profession',
-                    name: 'profession',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Revenus',
-                    name: 'revenus',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Horaires',
-                    name: 'horaires',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Instruction',
-                    name: 'instruction',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Voiture',
-                    name: 'voiture',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Permis',
-                    name: 'permis',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Logement',
-                    name: 'logement',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Taille',
-                    name: 'taille',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Poids',
-                    name: 'poids',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Cheveux',
-                    name: 'cheveux',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Yeux',
-                    name: 'yeux',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Santé',
-                    name: 'sante',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Lunettes',
-                    name: 'lunettes',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Caractère',
-                    name: 'caractere',
-                    type: 'textarea',
-                    value: '',
-                },
-                {
-                    label: 'Goûts / loisirs',
-                    name: 'gouts',
-                    type: 'textarea',
-                    value: '',
-                },
-                {
-                    label: 'Milieu d\'éducation',
-                    name: 'education',
-                    type: 'textarea',
-                    value: '',
-                },
-                {
-                    type: 'title',
-                    label: 'Profil recherché'
-                },
-                {
-                    label: 'Age de',
-                    name: 'age_1',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'à',
-                    name: 'age_2',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Célibataire',
-                    name: 'celibataire',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Veuf(ve)',
-                    name: 'veuf',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Divorcé(e)',
-                    name: 'divorce',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Séparé(e)',
-                    name: 'separe',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Avec enfants',
-                    name: 'avec_enfants',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'À charge',
-                    name: 'a_charge_2',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Allure et physique',
-                    name: 'allure',
-                    type: 'textarea',
-                    value: '',
-                },
-                {
-                    label: 'Caractère',
-                    name: 'caractere_2',
-                    type: 'textarea',
-                    value: '',
-                },
-                {
-                    label: 'Degré d\'instruction',
-                    name: 'instruction_2',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Profession',
-                    name: 'profession_2',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Milieu social',
-                    name: 'milieu_social',
-                    type: 'text',
-                    value: '',
-                },
-                {
-                    label: 'Caractéristiques indispensables à toute rencontre',
-                    name: 'indispensables',
-                    type: 'text',
-                    value: '',
-                },
-            ],
-            format: 'L'
-        },
-        additif_vip: {
-            input_list: {
-
-            },
-            format: 'P'
-        }
-    })
+    const current_user = ref({});
+    const current_agence = ref({});
+    const current_responsable = ref({});
+    const pdf_model = ref({})
 
     const documentsStore = useDocumentsStore();
+    const agencesStore = useAgencesStore();
 
     const documents = ref([]); // Use ref to make documents reactive
     const documentsLoaded = ref(false);
     
     const fetchDocuments = () => {
+        handleGetClient(props.client)
         documentsLoaded.value = false
         documentsStore.getDocuments(props.client)
         .then(res => {
@@ -342,7 +68,12 @@
         currentModel.value = pdf_model.value[model];
     }
 
-    const generatePDF = () => {
+    const generatePDF = (model = null, input_list = null) => {
+        if(model && input_list){
+            currentModel.value.model = model;
+            currentModel.value.input_list = {};
+        }
+
         documentsStore.createDocument(currentModel.value.model, currentModel.value.input_list)
         .then(res => {
             if(res.url){
@@ -356,6 +87,661 @@
         isOpen.value = false;
         currentModel.value = '';
     }
+
+    const fetchAgence = (agence) => {
+        return new Promise((resolve, reject) => {
+            agencesStore.getAgence(agence)
+            .then(res => {
+                current_agence.value = res.agence;
+                console.log(res);
+                current_responsable.value = res.responsable
+                resolve();
+            })
+        })
+    }
+
+    const handleGetClient = (client) => {
+		clientsStore.getClient(client)
+		.then(res => {
+			current_user.value = res.client
+            console.log(current_user.value)
+			let age = res.client.desAge_cli.split('-');
+            pdf_model.value = {
+                portrait: {
+                    model: 'portrait',
+                    input_list: [
+                        {
+                            label: 'Nom / Prénom',
+                            name: 'nom_prenom',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Référence',
+                            name: 'ref',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Age',
+                            name: 'age',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Né(e) le',
+                            name: 'naissance',
+                            type: 'date',
+                            value: '01/01/2024',
+                        },
+                        {
+                            label: 'Nationalité',
+                            name: 'nationalite',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'CVDS',
+                            name: 'cvds',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Fumeur',
+                            name: 'fumeur',
+                            type: 'checkbox',
+                            value: '',
+                        },
+                        {
+                            label: 'Enfants',
+                            name: 'enfants',
+                            type: 'number',
+                            value: 0,
+                        },
+                        {
+                            label: 'F(âges)',
+                            name: 'f_ages',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'G(âges)',
+                            name: 'g_ages',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'À charge',
+                            name: 'a_charge',
+                            type: 'checkbox',
+                            value: '',
+                        },
+                        {
+                            label: 'Tendances politiques',
+                            name: 'tendances',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Religion',
+                            name: 'religion',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Code',
+                            name: 'code',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Profession',
+                            name: 'profession',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Revenus',
+                            name: 'revenus',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Horaires',
+                            name: 'horaires',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Instruction',
+                            name: 'instruction',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Voiture',
+                            name: 'voiture',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Permis',
+                            name: 'permis',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Logement',
+                            name: 'logement',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Taille',
+                            name: 'taille',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Poids',
+                            name: 'poids',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Cheveux',
+                            name: 'cheveux',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Yeux',
+                            name: 'yeux',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Santé',
+                            name: 'sante',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Lunettes',
+                            name: 'lunettes',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Caractère',
+                            name: 'caractere',
+                            type: 'textarea',
+                            value: '',
+                        },
+                        {
+                            label: 'Goûts / loisirs',
+                            name: 'gouts',
+                            type: 'textarea',
+                            value: '',
+                        },
+                        {
+                            label: 'Milieu d\'éducation',
+                            name: 'education',
+                            type: 'textarea',
+                            value: '',
+                        },
+                        {
+                            type: 'title',
+                            label: 'Profil recherché'
+                        },
+                        {
+                            label: 'Age de',
+                            name: 'age_1',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'à',
+                            name: 'age_2',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Célibataire',
+                            name: 'celibataire',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Veuf(ve)',
+                            name: 'veuf',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Divorcé(e)',
+                            name: 'divorce',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Séparé(e)',
+                            name: 'separe',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Avec enfants',
+                            name: 'avec_enfants',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'À charge',
+                            name: 'a_charge_2',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Allure et physique',
+                            name: 'allure',
+                            type: 'textarea',
+                            value: '',
+                        },
+                        {
+                            label: 'Caractère',
+                            name: 'caractere_2',
+                            type: 'textarea',
+                            value: '',
+                        },
+                        {
+                            label: 'Degré d\'instruction',
+                            name: 'instruction_2',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Profession',
+                            name: 'profession_2',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Milieu social',
+                            name: 'milieu_social',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Caractéristiques indispensables à toute rencontre',
+                            name: 'indispensables',
+                            type: 'text',
+                            value: '',
+                        },
+                    ],
+                    format: 'L'
+                },
+                additif_vip: {
+                    input_list: {
+                    },
+                    format: 'P'
+                },
+                contrat_adhesion: {
+                    model: 'contrat_adhesion',
+                    input_list: [
+                        {
+                            label: 'En-tête',
+                            name: 'more',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'N° de contrat',
+                            name: 'numero_contrat',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Nom',
+                            name: 'nom',
+                            type: 'text',
+                            value: current_user.value.nom_cli,
+                        },
+                        {
+                            label: 'Prénom',
+                            name: 'prenom',
+                            type: 'text',
+                            value: current_user.value.pNoms_cli,
+                        },
+                        {
+                            label: 'Adresse',
+                            name: 'adresse',
+                            type: 'text',
+                            value: current_user.value.adr_cli,
+                        },
+                        {
+                            label: 'Date et lieu de naissance',
+                            name: 'date_naissance',
+                            type: 'text',
+                            value: current_user.value.dateNaiss_cli,
+                        },
+                        {
+                            label: 'Pièce d\'identité n°',
+                            name: 'piece_identite',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Employeur',
+                            name: 'employeur',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Durée',
+                            name: 'duree',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'euros TTC',
+                            name: 'ttc',
+                            type: 'number',
+                            value: '',
+                        },
+                        {
+                            label: 'euros Hors TVA',
+                            name: 'hors_tva',
+                            type: 'number',
+                            value: '',
+                        },
+                        {
+                            label: 'euros TVA à 20%',
+                            name: 'tva',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Mode de règlement',
+                            name: 'mode_de_reglement',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Tranche Age minimum',
+                            name: 'age_min',
+                            type: 'number',
+                            value: age[0],
+                        },
+                        {
+                            label: 'Tranche Age maximum',
+                            name: 'age_max',
+                            type: 'number',
+                            value: age[1],
+                        },
+                        {
+                            label: 'Degré d\'instruction',
+                            name: 'degre_instruction',
+                            type: 'text',
+                            value: current_user.value.desInst_cli,
+                        },
+                        {
+                            label: 'Région',
+                            name: 'region',
+                            type: 'text',
+                            value: current_user.value.desReg,
+                        },
+                        {
+                            label: 'Caractéristique indispensable',
+                            name: 'caracteristique',
+                            type: 'text',
+                            value: current_user.value.desCarctIndisp_cli,
+                        },
+                        {
+                            label: 'Allure et physique',
+                            name: 'allure',
+                            type: 'textarea',
+                            value: current_user.value.desAllure_cli,
+                        },
+                        {
+                            label: 'Caractère',
+                            name: 'caractere',
+                            type: 'textarea',
+                            value: current_user.value.desCaract_cli,
+                        },
+                    ]
+                },
+                contrat_de_credit: {
+                    model: 'contrat_de_credit',
+                    input_list: [
+                        {
+                            label: 'Nom emprunteur',
+                            name: 'nom_emprunteur',
+                            type: 'text',
+                            value: current_user.value.nom_cli,
+                        },
+                        {
+                            label: 'Prénom emprunteur',
+                            name: 'prenom_emprunteur',
+                            type: 'text',
+                            value: current_user.value.pNoms_cli,
+                        },
+                        {
+                            label: 'Nom de jeune fille',
+                            name: 'nom_jeune_fille',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Né(e) le',
+                            name: 'date_naissance',
+                            type: 'date',
+                            value: current_user.value.dateNaiss_cli,
+                        },
+                        {
+                            label: 'Lieux de naissance',
+                            name: 'lieu_naissance',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Département de naissance',
+                            name: 'departement_naissance',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Nom Co-emprunteur',
+                            name: 'nom_co-emprunteur',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Prénom Co-emprunteur',
+                            name: 'prenom_co-emprunteur',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Nom de jeune fille',
+                            name: 'nom_jeune_fille_co',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Né(e) le',
+                            name: 'date_naissance_co',
+                            type: 'date',
+                            value: '',
+                        },
+                        {
+                            label: 'Lieux de naissance',
+                            name: 'lieu_naissance_co',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Département de naissance',
+                            name: 'departement_naissance_co',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'N° de dossier',
+                            name: 'ref_cli',
+                            type: 'text',
+                            value: current_user.value.ref_cli,
+                        },
+                        {
+                            label: 'Montant du crédit',
+                            name: 'total_credit',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Total du contrat',
+                            name: 'total_contrat',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Nombre de mensualité',
+                            name: 'duree_cli',
+                            type: 'number',
+                            value: current_user.value.duree_cli,
+                        },
+                        {
+                            label: 'Coût de la mensualité',
+                            name: 'prix_mensualite',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Date du prélevement',
+                            name: 'prelevement',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Taux de débiteur fixe',
+                            name: 'taux_debiteur',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'TAEG',
+                            name: 'taeg',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Montant total',
+                            name: 'montant_total',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Domiciliation bancaire',
+                            name: 'domiciliation_bancaire',
+                            type: 'text',
+                            value: '',
+                        },
+                    ]
+                },
+                informations_europeenes_commun: {
+                    model: 'informations_europeenes_commun',
+                    input_list: [
+                        {
+                            label: 'Montant total',
+                            name: 'montant_total',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Nombre de mensualité',
+                            name: 'duree_cli',
+                            type: 'number',
+                            value: current_user.value.duree_cli,
+                        },
+                        {
+                            label: 'Coût de la mensualité',
+                            name: 'prix_mensualite',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Taux de débiteur fixe',
+                            name: 'taux_debiteur',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'TAEG',
+                            name: 'taeg',
+                            type: 'text',
+                            value: '',
+                        },
+                    ]
+                }
+            }
+
+            if(res.client.idAgence_cli){
+                fetchAgence(res.client.idAgence_cli)
+                .then(res => {
+                    pdf_model.value.informations_prealable_conso = {
+                    model: 'informations_prealable_conso',
+                    input_list: [
+                        {
+                            label: 'Directeur',
+                            name: 'directeur',
+                            type: 'text',
+                            value: current_responsable.value.prenom + ' ' + current_responsable.value.nom,
+                        },
+                        {
+                            label: 'Adresse',
+                            name: 'adresse',
+                            type: 'text',
+                            value: current_agence.value.adr_agence,
+                        },
+                        {
+                            label: 'Code postal',
+                            name: 'zipcode',
+                            type: 'text',
+                            value: current_agence.value.cp_agence,
+                        },
+                        {
+                            label: 'Ville',
+                            name: 'ville',
+                            type: 'text',
+                            value: current_agence.value.lib_agence,
+                        },
+                        {
+                            label: 'Téléphone',
+                            name: 'telephone',
+                            type: 'text',
+                            value: current_agence.value.tel_agence,
+                        },
+                        {
+                            label: 'SIRET',
+                            name: 'siret',
+                            type: 'text',
+                            value: current_agence.value.siren_agence,
+                        },
+                        {
+                            label: 'APE',
+                            name: 'ape',
+                            type: 'text',
+                            value: '',
+                        },
+                    ]
+                }
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+            }
+		})
+	}
 
     watch(() => props.client, fetchDocuments, {immediate: true})
 </script>
@@ -431,37 +817,37 @@
             <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                 <div class="px-1 py-1">
                     <MenuItem v-slot="{ active }">
-                        <button type="button" :class="[ active ? 'bg-rose-500 text-white' : 'text-gray-900', 'group flex w-full items-center rounded-md px-2 py-2 text-sm']">
+                        <button type="button" :class="[ active ? 'bg-rose-500 text-white' : 'text-gray-900', 'group flex w-full items-center rounded-md px-2 py-2 text-sm pointer-events-none opacity-30']">
                             Additif VIP
                         </button>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
-                        <button type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center rounded-md px-2 py-2 text-sm',]">
+                        <button @click="openModal('contrat_adhesion')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center rounded-md px-2 py-2 text-sm',]">
                             Contrat d'adhésion
                         </button>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
-                        <button type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center rounded-md px-2 py-2 text-sm',]">
+                        <button  @click="openModal('contrat_de_credit')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center rounded-md px-2 py-2 text-sm',]">
                             Contrat de crédit
                         </button>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
-                        <button type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center rounded-md px-2 py-2 text-sm',]">
-                            Pré-requis adhérent
-                        </button>
-                    </MenuItem>
-                    <MenuItem v-slot="{ active }">
-                        <button type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm',]">
-                            Information préalable du consommateur
-                        </button>
-                    </MenuItem>
-                    <MenuItem v-slot="{ active }">
-                        <button type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm',]">
+                        <button @click="openModal('informations_europeenes_commun')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm',]">
                             Information précontractuelles Européene
                         </button>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
-                        <button type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm',]">
+                        <button type="button" @click="generatePDF('pre-requis_adherents', {})" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center rounded-md px-2 py-2 text-sm',]">
+                            Pré-requis adhérent
+                        </button>
+                    </MenuItem>
+                    <MenuItem v-slot="{ active }">
+                        <button @click="openModal('informations_prealable_conso')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm',]">
+                            Information préalable du consommateur
+                        </button>
+                    </MenuItem>
+                    <MenuItem v-slot="{ active }">
+                        <button type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm pointer-events-none opacity-30',]">
                             Rappel rencontre
                         </button>
                     </MenuItem>
