@@ -558,13 +558,12 @@
 												<div class="mt-2">
 													<select v-model="filters.tranche_cli" id="tranche_cli" name="tranche_cli"
 														class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
-														<option value="">Sans importance</option>
-														<option value="0">Indeterminé</option>
-														<option value="1">Modestes (- de 900€)</option>
-														<option value="2">Corrects (de 900€ à 1300€)</option>
-														<option value="3">Confortables (de 1300€ à 2000€)</option>
-														<option value="4">Trés confortables (de 2000€ à 4000€)</option>
-														<option value="5">Elevés (4000€ et plus)</option>
+														<option value="">Indeterminé</option>
+														<option value="0">Modestes (- de 1500€)</option>
+														<option value="1">Corrects (de 1500€ à 2000€)</option>
+														<option value="2">Confortables (de 2000€ à 3000€)</option>
+														<option value="3">Très confortables (de 3000€ à 3500€)</option>
+														<option value="4">Elevés (5000€ et plus)</option>
 													</select>
 												</div>
 											</div>

@@ -300,7 +300,7 @@
                                 </p>
 
                                 <p class="font-normal text-sm leading-5 space-x-1">
-                                    <span class="text-rose font-black">Remarques : </span>
+                                    <span class="text-rose font-black">Histoires : </span>
                                     <span class="font-[Avenir]" v-if="target_user.rem_cli">{{ target_user.rem_cli }}</span>
                                     <span class="font-[Avenir]">..................................................................................................................................<br>........................................................................................................................................................</span>
                                 </p>

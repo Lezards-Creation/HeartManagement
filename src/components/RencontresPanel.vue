@@ -150,7 +150,13 @@
 
                 propositionsStore.getPropositions(props.client)
                 .then(res => {
-                    propositions.value = res.propositions;
+                    propositions.value = res.propositions.filter(firstItem => {
+                        return !choices.value.some(secondItem =>
+                            firstItem.idCli_prop === secondItem.idCli_choix &&
+                            firstItem.idCli1_prop === secondItem.idCli1_choix
+                        );
+                    });
+                    
                     propositionsLoaded.value = true;
                 })
                 .catch(err => {
@@ -476,9 +482,10 @@
                                                         {{
                                                             choice.res_choix === 1 ? `Acceptée le ${moment(choice.dateRes_choix).format('ll')}`
                                                             : choice.res_choix === 0 ? `Refusée le ${moment(choice.dateRes_choix).format('ll')}`
-                                                            : choice.res_choix === null && choice.dateEnv_choix ? `Envoyée le ${moment(choice.dateEnv_choix).format('ll')}` : 'Aucune proposition'
+                                                            : 'Aucune réponse'
                                                         }}
                                                     </span>
+                                                    <span class="text-xs text-[#707070] font-normal" v-if="choice.dateEnv_choix">{{ `Envoyée le ${moment(choice.dateEnv_choix).format('ll')}`  }}</span>
                                                 </a>
                                             </p>
                                             <p class="mt-1 flex text-xs leading-5" :style="`color: ${setColorTag(choice.client)}`">
@@ -530,9 +537,10 @@
                                                         {{
                                                             demande.res_choix === 1 ? `Acceptée le ${moment(demande.dateRes_choix).format('ll')}`
                                                             : demande.res_choix === 0 ? `Refusée le ${moment(demande.dateRes_choix).format('ll')}`
-                                                            : demande.res_choix === null && demande.dateEnv_choix ? `Envoyée le ${moment(demande.dateEnv_choix).format('ll')}` : 'Aucune proposition'
+                                                            : 'Aucune réponse'
                                                         }}
                                                     </span>
+                                                    <span class="text-xs text-[#707070] font-normal" v-if="demande.dateEnv_choix">{{ `Envoyée le ${moment(demande.dateEnv_choix).format('ll')}`  }}</span>
                                                 </a>
                                             </p>
                                             <p class="mt-1 flex text-xs leading-5" :style="`color: ${setColorTag(demande.client)}`">
@@ -590,9 +598,10 @@
                                                         {{
                                                             proposition.res_prop  === 1 ? `Acceptée le ${moment(proposition.dateRes_prop).format('ll')}`
                                                             : proposition.res_prop  === 0 ? `Refusée le ${moment(proposition.dateRes_prop).format('ll')}`
-                                                            : proposition.res_prop  === null && proposition.dateEnv_choix ? `Envoyée le ${moment(proposition.dateEnv_prop).format('ll')}` : 'Aucune proposition'
+                                                            : 'Aucune réponse'
                                                         }}
                                                     </span>
+                                                    <span class="text-xs text-[#707070] font-normal" v-if="proposition.dateEnv_prop">{{ `Envoyée le ${moment(proposition.dateEnv_prop).format('ll')}`  }}</span>
                                                 </a>
                                             </p>
                                             <p class="mt-1 flex text-xs leading-5" :style="`color: ${setColorTag(proposition.client)}`">
@@ -872,5 +881,4 @@
         
         <Toast :state="stateToast" title="Portrait client envoyé avec succès"/>
     </div>
-
 </template>

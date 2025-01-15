@@ -8,6 +8,7 @@ import DropZone from '../components/DropZone.vue'
 import FilePreview from '../components/FilePreview.vue'
 import useFileList from '../compositions/file-list'
 import Toast from '../components/Toast.vue';
+import { data } from 'autoprefixer';
 
 // #region VARIABLES
 
@@ -49,10 +50,28 @@ const dataCreation = ref({
         sep_cli: false,
         instDiv_cli: false,
     },
-    desCelib_cli: 0,
-    desVeuf_cli: 0,
-    desDiv_cli: 0,
-    desSep_cli: 0,
+    taille_cli: '',
+    poid_cli: '',
+    cheveux_cli: 0,
+    yeux_cli: 0,
+    lun_cli: false,
+    sante_cli: '',
+    def_cli: '',
+    rem_cli: '',
+    interets_cli: '',
+    milieu_cli: '',
+    desc_cli: '',
+    prof_cli: '',
+    tranche_cli: '',
+    hor_cli: '',
+    veh_cli: '',
+    permis_cli: false,
+    loge_cli: 0,
+    ms_cli: '',
+    desCelib_cli: 1,
+    desVeuf_cli: 1,
+    desDiv_cli: 1,
+    desSep_cli: 1,
     desAge_cli_min: 0,
     desAge_cli_max: 0,
     desNbEn_cli: 0,
@@ -129,6 +148,24 @@ const handleCreationFiche = () => {
                     sep_cli: false,
                     instDiv_cli: false,
                 },
+                taille_cli: '',
+                poid_cli: '',
+                cheveux_cli: 0,
+                yeux_cli: 0,
+                lun_cli: false,
+                sante_cli: '',
+                def_cli: '',
+                rem_cli: '',
+                interets_cli: '',
+                milieu_cli: '',
+                desc_cli: '',
+                prof_cli: '',
+                tranche_cli: '',
+                hor_cli: '',
+                veh_cli: '',
+                permis_cli: false,
+                loge_cli: 0,
+                ms_cli: '',
                 desCelib_cli: 0,
                 desVeuf_cli: 0,
                 desDiv_cli: 0,
@@ -316,6 +353,7 @@ const onInputChange = (e) => {
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                 </div>
                             </div>
+
                             <div class="sm:col-span-3">
                                 <label for="sexe_cli"
                                     class="block text-sm font-medium leading-6 text-gray-900">Sexe</label>
@@ -349,6 +387,7 @@ const onInputChange = (e) => {
                                             class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                     </div>
                             </div>
+                            
                             <div class="sm:col-span-2">
                                 <label for="cp_cli" class="block text-sm font-medium leading-6 text-gray-900">Code postal</label>
                                 <div class="mt-2">
@@ -357,6 +396,7 @@ const onInputChange = (e) => {
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                 </div>
                             </div>
+
                             <div class="sm:col-span-4">
                                 <label for="ville_cli"
                                     class="block text-sm font-medium leading-6 text-gray-900">Ville</label>
@@ -366,6 +406,7 @@ const onInputChange = (e) => {
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                 </div>
                             </div>
+
                             <div class="sm:col-span-4">
                                 <label for="telPri_cli" class="block text-sm font-medium leading-6 text-gray-900">Téléphone privé</label>
                                 <div class="mt-2">
@@ -374,6 +415,7 @@ const onInputChange = (e) => {
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                 </div>
                             </div>
+
                             <div class="sm:col-span-2 self-end mb-2">
                                 <SwitchGroup as="div" class="flex items-center">
                                     <Switch v-model="dataCreation.affTelPri_cli"
@@ -386,6 +428,7 @@ const onInputChange = (e) => {
                                     </SwitchLabel>
                                 </SwitchGroup>
                             </div>
+
                             <div class="sm:col-span-4">
                                 <label for="telPro_cli" class="block text-sm font-medium leading-6 text-gray-900">Téléphone pro</label>
                                 <div class="mt-2">
@@ -394,6 +437,7 @@ const onInputChange = (e) => {
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                 </div>
                             </div>
+
                             <div class="sm:col-span-2 self-end mb-2">
                                 <SwitchGroup as="div" class="flex items-center">
                                     <Switch v-model="dataCreation.affTelPro_cli"
@@ -406,6 +450,7 @@ const onInputChange = (e) => {
                                     </SwitchLabel>
                                 </SwitchGroup>
                             </div>
+
                             <div class="sm:col-span-4">
                                 <label for="telGsm_cli" class="block text-sm font-medium leading-6 text-gray-900">Numéro de portable</label>
                                 <div class="mt-2">
@@ -414,6 +459,7 @@ const onInputChange = (e) => {
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                 </div>
                             </div>
+
                             <div class="sm:col-span-2 self-end mb-2">
                                 <SwitchGroup as="div" class="flex items-center">
                                     <Switch v-model="dataCreation.affTelGsm_cli"
@@ -426,6 +472,7 @@ const onInputChange = (e) => {
                                     </SwitchLabel>
                                 </SwitchGroup>
                             </div>
+                            
                             <div class="sm:col-span-full">
                                 <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Adresse email</label>
                                 <div class="mt-2">
@@ -434,6 +481,7 @@ const onInputChange = (e) => {
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                 </div>
                             </div>
+
                             <div class="sm:col-span-2 self-end mb-2">
                                 <SwitchGroup as="div" class="flex items-center">
                                     <Switch v-model="dataCreation.nl_cli"
@@ -446,15 +494,173 @@ const onInputChange = (e) => {
                                     </SwitchLabel>
                                 </SwitchGroup>
                             </div>
+
+                        </div>
+
+                        <div>
+                            <h2 class="text-base font-semibold leading-7 text-gray-900">Physique</h2>
+                        </div>
+
+                        <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2 px-4 py-6 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl sm:p-8">
+                            <div class="sm:col-span-3">
+                                <label for="taille_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Taille</label>
+                                <div class="mt-2 relative">
+                                    <input type="text" v-model="dataCreation.taille_cli" name="taille_cli"
+                                        id="taille_cli"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                    <div class="pointer-events-none absolute top-[8px] right-0 flex items-center pr-3">
+                                        <span class="text-gray-500 text-xs" id="price-currency">cm</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label for="poid_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Poids</label>
+                                <div class="mt-2 relative">
+                                    <input type="text" v-model="dataCreation.poid_cli" name="poid_cli"
+                                        id="poid_cli"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                    <div class="pointer-events-none absolute top-[8px] right-0 flex items-center pr-3">
+                                        <span class="text-gray-500 text-xs" id="price-currency">kg</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label for="cheveux_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Cheveux</label>
+                                <div class="mt-2">
+                                    <select name="cheveux_cli" id="cheveux_cli" v-model="dataCreation.cheveux_cli"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                        <option value="0">Indeterminé</option>
+                                        <option value="1">Bruns</option>
+                                        <option value="2">Blonds</option>
+                                        <option value="3">Roux</option>
+                                        <option value="4">Blancs</option>
+                                        <option value="5">Chauve</option>
+                                        <option value="6">Noirs</option>
+                                        <option value="7">Châtains clairs</option>
+                                        <option value="8">Châtains foncés</option>
+                                        <option value="9">Gris</option>
+                                        <option value="10">Poivre et sel</option>
+                                        <option value="11">Auburn</option>
+                                        <option value="12">Acajou</option>
+                                        <option value="13">Mèches blondes</option>
+                                        <option value="14">Mèches brunes</option>
+                                        <option value="15">Autre</option>
+                                    </select>
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-3">
+                                <label for="yeux_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Yeux</label>
+                                <div class="mt-2">
+                                    <select name="yeux_cli" id="yeux_cli" v-model="dataCreation.yeux_cli"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                        <option value="0">Indeterminé</option>
+                                        <option value="1">Bruns</option>
+                                        <option value="2">Verts</option>
+                                        <option value="3">Bleus</option>
+                                        <option value="4">Noirs</option>
+                                        <option value="5">Gris</option>
+                                        <option value="6">Noisettes</option>
+                                        <option value="7">Bleus/verts</option>
+                                        <option value="8">Bleux/gris</option>
+                                        <option value="9">Dominance bleue</option>
+                                        <option value="10">Dominance verte</option>
+                                        <option value="11">Dominance brune</option>
+                                        <option value="12">Autres</option>
+                                    </select>
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                </div>
+                            </div>
+                            
+                            <div class="sm:col-span-3">
+                                <SwitchGroup as="div" class="flex items-center flex-wrap">
+                                    <Switch @click="debouncedFunction" v-model="dataCreation.lun_cli" name="lun_cli" :class="[dataCreation.lun_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                        <span aria-hidden="true" :class="[dataCreation.lun_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                                    </Switch>
+                                    <SwitchLabel as="span" class="ml-3 text-sm">
+                                        <span class="font-medium text-gray-900">Porte des lunettes</span>
+                                    </SwitchLabel>
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                </SwitchGroup>
+                            </div>
+
+                            <div class="col-span-full">
+                                <label for="sante_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Forme physique</label>
+                                <div class="mt-2">
+                                    <textarea v-model="dataCreation.sante_cli" id="sante_cli" name="sante_cli" rows="3" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                </div>
+                                <p class="mt-3 text-sm leading-6 text-gray-600">Décrivez rapidement votre client.</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 class="text-base font-semibold leading-7 text-gray-900">Psychologie et Moral</h2>
+                        </div>
+
+                        <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2 px-4 py-6 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl sm:p-8">
+                            <div class="col-span-full">
+                                <label for="desc_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Caractères</label>
+                                <div class="mt-2">
+                                    <textarea id="desc_cli" name="desc_cli" v-model="dataCreation.desc_cli"
+                                        rows="3"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                </div>
+                            </div>
+
+                            <div class="col-span-full">
+                                <label for="interets_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Goûts/loisirs</label>
+                                <div class="mt-2">
+                                    <textarea id="interets_cli" name="interets_cli" v-model="dataCreation.interets_cli"
+                                        rows="3"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                </div>
+                            </div>
+
+                            <div class="col-span-full">
+                                <label for="milieu_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Milieu d'éducation</label>
+                                <div class="mt-2">
+                                    <textarea id="milieu_cli" name="milieu_cli" v-model="dataCreation.milieu_cli"
+                                        rows="3"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                </div>
+                            </div>
+
+                            <div class="col-span-full">
+                                <label for="def_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Défauts</label>
+                                <div class="mt-2">
+                                    <textarea id="def_cli" name="def_cli" v-model="dataCreation.def_cli"
+                                        rows="3"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                </div>
+                            </div>
+
+                            <div class="col-span-full">
+                                <label for="rem_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Histoires</label>
+                                <div class="mt-2">
+                                    <textarea id="rem_cli" name="rem_cli" v-model="dataCreation.rem_cli"
+                                        rows="3"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <div v-if="current_step === 'recherche'" class="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3">
                         <div>
                             <h2 class="text-base font-semibold leading-7 text-gray-900">Situation</h2>
-                            <p class="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive
-                                mail.
-                            </p>
                         </div>
 
                         <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl px-4 py-6">
@@ -519,6 +725,111 @@ const onInputChange = (e) => {
                                 </SwitchGroup>
                             </div>
                         </div>
+
+                        <div>
+                            <h2>Profesionnel</h2>
+                        </div>
+
+                        <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl px-4 py-6">
+                            <div class="sm:col-span-3">
+                                <label for="prof_cli" class="block text-sm font-medium leading-6 text-gray-900">Profession</label>
+                                <div class="mt-2">
+                                    <input type="text" v-model="dataCreation.prof_cli" name="prof_cli" id="prof_cli"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                </div>
+                            </div>
+
+                            <div class="sm:col-span-3">
+                                <label for="tranche_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Revenus</label>
+                                <div class="mt-2">
+                                    <select v-model="dataCreation.tranche_cli" name="tranche_cli" id="tranche_cli"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                        <option value="">Indeterminé</option>
+                                        <option value="0">Modestes (- de 1500€)</option>
+                                        <option value="1">Corrects (de 1500€ à 2000€)</option>
+                                        <option value="2">Confortables (de 2000€ à 3000€)</option>
+                                        <option value="3">Très confortables (de 3000€ à 3500€)</option>
+                                        <option value="4">Elevés (5000€ et plus)</option>
+                                    </select>
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                </div>
+                            </div>
+
+                            <div class="col-span-full">
+                                <label for="hor_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Horaires</label>
+                                <div class="mt-2">
+                                    <textarea id="hor_cli" v-model="dataCreation.hor_cli" name="hor_cli" rows="3" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                </div>
+                            </div>
+
+                            <div class="sm:col-span-3 self-start mb-2">
+                                <SwitchGroup as="div" class="flex items-center flex-wrap">
+                                    <Switch @click="debouncedFunction" v-model="dataCreation.veh_cli" name="veh_cli"
+                                        :class="[dataCreation.veh_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                        <span aria-hidden="true"
+                                            :class="[dataCreation.veh_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                                    </Switch>
+                                    <SwitchLabel as="span" class="ml-3 text-sm">
+                                        <span class="font-medium text-gray-900">Véhicule</span>
+                                    </SwitchLabel>
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                </SwitchGroup>
+                            </div>
+
+                            <div class="sm:col-span-3 self-start mb-2">
+                                <SwitchGroup as="div" class="flex items-center flex-wrap">
+                                    <Switch @click="debouncedFunction" v-model="dataCreation.permis_cli" name="permis_cli"
+                                        :class="[dataCreation.permis_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
+                                        <span aria-hidden="true"
+                                            :class="[dataCreation.permis_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
+                                    </Switch>
+                                    <SwitchLabel as="span" class="ml-3 text-sm">
+                                        <span class="font-medium text-gray-900">Permis de conduire</span>
+                                    </SwitchLabel>
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                </SwitchGroup>
+                            </div>
+
+                            <div class="sm:col-span-3">
+                                <label for="loge_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Logement</label>
+                                <div class="mt-2">
+                                    <select id="loge_cli" name="loge_cli" v-model="dataCreation.loge_cli"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                        <option value="0">Indeterminé</option>
+                                        <option value="1">Non</option>
+                                        <option value="2">Oui (sans précision)</option>
+                                        <option value="3">Location appartement</option>
+                                        <option value="4">Location maison</option>
+                                        <option value="5">Propriétaire appartement</option>
+                                        <option value="6">Propriétaire maison</option>
+                                        <option value="7">En famille</option>
+                                        <option value="8">Autre</option>
+                                    </select>
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                </div>
+                            </div>
+
+                            <div class="sm:col-span-3">
+                                <label for="ms_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Milieu social</label>
+                                <div class="mt-2">
+                                    <select id="ms_cli" name="ms_cli" v-model="dataCreation.ms_cli"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                        <option value="_0">Bon</option>
+                                        <option value="_1">Moyen</option>
+                                        <option value="_2">Modeste</option>
+                                        <option value="_3">Autre</option>
+                                    </select>
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                </div>
+                            </div>
+                        </div>
+
 
                         <div>
                             <h2 class="text-base font-semibold leading-7 text-gray-900">Qui désirez-vous rencontrer ?</h2>

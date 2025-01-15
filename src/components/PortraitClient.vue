@@ -60,7 +60,11 @@
                 blobImage.value = res;
                 resolve()
             })
-            .catch(err => console.error(err))
+            .catch(err => {
+                blobImage.value = "data:image/jpeg;base64,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"
+                console.error(err) 
+                resolve();
+            })
         })
         
     }
@@ -131,7 +135,7 @@
 </script>
 
 <template>
-    <div v-if="client && current_user && type === 'complet'" :class="isOpen ? 'pointer-events-all left-0' : 'pointer-events-none -left-[9999px]'" class="overflow-hidden fixed top-0 w-full h-full z-50">
+    <div v-if="client && current_user && type === 'complet'" :class="isOpen ? 'pointer-events-all left-0' : 'pointer-events-none -left-[9999px]'" class="overflow-hidden fixed top-0 w-full h-full z-[999]">
         <div class="wrapperPDF">
             <button @click="closePDF" class="absolute top-8 right-8 z-[2] w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
@@ -437,7 +441,7 @@
         </div>
     </div>
 
-    <div v-if="client && current_user && type === 'court'" :class="isOpen ? 'pointer-events-all left-0' : 'pointer-events-none -left-[9999px]'" class="overflow-hidden fixed top-0 w-full h-full z-50">
+    <div v-if="client && current_user && type === 'court'" :class="isOpen ? 'pointer-events-all left-0' : 'pointer-events-none -left-[9999px]'" class="overflow-hidden fixed top-0 w-full h-full z-[999]">
         <div class="wrapperPDF">
             <button @click="closePDF" class="absolute top-8 right-8 z-[2] w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
@@ -559,7 +563,7 @@
                                 </p>
 
                                 <p class="font-normal text-sm leading-5 space-x-1">
-                                    <span class="text-rose font-black">Remarques : </span>
+                                    <span class="text-rose font-black">Histoires : </span>
                                     <span class="font-[Avenir]" v-if="current_user.rem_cli">{{ current_user.rem_cli }}</span>
                                     <span class="font-[Avenir]">..................................................................................................................................<br>........................................................................................................................................................</span>
                                 </p>

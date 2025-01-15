@@ -1,10 +1,11 @@
 <script setup>
 	import { computed, ref, watch } from 'vue'
     import { useRoute, useRouter } from 'vue-router'
-	import { ArrowPathRoundedSquareIcon, XMarkIcon, EllipsisVerticalIcon, MagnifyingGlassIcon } from '@heroicons/vue/24/solid'
-	import { UserPlusIcon, EnvelopeIcon, CpuChipIcon} from '@heroicons/vue/24/outline'
+	import { ArrowPathRoundedSquareIcon, XMarkIcon, EllipsisVerticalIcon, MagnifyingGlassIcon, PrinterIcon } from '@heroicons/vue/24/solid'
+	import { UserPlusIcon, EnvelopeIcon, CpuChipIcon, NewspaperIcon} from '@heroicons/vue/24/outline'
 	import { useClientsStore } from '../stores/clients'
 	import { useChoixStore } from '../stores/choix'
+	import { useAgencesStore } from '../stores/agences'
 	import { useUserStore } from '../stores/user'
 	import { usePropositionsStore } from '../stores/propositions'
 	import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
@@ -73,6 +74,9 @@
 		taille_min_cli: "",
 		taille_max_cli: "",
 	})
+
+	const agencesStore = useAgencesStore();
+	const agences = ref([]);
 	//#endregion
 
 	//#region METHODS
@@ -300,6 +304,33 @@
     }
 	const debouncedFunction = debounce(handleSearchClient, 1000);
 
+	const fetchAgences = () => {
+		agencesStore.getAgences()
+		.then((res) => {
+			if(res.agences.length > 0){
+				res.agences.forEach(agence => {
+					if(agence.id_agence !== 0){
+						let data = {
+							id: agence.id_agence,
+							name: agence.lib_agence,
+							initial: agence.lib_agence.charAt(0)
+						}
+						agences.value.push(data);
+					}
+				});
+
+				agences.value.sort((a, b) => {
+					return a.name.localeCompare(b.name);
+				});
+			}
+		})
+		.catch(err => {
+			console.error(err)
+		})
+	}
+	fetchAgences();
+
+
 	watch(() => route.params.id, () => {
 		handleGetClient()
 	}, {immediate: true})
@@ -329,8 +360,8 @@
 				<div class="mt-3 flex justify-end gap-x-3">
 					<button v-if="isFromAgence(current_user).can" @click="openTestPopup = true" type="button"
 						class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-						Envoyer un test
-						<EnvelopeIcon class="text-gray-600 w-5 h-5"/>
+						Portrait
+						<NewspaperIcon class="text-gray-600 w-5 h-5"/>
 					</button>
 					<button v-if="isFromAgence(current_user).can" @click="() => {open = true;}" type="button"
 						class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
@@ -427,6 +458,56 @@
 													</div>
 												</div>
 											</div>
+										</div>
+
+										<div class="sm:col-span-full">
+											<label for="idAgence_cli" class="block text-sm font-medium leading-6 text-gray-900">Agence</label>
+											<div class="mt-2">
+												<select v-model="filters.idAgence_cli" id="idAgence_cli" name="idAgence_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+													<option value="">Sans importance</option>
+													<option v-for="agence in agences" :key="agence.id" :value="agence.id">{{agence.name}}</option>
+												</select>
+											</div>
+										</div>
+
+										<div class="sm:col-span-full">
+											<label for="etude_cli" class="block text-sm font-medium leading-6 text-gray-900">Niveau d'étude</label>
+											<div class="mt-2">
+												<select v-model="filters.etude_cli" id="etude_cli" name="etude_cli"
+													class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+													<option value="">Sans importance</option>
+													<option value="0">Indeterminé</option>
+													<option value="1">Primaire</option>
+													<option value="2">Secondaire</option>
+													<option value="3">Bac à Bac +2</option>
+													<option value="4">Bac +3 et plus</option>
+												</select>
+											</div>
+										</div>
+										
+										<div class="sm:col-span-full">
+											<label for="ms_cli" class="block text-sm font-medium leading-6 text-gray-900">Milieu social</label>
+											<div class="mt-2">
+												<select v-model="filters.ms_cli" id="ms_cli" name="ms_cli"
+													class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600  sm:text-sm sm:leading-6">
+													<option value="">Sans importance</option>
+													<option value="_0">Bon</option>
+													<option value="_1">Moyen</option>
+													<option value="_2">Modeste</option>
+													<option value="_3">Autre</option>
+												</select>
+											</div>
+										</div>
+
+										<div class="sm:col-span-full">
+											<label for="code_cli" class="block text-sm font-medium leading-6 text-gray-900">Code</label>
+											<select v-model="filters.code_cli" id="code_cli" name="code_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+												<option value="">Sans importance</option>
+												<option value="0">Indeterminé</option>
+												<option value="1">1</option>
+												<option value="2">2</option>
+												<option value="3">3</option>
+											</select>
 										</div>
 
 										<div class="sm:col-span-full text-center border-b pb-4 mt-2">
@@ -610,6 +691,18 @@
 
 							<div class="mt-5 flex items-center justify-center gap-x-2">
 								<a @click="openTestPopup = false" class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Annuler</a>
+								<a @click="isModalOpened = true" :class="sending ? 'active opacity-75 pointer-events-none' : false" class="group inline-flex gap-2 items-center justify-center rounded-md bg-rose px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-600">
+									Imprimer 
+									<span class="group-[.active]:hidden" aria-hidden="true">
+										<PrinterIcon class="ml-1 h-3 w-3 text-white"/>
+									</span>
+									<span class="group-[.active]:block hidden" aria-hidden="true">
+										<svg class="animate-spin ml-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+											<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+											<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+										</svg>
+									</span>
+								</a>
 								<a @click="generateBase64 = {state: true, email: mail_test}" :class="sending ? 'active opacity-75 pointer-events-none' : false" class="group inline-flex gap-2 items-center justify-center rounded-md bg-rose px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-600">
 									Envoyer 
 									<span class="group-[.active]:hidden" aria-hidden="true">→</span>

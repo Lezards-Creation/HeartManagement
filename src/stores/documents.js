@@ -76,12 +76,38 @@ export const useDocumentsStore = defineStore('documents-store', () => {
 		})
 	}
 
+	const createDocument = (model, input) => {
+		return new Promise((resolve, reject) => {
+			const formData = new FormData();
+			formData.append('data', JSON.stringify(input));
+
+			instance({
+				url: `pdf/${model}`,
+				method: 'POST',
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+				data: formData,
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
 	return {
 		// Variables
 		// Functions
         getDocuments,
 		addDocuments,
-		deleteDocument
+		deleteDocument,
+		createDocument
 	}
 }, { persistedState: { persist: true } })
 

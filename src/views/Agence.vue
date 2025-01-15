@@ -14,13 +14,11 @@
         MapPinIcon,
         PencilIcon,
     } from '@heroicons/vue/24/outline'
-    import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-
-
+    import { Menu, MenuButton, MenuItem, MenuItems, TransitionRoot, TransitionChild, Dialog, DialogTitle, DialogPanel } from '@headlessui/vue'
 
     const agencesStore = useAgencesStore()
     const route = useRoute()
-
+    const openPopupUser = ref(false);
     const agence = ref(null)
     const users = ref([
         {
@@ -140,7 +138,7 @@
                     <p class="mt-2 text-sm text-gray-700">Liste des comptes associés à l'agence.</p>
                 </div>
                 <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                    <button type="button" class="block rounded-md bg-rose px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">Ajouter un utilisateur</button>
+                    <button @click="() => { openPopupUser = true; }" type="button" class="block rounded-md bg-rose px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">Ajouter un utilisateur</button>
                 </div>
             </div>
             <div class="mt-8 flow-root">
@@ -180,4 +178,83 @@
             </div>
         </div>
     </div>
+
+    <!-- #region POPUP Création Utilisateur -->
+	<TransitionRoot :show="openPopupUser" as="template" appear>
+		<Dialog as="div" class="relative z-50" @close="openPopupUser = false">
+			<TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+				<div class="fixed inset-0 bg-black backdrop-blur-sm bg-opacity-50 transition-opacity" />
+			</TransitionChild>
+
+			<div class="fixed inset-0 z-10 w-screen overflow-y-auto p-4 sm:p-6 md:p-20">
+				<TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 scale-95" enter-to="opacity-100 scale-100" leave="ease-in duration-200" leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
+					<DialogPanel class="mx-auto max-w-xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
+						<div class="px-12 py-8">
+							<div class="mx-auto max-w-2xl text-center">
+								<h2 class="text-2xl font-bold tracking-tight text-rose">Ajouter un utilsateur</h2>
+							</div>
+
+                            <div class="pb-12 mt-6">
+                                <div class="mt-10 grid grid-cols-1 gap-x-3 gap-y-4 sm:grid-cols-6">
+                                    <div class="sm:col-span-3">
+                                        <label for="nom_util" class="block text-sm/6 font-medium text-gray-900">Nom</label>
+                                        <div class="mt-2">
+                                            <input type="text" name="nom_util" id="nom_util" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                        </div>
+                                    </div>
+
+                                    <div class="sm:col-span-3">
+                                        <label for="prenom_util" class="block text-sm/6 font-medium text-gray-900">Prénom</label>
+                                        <div class="mt-2">
+                                            <input type="text" name="prenom_util" id="prenom_util" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                        </div>
+                                    </div>
+
+                                    <div class="sm:col-span-full">
+                                        <label for="role" class="block text-sm/6 font-medium text-gray-900">Rôle</label>
+                                        <div class="mt-2 grid grid-cols-1">
+                                            <select id="role" name="role" class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pl-3 pr-8 text-base text-gray-900 ring-1 ring-inset ring-gray-300  focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                                <option>Agent</option>
+                                                <option>Administrateur</option>
+                                                <option>Comptable</option>
+                                            </select>
+                                            <svg class="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                                <path fill-rule="evenodd" d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-span-full">
+                                        <label for="mdp_util" class="block text-sm/6 font-medium text-gray-900">Mot de passe</label>
+                                        <div class="mt-2">
+                                            <input type="password" name="mdp_util" id="mdp_util" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-span-full">
+                                        <label for="verif_mdp" class="block text-sm/6 font-medium text-gray-900">Vérification de mot de passe</label>
+                                        <div class="mt-2">
+                                            <input type="password" name="verif_mdp" id="verif_mdp" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 flex justify-end gap-x-3">
+                                <button @click="() => { openPopupUser = true }" type="button"
+                                    class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                    Annuler
+                                </button>
+                                <button type="button"
+                                    class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                    Valider
+                                </button>
+                            </div>
+						</div>
+					</DialogPanel>
+				</TransitionChild>
+			</div>
+		</Dialog>
+	</TransitionRoot>
+    <!-- #endregion -->
 </template>

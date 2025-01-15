@@ -105,7 +105,6 @@ export const useClientsStore = defineStore('clients-store', () => {
 				formData.append('photo', files[0].file, files[0].file.name);
 			}
 
-
 			instance({
 				url: 'clients/create',
 				method: 'POST',
