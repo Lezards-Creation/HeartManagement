@@ -320,7 +320,7 @@
 </script>
 
 <template>
-	<div class="sm:h-screen border-r border-r-gray-100 sm:flex-[0] flex-1 basis-full max-h-[30vh] border-b-2 border-b-rose overflow-hidden">
+	<div class="sm:h-screen border-r border-r-gray-100 sm:flex-[0] flex-1 sm:basis-auto basis-full sm:max-h-full max-h-[30vh] border-b-2 border-b-rose overflow-hidden">
 		<!-- #region FILTRES TYPE + AJOUT -->
 		<div class="flex gap-2 items-center px-4 pt-4 flex-wrap">
 			<Listbox class="" as="div" v-model="selected" @update:model-value="fetchClients">

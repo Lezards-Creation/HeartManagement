@@ -44,7 +44,7 @@
 </script>
 
 <template>
-	<div class="sm:h-screen border-r border-r-gray-100 sm:flex-[0] flex-1 basis-full overflow-scroll max-h-[20vh] border-b-2 border-b-rose">
+	<div class="sm:h-screen border-r border-r-gray-100 sm:flex-[0] flex-1 sm:basis-auto basis-full sm:max-h-full overflow-scroll max-h-[20vh] border-b-2 border-b-rose">
 		<!-- #region LISTES CLIENTS -->
 		<nav class="h-screen overflow-y-auto 2xl:w-96 bg-white/80 backdrop-blur-sm relative pb-[100%]" aria-label="Directory">
 			<div v-if="ListLoaded" class="relative">
