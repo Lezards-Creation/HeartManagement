@@ -74,13 +74,38 @@
             currentModel.value.input_list = {};
         }
 
-        documentsStore.createDocument(currentModel.value.model, currentModel.value.input_list)
+
+        documentsStore.createDocument(currentModel.value.model, currentModel.value.input_list, props.client)
         .then(res => {
             if(res.url){
                 window.open(res.url)
+                isOpen.value = false;
+                fetchDocuments();
             }
         })
         .catch(err => console.error(err))
+
+        if(currentModel.value.model === 'contrat_de_credit'){
+            let inputToFill = pdf_model.value.informations_europeenes_commun.input_list
+            let refInput = currentModel.value.input_list;
+            if(inputToFill){
+                inputToFill.forEach(element => {
+                    element.value = refInput.find(obj => obj.name === element.name).value              
+                });
+            }
+
+            setTimeout(() => {
+                documentsStore.createDocument('informations_europeenes_commun', inputToFill, props.client)
+                .then(res => {
+                    if(res.url){
+                        window.open(res.url)
+                    }
+                })
+                .catch(err => console.error(err))
+            }, 1500)
+            
+        }   
+
     }
 
     const closeModal = () => {
@@ -104,7 +129,6 @@
 		clientsStore.getClient(client)
 		.then(res => {
 			current_user.value = res.client
-            console.log(current_user.value)
 			let age = res.client.desAge_cli.split('-');
             pdf_model.value = {
                 portrait: {
@@ -682,59 +706,89 @@
                             value: '',
                         },
                     ]
-                }
+                },
             }
 
             if(res.client.idAgence_cli){
                 fetchAgence(res.client.idAgence_cli)
                 .then(res => {
                     pdf_model.value.informations_prealable_conso = {
-                    model: 'informations_prealable_conso',
-                    input_list: [
-                        {
-                            label: 'Directeur',
-                            name: 'directeur',
-                            type: 'text',
-                            value: current_responsable.value.prenom + ' ' + current_responsable.value.nom,
-                        },
-                        {
-                            label: 'Adresse',
-                            name: 'adresse',
-                            type: 'text',
-                            value: current_agence.value.adr_agence,
-                        },
-                        {
-                            label: 'Code postal',
-                            name: 'zipcode',
-                            type: 'text',
-                            value: current_agence.value.cp_agence,
-                        },
-                        {
-                            label: 'Ville',
-                            name: 'ville',
-                            type: 'text',
-                            value: current_agence.value.lib_agence,
-                        },
-                        {
-                            label: 'Téléphone',
-                            name: 'telephone',
-                            type: 'text',
-                            value: current_agence.value.tel_agence,
-                        },
-                        {
-                            label: 'SIRET',
-                            name: 'siret',
-                            type: 'text',
-                            value: current_agence.value.siren_agence,
-                        },
-                        {
-                            label: 'APE',
-                            name: 'ape',
-                            type: 'text',
-                            value: '',
-                        },
-                    ]
-                }
+                        model: 'informations_prealable_conso',
+                        input_list: [
+                            {
+                                label: 'Directeur',
+                                name: 'directeur',
+                                type: 'text',
+                                value: current_responsable.value.prenom + ' ' + current_responsable.value.nom,
+                            },
+                            {
+                                label: 'Adresse',
+                                name: 'adresse',
+                                type: 'text',
+                                value: current_agence.value.adr_agence,
+                            },
+                            {
+                                label: 'Code postal',
+                                name: 'zipcode',
+                                type: 'text',
+                                value: current_agence.value.cp_agence,
+                            },
+                            {
+                                label: 'Ville',
+                                name: 'ville',
+                                type: 'text',
+                                value: current_agence.value.lib_agence,
+                            },
+                            {
+                                label: 'Téléphone',
+                                name: 'telephone',
+                                type: 'text',
+                                value: current_agence.value.tel_agence,
+                            },
+                            {
+                                label: 'SIRET',
+                                name: 'siret',
+                                type: 'text',
+                                value: current_agence.value.siren_agence,
+                            },
+                            {
+                                label: 'APE',
+                                name: 'ape',
+                                type: 'text',
+                                value: '',
+                            },
+                        ]
+                    }
+
+                    pdf_model.value.additif_vip = {
+                        model: 'additif_vip',
+                        input_list: [
+                            {
+                                label: 'Adresse de l\'agence',
+                                name: 'adresse_agence',
+                                type: 'text',
+                                value: current_agence.value.adr_agence + ' ' + current_agence.value.cp_agence + ' ' + current_agence.value.lib_agence,
+                            },
+                            {
+                                label: 'Télephone',
+                                name: 'telephone_agence',
+                                type: 'text',
+                                value: 'Tél. ' + current_agence.value.tel_agence,
+                            },
+                            {
+                                label: 'Email',
+                                name: 'email_agence',
+                                type: 'text',
+                                value: current_agence.value.mail_agence,
+                            },
+                            {
+                                label: 'SIRET',
+                                name: 'siret',
+                                type: 'text',
+                                value: 'SIREN: ' + current_agence.value.siren_agence,
+                            }
+                        ],
+                    }
                 })
                 .catch(err => {
                     console.log(err)
@@ -750,7 +804,7 @@
     <div class="overflow-hidden">
         <ul v-if="documents.length > 0" role="list" class="divide-y divide-gray-200">
             <li v-for="document in documents"
-                class="flex items-center justify-between gap-x-6 py-5">
+                class="flex items-cente flex-wrap justify-between gap-x-6 py-5">
                 <div class="min-w-0">
                     <div class="flex items-start gap-x-3">
                         <p class="text-sm font-semibold leading-6 text-gray-900">{{ document.name }}</p>
@@ -765,7 +819,7 @@
                         <p class="truncate">{{ (document.size / 1048576).toFixed(2)}} Mo</p>
                     </div>
                 </div>
-                <div class="flex flex-none items-center gap-x-4">
+                <div class="flex flex-none items-center gap-x-4 lg:mt-0 mt-5">
                     <a :download="`${document.name}`" :href="`${uri}/storage/documents/${client}/${document.name}`" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">Télécharger</a>
                     <a target="_blank" :href="`${uri}/storage/documents/${client}/${document.name}`" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block">Visionner</a>
                     <a @click="deleteDoc(document.name)" class="hidden rounded-md bg-rose px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-600 sm:block">Supprimer</a>
@@ -814,10 +868,10 @@
         </div>
 
         <transition enter-active-class="transition duration-100 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-            <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+            <MenuItems class="absolute left-0 bottom-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                 <div class="px-1 py-1">
                     <MenuItem v-slot="{ active }">
-                        <button type="button" :class="[ active ? 'bg-rose-500 text-white' : 'text-gray-900', 'group flex w-full items-center rounded-md px-2 py-2 text-sm pointer-events-none opacity-30']">
+                        <button @click="openModal('additif_vip')" type="button" :class="[ active ? 'bg-rose-500 text-white' : 'text-gray-900', 'group flex w-full items-center rounded-md px-2 py-2 text-sm']">
                             Additif VIP
                         </button>
                     </MenuItem>
@@ -847,11 +901,6 @@
                         </button>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
-                        <button type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm pointer-events-none opacity-30',]">
-                            Rappel rencontre
-                        </button>
-                    </MenuItem>
-                    <MenuItem v-slot="{ active }">
                         <button @click="openModal('portrait')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm',]">
                             Portrait à compléter
                         </button>
@@ -870,7 +919,7 @@
         <div class="fixed inset-0 overflow-y-auto">
             <div class="flex min-h-full items-center justify-center p-4 text-center">
             <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0 scale-95" enter-to="opacity-100 scale-100" leave="duration-200 ease-in" leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
-                <DialogPanel class="w-full max-w-[85vw] transform overflow-hidden rounded-md bg-white p-12 text-left align-middle shadow-xl transition-all">
+                <DialogPanel class="w-full max-w-[85vw] transform overflow-hidden rounded-md bg-white sm:p-12 p-5 text-left align-middle shadow-xl transition-all">
                 <DialogTitle as="h3" class="text-lg font-medium leading-6 text-gray-900">
                     Génération d'un document
                     <p class="text-sm text-gray-500">Veuillez remplir le formulaire afin de renseigner les informations nécessaires pour la génération du document téléchargeable.</p>

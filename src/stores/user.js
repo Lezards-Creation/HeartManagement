@@ -58,12 +58,41 @@ export const useUserStore = defineStore('user-store', () => {
 		}) 
 	}
 
+	const createUser = (payload) => {
+		return new Promise((resolve, reject) => {
+			// Create a FormData instance
+			const formData = new FormData();
+
+			// Append payload as a JSON string (if it needs to be sent as JSON)
+			formData.append('data', JSON.stringify(payload));
+
+			instance({
+				url: 'user/create',
+				method: 'POST',
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+				data: formData,
+				headers: {
+                    Authorization: `Bearer ${userLog.value.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+	
 	return {
 		// Variables
 		userLog,
 		// Functions
 		login,
 		checkToken,
+		createUser,
 		logout
 	}
 }, { persistedState: { persist: true } })

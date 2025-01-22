@@ -196,7 +196,7 @@ const onInputChange = (e) => {
 </script>
 
 <template>
-    <div class="h-screen flex-1 p-10 overflow-y-auto relative">
+    <div class="h-screen flex-1 sm:p-10 p-5 overflow-y-auto relative">
         <nav aria-label="Progress">
             <ol role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
                 <li v-for="(step, stepIdx) in steps" :key="step.name" class="relative md:flex md:flex-1">
@@ -241,7 +241,7 @@ const onInputChange = (e) => {
             </ol>
         </nav>
 
-        <form method="POST" @submit.prevent="handleCreationFiche" class="bg-gray-50 p-10 mt-4 rounded-xl">
+        <form method="POST" @submit.prevent="handleCreationFiche" class="bg-gray-50 sm:p-10 p-5 mt-4 rounded-xl">
             <div class="space-y-12">
                 <TransitionGroup class="overflow-hidden" tag="div" name="deploy">
                     <div v-if="current_step === 'reference'" class="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3">
@@ -1026,7 +1026,7 @@ const onInputChange = (e) => {
                 </TransitionGroup>
             </div>
 
-            <div class="flex justify-between items-center mt-6">
+            <div class="flex flex-wrap justify-between items-center mt-6">
                 <span class="text-xs text-rose tracking-wide">Vous pouvez finaliser à tout moment le dossier, seulement la première étape est nécessaire pour la validation.</span>
                 <div class="flex items-center justify-end gap-x-6">
                     <button v-if="step_index > 0" type="button" class="text-sm font-semibold leading-6 text-gray-900" @click="previousStep">Précedent</button>

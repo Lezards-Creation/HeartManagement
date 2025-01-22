@@ -76,7 +76,7 @@ export const useDocumentsStore = defineStore('documents-store', () => {
 		})
 	}
 
-	const createDocument = (model, input) => {
+	const createDocument = (model, input, id) => {
 		return new Promise((resolve, reject) => {
 			const formData = new FormData();
 			formData.append('data', JSON.stringify(input));
@@ -88,6 +88,9 @@ export const useDocumentsStore = defineStore('documents-store', () => {
 					"Content-Type": "multipart/form-data",
 				},
 				data: formData,
+				params: {
+					id: id
+				},
 				headers: {
                     Authorization: `Bearer ${userStore.userLog.token}`
                 }

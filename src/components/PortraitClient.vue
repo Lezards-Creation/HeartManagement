@@ -119,6 +119,8 @@
             current_user.value = res.client
             if(res.client.situation_cli){
                 current_user.value.situation_cli = JSON.parse(res.client.situation_cli);
+            } else {
+                current_user.value.situation_cli = {};
             }
 		})
     }
@@ -202,9 +204,9 @@
                                 <p class="font-normal text-sm leading-6 text-white w-full">
                                     <span class="font-black">Réf. : </span>{{ current_user.ref_cli }}
                                 </p>
-                                <p class="font-normal text-sm leading-6 text-white">
+                                <!-- <p class="font-normal text-sm leading-6 text-white">
                                     <span class="font-black">Code : </span>{{ current_user.code_cli }}
-                                </p>
+                                </p> -->
                             </div>
                         </div>
 
@@ -345,7 +347,7 @@
                             </div>
                         </div>
 
-                        <div class="border-4 rounded-xl border-rose-600 pt-5 pb-10 px-10 mt-12 relative">
+                        <div class="border-4 rounded-xl border-rose-600 pt-5 pb-6 px-10 mt-12 relative">
                             <svg class="absolute -top-11 -left-4" width="60px" height="58px" viewBox="0 0 28 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                 <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                     <g id="Group-3" transform="translate(0.192095, -0.000000)" fill="#ED5390">
@@ -425,15 +427,21 @@
                             </svg>
                         </div>
 
-                        <div class="mt-4">
-                            <p class="text-rose font-black">LOI INFORMATIQUE ET LIBERTES</p>
-                            <ul class="leading-3">
-                                <li><span class="text-rose">1°</span> Les réponses doannées sont facultatives</li>
-                                <li><span class="text-rose">2°</span> Le défaut de réponse n’entraine aucune conséquence.</li>
-                                <li><span class="text-rose">3°</span> Seuls le personnel de l’agence, les membres du réseau, et les personnes susceptibles de vous rencontrer peuvent avoir accès à ces informations.</li>
-                                <li><span class="text-rose">4°</span> Vous avez un droit d’accès et de rectification.</li>
-                                <li><span class="text-rose">5°</span> Les informations fournies sont suscep tibles d’être informatisées.</li>
-                            </ul>
+                        <div class="mt-7 flex">
+                            <div class="basis-4/5">
+                                <p class="text-rose font-black">PROTECTION DES DONNÉES PERSONNELLES</p>
+                                <ul class="leading-3">
+                                    <li><span class="text-rose">1°</span> Les réponses aux questions posées sont facultatives.</li>
+                                    <li><span class="text-rose">2°</span> L'absence de réponse n'entraîne aucune conséquence négative pour vous.</li>
+                                    <li><span class="text-rose">3°</span> Les données collectées sont accessibles uniquement au personnel autorisé de l’agence et, le cas échéant, aux membres du réseau ainsi qu'aux personnes impliquées dans le traitement de votre demande.</li>
+                                    <li><span class="text-rose">4°</span> Vous disposez d’un droit d’accès, de rectification, d’effacement, de limitation, d’opposition, ainsi que du droit à la portabilité de vos données.</li>
+                                    <li><span class="text-rose">5°</span> Les données recueillies peuvent être traitées de manière informatisée conformément aux dispositions légales en vigueur.</li>
+                                    <li><span class="text-rose">6°</span> Vous pouvez retirer votre consentement à tout moment et déposer une réclamation auprès de l’autorité de contrôle compétente (en France, la CNIL).</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <span class="text-rose-600 font-black text-sm">Signature :</span>
+                            </div>
                         </div>
                     </div>
                 </div>

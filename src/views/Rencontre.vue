@@ -304,12 +304,22 @@
 	}
 
     const isFromAgence = (client) => {
-		if(userStore.userLog.agences.includes(client.idAgence_cli)){
-			return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
-		} else {
-			let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
-			return {name: formattedNomCli, can: false};
-		}
+        if(userStore.userLog.adm_util == 1 && client.visu_cli === 'admin'){
+            return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
+        }
+
+        if(client.visu_cli === 'conseiller'){
+            if(userStore.userLog.agences.includes(client.idAgence_cli)){
+                return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
+            } else {
+                let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
+                return {name: formattedNomCli, can: false};
+            }    
+        }
+
+        if(client.visu_cli === 'public'){
+            return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
+        }
 	} 
 
 
@@ -438,20 +448,20 @@
             <!-- #endregion -->
         </div>
 
-        <div class="grid grid-cols-1 gap-4 mt-6 overflow-y-auto">
+        <div class="grid grid-cols-1 sm:gap-4 gap-24 mt-6 overflow-y-auto">
             <div v-if="rencontres && rencontresLoaded" class="mt-4" v-for="rencontre in rencontres" :key="rencontre.id_renc">
                 <div class="grid gap-8 grid-cols-2 mb-2 relative">
                     <span class="text-sm text-rose-500 text-right">{{ moment(rencontre.dateCre_renc).format('ll') }}</span>
                     <span class="text-sm text-gray-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">-</span>
                     <span class="text-sm text-rose-500 underline">{{ setComment(rencontre.statut_renc) }}</span>
                 </div>
-                <div class="grid gap-2 grid-cols-2 relative">
-                    <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-                        <div class="flex items-center justify-start space-x-3 grow shrink-0 basis-auto">
+                <div class="grid gap-2 sm:grid-cols-2 grid-cols-1 relative">
+                    <div class="z-0 relative flex gap-y-3 lg:gap-y-0 flex-wrap items-center sm:justify-between justify-center lg:space-x-3 rounded-lg border border-gray-300 bg-white sm:px-6 px-2 py-5 shadow-sm hover:border-gray-400">
+                        <div class="flex items-center sm:justify-start justify-center space-x-3 grow shrink-0 basis-auto">
                             <div class="flex-shrink-0">
                                 <img class="h-10 w-10 rounded-full object-cover" @error="handleImageError" :src="`${uri}/storage/img/cli/${rencontre.laureat.id_cli}.webp`" alt="" />
                             </div>
-                            <div class="min-w-0 flex-1">
+                            <div class="min-w-0 sm:flex-1">
                                 <a href="#" class="focus:outline-none">
                                     <p class="text-sm font-medium text-gray-900" :style="`color: ${setColorName(rencontre.laureat)}`">
                                         {{ rencontre.laureat.pNoms_cli }} {{ rencontre.laureat.nom_cli }}
@@ -461,7 +471,7 @@
                             </div>
                         </div>
 
-                        <div class="flex gap-2 items-center basis-auto">
+                        <div class="flex gap-2 sm:flex-nowrap flex-wrap items-center basis-auto">
                             <span class="text-sm text-right font-light text-gray-400">{{ rencontre.comm1_renc }}</span>
 
                             <a @click="handleSendingAttachment(rencontre.laureat.id_cli, 'renc', rencontre.pretendant)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
@@ -477,12 +487,12 @@
                         </div>
                     </div>
 
-                    <span class="z-10 absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-10 h-10 bg-white ring-1 ring-inset ring-gray-300 rounded-full flex items-center justify-center">
+                    <span class="z-10 sm:absolute static mx-auto top-1/2 sm:-translate-y-1/2 left-1/2 sm:-translate-x-1/2 w-10 h-10 bg-white ring-1 ring-inset ring-gray-300 rounded-full flex items-center justify-center">
                         <LinkIcon class="w-5 h-5"/>
                     </span>
 
-                    <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-                        <div class="flex items-center gap-2 basis-auto">
+                    <div class="z-0 relative flex lg:flex-nowrap flex-wrap gap-y-3 lg:gap-y-0 items-center lg:justify-between sm:justify-end justify-center space-x-3 rounded-lg border border-gray-300 bg-white sm:px-6 px-2 py-5 shadow-sm hover:border-gray-400">
+                        <div class="flex sm:flex-nowrap flex-wrap items-center gap-2 basis-auto order-2 lg:order-1">
                             <button @click="goToFicheClient(rencontre.pretendant.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
                             <a @click="handleSendingAttachment(rencontre.pretendant.id_cli, 'renc', rencontre.laureat)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <AtSymbolIcon class="w-5 h-5"/>
@@ -497,7 +507,7 @@
                             <span class="text-sm font-light text-gray-400">{{ rencontre.comm_renc }}</span>
                         </div>
 
-                        <div class="flex items-center justify-end space-x-3 grow shrink-0 basis-auto">
+                        <div class="flex items-center sm:justify-end justify-center space-x-3 grow shrink-0 basis-auto lg:order-2">
                             <div>
                                 <a href="#" class="focus:outline-none">
                                     <p class="text-sm font-medium text-gray-900 text-right" :style="`color: ${setColorName(rencontre.pretendant)}`">{{ rencontre.pretendant.pNoms_cli }} {{ rencontre.pretendant.nom_cli }}</p>

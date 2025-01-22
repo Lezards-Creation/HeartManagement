@@ -93,7 +93,7 @@
         .then(res => {
             if(target){
                 target.classList.add('updated');
-                
+                console.log(res)
                 setTimeout(() => {
                     target.classList.remove('updated');
                 }, 2500)
@@ -150,11 +150,23 @@
 	}
 
     const isFromAgence = (client) => {
-		if(userStore.userLog.agences.includes(client.idAgence_cli)){
+        if(userStore.userLog.adm_util == 1 && client.visu_cli === 'admin'){
+            return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
+        }
+
+        if(client.visu_cli === 'conseiller'){
+            if(userStore.userLog.agences.includes(client.idAgence_cli)){
+                return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
+            } else {
+                let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
+                return {name: formattedNomCli, can: false};
+            }    
+        }
+
+        if(client.visu_cli === 'public'){
+            return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
+        } else {
 			return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
-		} else {
-			let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
-			return {name: formattedNomCli, can: false};
 		}
 	} 
 
@@ -197,7 +209,7 @@ export default {
 <template>
     <div class="relative border-b border-gray-200 pb-5 sm:pb-0">
         <div>
-            <div class="xl:hidden">
+            <div class="xl:hidden pb-5 border-b-0">
                 <label for="current-tab" class="sr-only">Select a tab</label>
                 <select @change="(e) => active_tab = e.target.value"  id="current-tab" name="current-tab" class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600">
                     <option v-for="tab in tabs" :key="tab.name" :selected="tab.name" :value="tab.name">{{ tab.name }}</option>
@@ -216,14 +228,13 @@ export default {
 
     <form v-readonly="isReadOnly" method="POST" v-if="current_user" @change="handleUpdateClient">
         <div class="space-y-10 mt-10" v-if="active_tab === 'Profil'">
-            <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-3">
                 <div class="px-4 sm:px-0">
                     <h2 class="text-base font-semibold leading-7 text-gray-900">Etat civil</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-600">Information publiques du client, utilisées sur sa fiche publique et pouvant être partagées aux autres clients.</p>
                 </div>
                 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                     <div class="px-4 py-6 sm:p-8">
-                        <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                        <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-6">
                             <div class="col-span-full flex">
                                 <div v-if="!updatingPhoto" class="photo overflow-hidden rounded-xl shadow-xl mt-0 mb-3 max-w-xs">
                                     <img @error="event => handleImageError(event)" class="w-full h-auto" :src="imageSource" alt="" loading="lazy" />
@@ -287,15 +298,15 @@ export default {
                             <div class="sm:col-span-3">
                                 <label for="sexe_cli"
                                     class="block text-sm font-medium leading-6 text-gray-900">Sexe</label>
-                                <div class="mt-2">
-                                    <select v-model="current_user.sexe_cli" name="sexe_cli" id="sexe_cli"
-                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
-                                        <option value="0">Indeterminé</option>
-                                        <option value="F">Femme</option>
-                                        <option value="H">Homme</option>
-                                    </select>
-                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
-                                </div>
+                                    <div class="mt-2">
+                                        <select v-model="current_user.sexe_cli" name="sexe_cli" id="sexe_cli"
+                                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+                                            <option value="0">Indeterminé</option>
+                                            <option value="F">Femme</option>
+                                            <option value="H">Homme</option>
+                                        </select>
+                                        <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                    </div>
                             </div>
                             <div class="sm:col-span-3">
                                 <label for="website"
@@ -315,7 +326,7 @@ export default {
                                     class="block text-sm font-medium leading-6 text-gray-900">Politique</label>
                                 <div class="mt-2">
                                     <select v-model="current_user.pol_cli" name="pol_cli" id="pol_cli"
-                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
                                         <option value="0">Indeterminé</option>
                                         <option value="1">Sans</option>
                                         <option value="2">Extrême Gauche</option>
@@ -332,10 +343,9 @@ export default {
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-3">
                 <div class="px-4 sm:px-0">
                     <h2 class="text-base font-semibold leading-7 text-gray-900">Adresse</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-600">Information publiques du client, utilisées sur sa fiche publique et pouvant être partagées aux autres clients.</p>
                 </div>
                 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                     <div class="px-4 py-6 sm:p-8">
@@ -434,6 +444,19 @@ export default {
                                 </SwitchGroup>
                             </div>
                             <div class="sm:col-span-full">
+                                <label for="pol_cli"
+                                    class="block text-sm font-medium leading-6 text-gray-900">Visibilité</label>
+                                <div class="mt-2">
+                                    <select v-model="current_user.visu_cli" name="pol_cli" id="pol_cli"
+                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+                                        <option value="public">Public</option>
+                                        <option value="admin">Franchiser</option>
+                                        <option value="conseiller">Conseiller</option>
+                                    </select>
+                                    <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                </div>
+                            </div>
+                            <div class="sm:col-span-full">
                                 <label for="mail_cli" class="block text-sm font-medium leading-6 text-gray-900">Adresse email</label>
                                 <div class="mt-2">
                                     <input v-if="isFromAgence(current_user).can" id="mail_cli" v-model="current_user.mail_cli" name="mail_cli" type="email"
@@ -442,7 +465,7 @@ export default {
                                     <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                 </div>
                             </div>
-                            <div class="sm:col-span-2 self-start mb-2" v-if="isFromAgence(current_user).can">
+                            <div class="lg:col-span-2 col-span-full self-start mb-2" v-if="isFromAgence(current_user).can">
                                 <SwitchGroup as="div" class="flex items-center flex-wrap">
                                     <Switch @click="debouncedFunction" v-model="current_user.nl_cli" name="nl_cli"
                                         :class="[current_user.nl_cli ? 'bg-rose-600' : 'bg-gray-200', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
@@ -461,14 +484,13 @@ export default {
             </div>
         </div>
         <div class="space-y-10 mt-10" v-if="active_tab === 'Situation'">
-            <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-3">
                 <div class="px-4 sm:px-0">
                     <h2 class="text-base font-semibold leading-7 text-gray-900">Statut</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-600">Information publiques du client, utilisées sur sa fiche publique et pouvant être partagées aux autres clients.</p>
                 </div>
                 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                     <div class="px-4 py-6 sm:p-8">
-                        <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                        <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-6 sm:grid-cols-2">
                             <div class="sm:col-span-2 self-start mb-2">
                                 <SwitchGroup as="div" class="flex items-center flex-wrap">
                                     <Switch @click="debouncedFunction" v-model="current_user.situation_cli.celib_cli" name="celib_cli"
@@ -542,10 +564,9 @@ export default {
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-3">
                 <div class="px-4 sm:px-0">
                     <h2 class="text-base font-semibold leading-7 text-gray-900">Enfants</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-600">Plus les critères de recherche seront précis, plus notre outil de matching dénichera les profils les plus pertinents.</p>
                 </div>
                 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                     <div class="px-4 py-6 sm:p-8">
@@ -622,10 +643,9 @@ export default {
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-3">
                 <div class="px-4 sm:px-0">
                     <h2 class="text-base font-semibold leading-7 text-gray-900">Professionnel</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-600">Plus les critères de recherche seront précis, plus notre outil de matching dénichera les profils les plus pertinents.</p>
                 </div>
                 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                     <div class="px-4 py-6 sm:p-8">
@@ -690,7 +710,8 @@ export default {
                                     </div>
                                 </div>
                             </fieldset>
-                            <fieldset class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+
+                            <fieldset class="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-6">
                                 <div class="sm:col-span-3 self-start mb-2">
                                     <SwitchGroup as="div" class="flex items-center flex-wrap">
                                         <Switch @click="debouncedFunction" v-model="current_user.veh_cli" name="veh_cli"
@@ -760,10 +781,9 @@ export default {
         </div>
 
         <div class="space-y-10 mt-10" v-if="active_tab === 'Physique'">
-            <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-3">
                 <div class="px-4 sm:px-0">
-                    <h2 class="text-base font-semibold leading-7 text-gray-900">Appréciations</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-600">Plus les critères de recherche seront précis, plus notre outil de matching dénichera les profils les plus pertinents.</p>
+                    <h2 class="text-base font-semibold leading-7 text-gray-900">Allure et Physique</h2>
                 </div>
                 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                     <div class="px-4 py-6 sm:p-8">
@@ -859,7 +879,7 @@ export default {
                                             <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         </div>
                                     </div>
-                                    <div class="sm:col-span-3">
+                                    <div class="lg:col-span-3 col-span-full">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.lun_cli" name="lun_cli" :class="[current_user.lun_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
                                                 <span aria-hidden="true" :class="[current_user.lun_cli ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
@@ -870,7 +890,7 @@ export default {
                                             <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         </SwitchGroup>
                                     </div>
-                                    <div class="sm:col-span-3">
+                                    <div class="lg:col-span-3 col-span-full">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.fum_cli" name="fum_cli"
                                                 :class="[current_user.fum_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
@@ -919,10 +939,9 @@ export default {
         </div>
 
         <div class="space-y-10 mt-10" v-if="active_tab === 'Psychologie et morale'">
-            <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-3">
                 <div class="px-4 sm:px-0">
                     <h2 class="text-base font-semibold leading-7 text-gray-900">Psychologie et morale</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-600">Plus les critères de recherche seront précis, plus notre outil de matching dénichera les profils les plus pertinents.</p>
                 </div>
                 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                     <div class="px-4 py-6 sm:p-8">
@@ -932,7 +951,7 @@ export default {
                                     <!-- #region Centres d'intérêt et gouts -->
                                     <div class="col-span-full">
                                         <legend class="text-base font-semibold leading-6 text-gray-900 mb-4">Goûts</legend>
-                                        <div class="gap-4 grid grid-cols-4">
+                                        <div class="gap-4 grid sm::grid-cols-4 grid-cols-2">
                                             <div class="relative flex items-start">
                                                 <div class="flex h-6 items-center">
                                                     <input v-model="current_user.gouts_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
@@ -1146,7 +1165,7 @@ export default {
                                     <!-- #region Personnalités et Description -->
                                     <div class="col-span-full">
                                         <legend class="text-base font-semibold leading-6 text-gray-900 mb-4">Personnalités</legend>
-                                        <div class="gap-4 grid grid-cols-4">
+                                        <div class="gap-4 grid sm::grid-cols-4 grid-cols-2">
                                             <div class="relative flex items-start">
                                                 <div class="flex h-6 items-center">
                                                     <input v-model="current_user.personnalite_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
@@ -1438,7 +1457,7 @@ export default {
 
                                     <div class="col-span-full">
                                         <legend class="text-base font-semibold leading-6 text-gray-900 mb-4">Allure</legend>
-                                        <div class="gap-4 grid grid-cols-4">
+                                        <div class="gap-4 grid sm::grid-cols-4 grid-cols-2">
                                             <div class="relative flex items-start">
                                                 <div class="flex h-6 items-center">
                                                     <input v-model="current_user.allure_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
@@ -1564,17 +1583,16 @@ export default {
                     </div>
                 </div>
             </div>
-            <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-3">
                 <div class="px-4 sm:px-0">
                     <h2 class="text-base font-semibold leading-7 text-gray-900">Critères de recherche</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-600">Plus les critères de recherche seront précis, plus notre outil de matching dénichera les profils les plus pertinents.</p>
                 </div>
                 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                     <div class="px-4 py-6 sm:p-8">
                         <div class="max-w-2xl space-y-10">
                             <fieldset>
                                 <legend class="text-sm font-semibold leading-6 text-gray-900">Situation</legend>
-                                <div class="mt-6 grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                                <div class="mt-6 grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-6">
                                     <div class="sm:col-span-2 self-start mb-2">
 
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
@@ -1646,7 +1664,7 @@ export default {
                                             <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         </div>
                                     </div>
-                                    <div class="sm:col-span-3">
+                                    <div class="lg:col-span-3 col-span-full">
                                         <label for="desNbEn_cli" class="block text-sm font-medium leading-6 text-gray-900">Nombre d'enfants acceptés</label>
                                         <div class="mt-2">
                                             <select v-model="current_user.desNbEn_cli" id="desNbEn_cli" name="desNbEn_cli"
@@ -1748,7 +1766,7 @@ export default {
 
                                     <div class="col-span-full">
                                         <legend class="text-base font-semibold leading-6 text-gray-900 mb-4">Son allure</legend>
-                                        <div class="gap-4 grid grid-cols-4">
+                                        <div class="gap-4 grid sm::grid-cols-4 grid-cols-2">
                                             <div class="relative flex items-start">
                                                 <div class="flex h-6 items-center">
                                                     <input v-model="current_user.desAllure_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
@@ -1853,7 +1871,7 @@ export default {
 
                                     <div class="col-span-full">
                                         <legend class="text-base font-semibold leading-6 text-gray-900 mb-4">Sa personnalité</legend>
-                                        <div class="gap-4 grid grid-cols-4">
+                                        <div class="gap-4 grid sm::grid-cols-4 grid-cols-2">
                                             <div class="relative flex items-start">
                                                 <div class="flex h-6 items-center">
                                                     <input v-model="current_user.desPersonnalite_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
@@ -2056,7 +2074,7 @@ export default {
 
                                     <div class="col-span-full">
                                         <legend class="text-base font-semibold leading-6 text-gray-900 mb-4">Ses goûts</legend>
-                                        <div class="gap-4 grid grid-cols-4">
+                                        <div class="gap-4 grid sm::grid-cols-4 grid-cols-2">
                                             <div class="relative flex items-start">
                                                 <div class="flex h-6 items-center">
                                                     <input v-model="current_user.desGouts_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
@@ -2229,10 +2247,9 @@ export default {
         </div>
 
         <div class="space-y-10 mt-10" v-if="active_tab === 'Annonces'">
-            <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-3">
                 <div class="px-4 sm:px-0">
                     <h2 class="text-base font-semibold leading-7 text-gray-900">Affichage journal et site</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-600">Plus les critères de recherche seront précis, plus notre outil de matching dénichera les profils les plus pertinents.</p>
                 </div>
                 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                     <div class="px-4 py-6 sm:p-8">
@@ -2354,7 +2371,7 @@ export default {
                                         </div>
                                     </div>
         
-                                    <div class="sm:col-span-3">
+                                    <div class="lg:col-span-3 col-span-full">
                                         <label for="affAnn_cli" class="block text-sm font-medium leading-6 text-gray-900">Affichage de l'annonce</label>
                                         <div class="mt-2">
                                             <select v-model="current_user.affAnn_cli" id="affAnn_cli" name="affAnn_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
@@ -2366,7 +2383,7 @@ export default {
                                             <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         </div>
                                     </div>
-                                    <div class="sm:col-span-3">
+                                    <div class="lg:col-span-3 col-span-full">
                                         <label for="nroAnn_cli" class="block text-sm font-medium leading-6 text-gray-900">Annonce à faire apparaître</label>
                                         <div class="mt-2">
                                             <select v-model="current_user.nroAnn_cli" id="nroAnn_cli" name="nroAnn_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:max-w-xs sm:text-sm sm:leading-6">
@@ -2378,7 +2395,7 @@ export default {
                                         </div>
                                     </div>
         
-                                    <div class="sm:col-span-2 self-start mb-2">
+                                    <div class="lg:col-span-2 col-span-full self-start mb-2">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.proc_cli" name="proc_cli"
                                                 :class="[current_user.proc_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
@@ -2400,16 +2417,23 @@ export default {
         </div>
 
         <div class="space-y-10 mt-10" v-if="active_tab === 'Autres'">
-            <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-8 lg:grid-cols-3">
                 <div class="px-4 sm:px-0">
                     <h2 class="text-base font-semibold leading-7 text-gray-900">Informations complémentaires</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-600">Plus les critères de recherche seront précis, plus notre outil de matching dénichera les profils les plus pertinents.</p>
                 </div>
                 <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
                     <div class="px-4 py-6 sm:p-8">
                         <div class="max-w-2xl space-y-10">
                             <fieldset>
                                 <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                                    <div class="sm:col-span-full">
+                                        <label for="origine_cli"
+                                            class="block text-sm font-medium leading-6 text-gray-900">Réference dossier</label>
+                                        <div class="mt-2">
+                                            <input type="text" v-model="current_user.ref_cli" name="ref_cli" id="ref_cli" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                            <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
+                                        </div>
+                                    </div>
                                     <div class="sm:col-span-full">
                                         <label for="origine_cli"
                                             class="block text-sm font-medium leading-6 text-gray-900">Origine de la demande</label>
@@ -2507,7 +2531,7 @@ export default {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="sm:col-span-3">
+                                    <div class="lg:col-span-3 col-span-full">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.libre_cli" name="libre_cli"
                                                 :class="[current_user.libre_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
@@ -2520,7 +2544,7 @@ export default {
                                             <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden status">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         </SwitchGroup>
                                     </div>
-                                    <div class="sm:col-span-3">
+                                    <div class="lg:col-span-3 col-span-full">
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.probPaie_cli" name="probPaie_cli"
                                                 :class="[current_user.probPaie_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">

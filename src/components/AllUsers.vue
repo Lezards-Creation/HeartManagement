@@ -67,7 +67,18 @@
 		const filteredDirectory = Object.keys(clients.value).reduce((acc, initialLetter) => {
 			const filteredUsers = clients.value[initialLetter].filter(user => {
 				const normalizedUserName = normalizeString(user.pNoms_cli + user.nom_cli);
-				const searchMatch = searchTermLower.length >= 3 ? normalizedUserName.includes(searchTermLower) || user.ref_cli.toLowerCase().includes(searchTermLower) : true;
+				
+				let refToVerify; 
+				if(user.refHist_cli){
+					refToVerify = user.refHist_cli.split('|')
+									.map((el) => el.toLowerCase());
+					refToVerify.push(user.ref_cli.toLowerCase());
+				} else {
+					refToVerify = user.ref_cli.toLowerCase()
+				}
+
+				const searchMatch = searchTermLower.length >= 3 ? normalizedUserName.includes(searchTermLower) || refToVerify.includes(searchTermLower) : true;
+				
 				let filtersMatch = true;
 				Object.entries(filters.value).forEach(([key, value]) => {
 					if(filters.value[key] !== undefined){
@@ -258,11 +269,23 @@
 	}
 
 	const isFromAgence = (client) => {
-		if(userStore.userLog.agences.includes(client.idAgence_cli)){
+		if(userStore.userLog.adm_util == 1 && client.visu_cli === 'admin'){
+            return client.pNoms_cli + ' ' + client.nom_cli;
+        }
+
+		if(client.visu_cli === 'conseiller'){
+			if(userStore.userLog.agences.includes(client.idAgence_cli)){
+				return client.pNoms_cli + ' ' + client.nom_cli;
+			} else {
+				let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
+				return client.pNoms_cli + ' ' + formattedNomCli;
+			}
+		}
+		
+		if(client.visu_cli === 'public'){
 			return client.pNoms_cli + ' ' + client.nom_cli;
 		} else {
-			let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
-			return client.pNoms_cli + ' ' + formattedNomCli;
+			return client.pNoms_cli + ' ' + client.nom_cli;
 		}
 	} 
 
@@ -297,7 +320,7 @@
 </script>
 
 <template>
-	<div class="h-screen border-r border-r-gray-100 flex-[0]">
+	<div class="sm:h-screen border-r border-r-gray-100 sm:flex-[0] flex-1 basis-full max-h-[30vh] border-b-2 border-b-rose overflow-hidden">
 		<!-- #region FILTRES TYPE + AJOUT -->
 		<div class="flex gap-2 items-center px-4 pt-4 flex-wrap">
 			<Listbox class="" as="div" v-model="selected" @update:model-value="fetchClients">

@@ -2,13 +2,13 @@
 	import { computed, ref, watch } from 'vue'
     import { useRoute, useRouter } from 'vue-router'
 	import { ArrowPathRoundedSquareIcon, XMarkIcon, EllipsisVerticalIcon, MagnifyingGlassIcon, PrinterIcon } from '@heroicons/vue/24/solid'
-	import { UserPlusIcon, EnvelopeIcon, CpuChipIcon, NewspaperIcon} from '@heroicons/vue/24/outline'
+	import { EnvelopeIcon, NewspaperIcon, TrashIcon} from '@heroicons/vue/24/outline'
 	import { useClientsStore } from '../stores/clients'
 	import { useChoixStore } from '../stores/choix'
 	import { useAgencesStore } from '../stores/agences'
 	import { useUserStore } from '../stores/user'
 	import { usePropositionsStore } from '../stores/propositions'
-	import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
+	import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, Menu, MenuButton, MenuItem, MenuItems, Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 	import ProfilPanel from '../components/Profil.vue';
 	import PortraitClient from '../components/PortraitClient.vue';
 	import moment from 'moment'
@@ -55,6 +55,16 @@
 	const stateToastPropo = ref(false);
 	const stateToastChoix = ref(false);
 
+	const loading = ref({
+		total: false,
+		partial: false
+	})
+
+	const confirmPopup = ref(false);
+	const comm_popup = ref('');
+	const current_activeOption = ref(null);
+	const current_type = ref('');
+
 	const determineStatus = computed(() => {
 		if (current_user.value && current_user.value.insc_cli) {
 			let a = moment(current_user.value.insc_cli).add(current_user.value.duree_cli, 'M');
@@ -96,8 +106,9 @@
 		open.value = false;
 	}
 
-	const handleAddChoice = (activeOption) => {
+	const handleAddChoice = (activeOption, comm) => {
 		stateToastChoix.value = false;
+		confirmPopup.value = false;
 		let client = current_user.value;
 		let choix = activeOption
 
@@ -106,6 +117,7 @@
 			idCli_choix: client.id_cli,
 			idCli1_choix: choix.id_cli,
 			date_choix: moment().format('YYYY-MM-DD'),
+			comm_choix: comm
 		}
 		
 		matchLoading.value = true;
@@ -122,7 +134,8 @@
 		.catch(err => console.error(err))
 	}
 
-	const handleAddProposition = (activeOption) => {
+	const handleAddProposition = (activeOption, comm) => {
+		confirmPopup.value = false;
 		stateToastPropo.value = false;
 		let client = current_user.value;
 		let prop = activeOption
@@ -132,6 +145,7 @@
 			idCli_prop: client.id_cli,
 			idCli1_prop: prop.id_cli,
 			date_prop: moment().format('YYYY-MM-DD'),
+			comm_prop: comm
 		}
 		matchLoading.value = true;
 		searchLoading.value = true;
@@ -158,9 +172,9 @@
 	const handleGetClient = () => {
 		clientsStore.getClient(route.params.id)
 		.then(res => {
+			console.log(res.client)
 			current_user.value = res.client
-
-			let age = res.client.desAge_cli.split('-');
+			let age = res.client.desAge_cli ? res.client.desAge_cli.split('-') : [0, 99]; 
 
 			filters.value.age_min_cli = age[0];
 			filters.value.age_max_cli = age[1];
@@ -281,11 +295,23 @@
 	}
 
 	const isFromAgence = (client) => {
-		if(userStore.userLog.agences.includes(client.idAgence_cli)){
+		if(userStore.userLog.adm_util == 1 && client.visu_cli === 'admin'){
+            return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
+        }
+
+        if(client.visu_cli === 'conseiller'){
+            if(userStore.userLog.agences.includes(client.idAgence_cli)){
+                return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
+            } else {
+                let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
+                return {name: formattedNomCli, can: false};
+            }    
+        }
+
+        if(client.visu_cli === 'public'){
+            return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
+        } else {
 			return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
-		} else {
-			let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
-			return {name: client.pNoms_cli + ' ' + formattedNomCli, can: false};
 		}
 	} 
 
@@ -331,6 +357,41 @@
 	fetchAgences();
 
 
+	const handleDeleteClient = (client, type) => {	
+		loading.value[type] = true; 
+
+		clientsStore.deleteClient(client.id_cli, type)
+		.then(res => {
+			clientsStore.getClients('insc_cli')
+			.then((res) => {
+				loading.value[type] = false; 
+				setTimeout(() => {
+					router.push({name: 'Clients'})
+				}, 1000)
+			})
+			
+		})
+		.catch(err => {
+			console.error(err);
+		})
+	}
+
+	const triggerConfirmPopup = (activeOption, type) => {
+		confirmPopup.value = true;
+		comm_popup.value = '';
+
+		current_activeOption.value = activeOption;
+		current_type.value = type;
+	}
+
+	const validateConfirmPopup = () => {
+		if(current_type.value === 'choix'){
+			handleAddChoice(current_activeOption.value, comm_popup.value)
+		} else {
+			handleAddProposition(current_activeOption.value, comm_popup.value)
+		}
+	}
+
 	watch(() => route.params.id, () => {
 		handleGetClient()
 	}, {immediate: true})
@@ -339,12 +400,12 @@
 
 <template>
 	<!-- #region LAYOUT -->
-	<div class="h-screen flex-1 p-10 overflow-y-auto pb-24" v-if="current_user">
-		<div class="md:flex md:items-start md:justify-between md:space-x- mb-14 mt-2">
+	<div class="sm:h-screen flex-1 sm:p-10 p-5 sm:overflow-y-auto sm:pb-24" v-if="current_user">
+		<div class="md:flex flex-wrap md:items-start md:justify-between md:space-x- lg:mb-14 mb-5 mt-2">
 			<div class="flex items-center space-x-5">
 				<div class="flex-shrink-0">
 					<div class="relative">
-						<img @error="event => handleImageError(event, current_user.id_cli)" class="h-16 w-16 rounded-full object-cover" :src="imageSource" loading="lazy" />
+						<img @error="event => handleImageError(event, current_user.id_cli)" class="sm:h-16 sm:w-16 h-10 w-10 rounded-full object-cover" :src="imageSource" loading="lazy" />
 						<span class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true" />
 					</div>
 				</div>
@@ -356,15 +417,46 @@
 					<p class="text-xs font-medium mt-1" :style="`color: ${setColorTag()}`">Réf. {{ current_user.ref_cli }} - {{ determineStatus }}</p>
 				</div>
 			</div>
-			<div>
-				<div class="mt-3 flex justify-end gap-x-3">
+			<div class="mt-2">
+				<div class="mt-3 flex flex-wrap justify-end gap-x-3">
+					<Popover v-slot="{ open }" class="relative"> 
+						<PopoverButton v-if="isFromAgence(current_user).can || userStore.userLog.adm_util == 1 " @click="() => {}" type="button"
+							class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+							Supprimer
+							<TrashIcon class="text-gray-600 w-5 h-5"/>
+						</PopoverButton>
+
+						<transition
+							enter-active-class="transition duration-200 ease-out"
+							enter-from-class="translate-y-1 opacity-0"
+							enter-to-class="translate-y-0 opacity-100"
+							leave-active-class="transition duration-150 ease-in"
+							leave-from-class="translate-y-0 opacity-100"
+							leave-to-class="translate-y-1 opacity-0"
+						>
+							<PopoverPanel class="absolute left-1/2 z-10 mt-3 w-screen max-w-sm -translate-x-1/2 transform px-4 sm:px-0">
+								<div class="flex flex-col overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5 bg-white divide-y">
+									<div @click="handleDeleteClient(current_user, 'partial')" :class="[loading.partial ? 'animate-pulse pointer-events-none' : '','py-4 px-4 hover:bg-black/5 rounded-sm cursor-pointer']">
+										<span class="block mb-1">Suppression partielle</span>
+										<p class="text-xs text-[#b2b2b2]">Le nom, prénom, référence et les rencontres du client sont conservé dans la base de donnée le reste des informations est supprimées</p>
+									</div>
+									<div @click="handleDeleteClient(current_user, 'total')" :class="[loading.total ? 'animate-pulse pointer-events-none' : '', 'py-4 px-4 hover:bg-black/5 rounded-sm cursor-pointer']">
+										<span class="block mb-1">Suppression totale</span>
+										<p class="text-xs text-[#b2b2b2]">La totalité des informations clients sont supprimées.</p>
+									</div>
+								</div>
+							</PopoverPanel>
+						</transition>
+					</Popover>
+
 					<button v-if="isFromAgence(current_user).can" @click="openTestPopup = true" type="button"
 						class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
 						Portrait
 						<NewspaperIcon class="text-gray-600 w-5 h-5"/>
 					</button>
+
 					<button v-if="isFromAgence(current_user).can" @click="() => {open = true;}" type="button"
-						class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+						class="inline-flex gap-2 items-center justify-center rounded-md bg-white sm:mt-0 mt-2 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
 						Ajouter un choix
 						<ArrowPathRoundedSquareIcon class="text-gray-600 w-5 h-5" />
 					</button>
@@ -544,10 +636,10 @@
 														<MenuItems class="absolute right-9 top-0 z-10 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
 															<div class="py-1">
 																<MenuItem v-slot="{ active }">
-																	<a @click="handleAddChoice(score.client)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Ajouter choix</a>
+																	<a @click="triggerConfirmPopup(score.client, 'choix')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Ajouter choix</a>
 																</MenuItem>
 																<MenuItem v-slot="{ active }">
-																	<a @click="handleAddProposition(score.client)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Ajouter proposition</a>
+																	<a @click="triggerConfirmPopup(score.client, 'proposition')" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Ajouter proposition</a>
 																</MenuItem>
 																<MenuItem v-slot="{ active }">
 																	<a @click="goToFicheClient(score.client)" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">Voir le profil</a>
@@ -658,6 +750,42 @@
 	</TransitionRoot>
 	<!-- #endregion -->
 
+	<!-- #region Popup Confirm -->
+	<TransitionRoot :show="confirmPopup" as="template" appear>
+		<div class="relative z-[60]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+			<TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+				<div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"></div>
+			</TransitionChild>
+
+			<TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+				<div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+					<div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+						<div class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6">
+							<div>
+								<div class="mt-3 text-center sm:mt-5">
+									<h3 class="text-base font-semibold text-gray-900" id="modal-title">Veuillez confirmer votre action</h3>
+									<div class="mt-5">
+										<div class="flex justify-between">
+											<label for="comm" class="block text-sm/6 font-medium text-gray-900">Commentaire</label>
+											<span class="text-sm/6 text-gray-500" id="email-optional">Optionnel</span>
+										</div>
+										<div class="mt-2">
+											<input v-model="comm_popup" type="text" name="comm" id="comm" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-rose-600 sm:text-sm/6">
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="mt-5 sm:mt-6">
+								<button @click="validateConfirmPopup" type="button" class="inline-flex w-full justify-center rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">Valider</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</TransitionChild>
+		</div>
+	</TransitionRoot>
+	<!-- #endregion -->
+
 	<!-- #region POPUP Test -->
 	<TransitionRoot :show="openTestPopup" as="template" appear>
 		<Dialog as="div" class="relative z-50" @close="openTestPopup = false">
@@ -690,8 +818,8 @@
 							</div>
 
 							<div class="mt-5 flex items-center justify-center gap-x-2">
-								<a @click="openTestPopup = false" class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Annuler</a>
-								<a @click="isModalOpened = true" :class="sending ? 'active opacity-75 pointer-events-none' : false" class="group inline-flex gap-2 items-center justify-center rounded-md bg-rose px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-600">
+								<a @click="openTestPopup = false; openTestPopup = false;" class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Annuler</a>
+								<a @click="isModalOpened = true; openTestPopup = false;" :class="sending ? 'active opacity-75 pointer-events-none' : false" class="group inline-flex gap-2 items-center justify-center rounded-md bg-rose px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-600">
 									Imprimer 
 									<span class="group-[.active]:hidden" aria-hidden="true">
 										<PrinterIcon class="ml-1 h-3 w-3 text-white"/>
@@ -703,7 +831,7 @@
 										</svg>
 									</span>
 								</a>
-								<a @click="generateBase64 = {state: true, email: mail_test}" :class="sending ? 'active opacity-75 pointer-events-none' : false" class="group inline-flex gap-2 items-center justify-center rounded-md bg-rose px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-600">
+								<a @click="generateBase64 = {state: true, email: mail_test}; openTestPopup = false;" :class="sending ? 'active opacity-75 pointer-events-none' : false" class="group inline-flex gap-2 items-center justify-center rounded-md bg-rose px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-600">
 									Envoyer 
 									<span class="group-[.active]:hidden" aria-hidden="true">→</span>
 									<span class="group-[.active]:block hidden" aria-hidden="true">

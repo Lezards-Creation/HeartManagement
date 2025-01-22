@@ -259,6 +259,27 @@ export const useClientsStore = defineStore('clients-store', () => {
 		})
 	}
 
+	const deleteClient = (id, type) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `clients/${id}`,
+				method: 'DELETE', 
+				params: {
+					type: type
+				},
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
 	const getClientByRef = (ref) => {
 		return new Promise((resolve, reject) => {
 			instance({
@@ -292,7 +313,8 @@ export const useClientsStore = defineStore('clients-store', () => {
 			getMatch,
 			getLastClients,
 			searchClient,
-			getClientByRef
+			getClientByRef,
+			deleteClient
 		//#endregion
     }
 }, { persistedState: { persist: false } })

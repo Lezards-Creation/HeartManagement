@@ -430,8 +430,22 @@
         <div class="mt-8 sm:mt-12">
             <div class="sm:hidden">
                 <label for="tabs" class="sr-only">Select a tab</label>
-                <select id="tabs" name="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                    <option v-for="tab in tabs" :key="tab.name" :selected="tab.current">{{ tab.name }}</option>
+                <select
+                    v-model="active_tab"
+                    id="tabs"
+                    name="tabs"
+                    class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                    @change="switchTab(
+                        tabs.find(tab => active_tab === tab.slug)
+                    )"
+                >
+                    <option
+                        v-for="tab in tabs"
+                        :key="tab.slug"
+                        :value="tab.slug"
+                    >
+                        {{ tab.name }}
+                    </option>
                 </select>
             </div>
             <div class="hidden sm:block">
@@ -496,18 +510,18 @@
         <!-- #endregion -->
 
         <!-- #region CHOIX COMMUNS -->
-        <div class="grid grid-cols-1 gap-4 pb-24" v-if="active_tab === 'communs'"> 
+        <div class="grid grid-cols-1 sm:gap-4 gap-24 pb-24" v-if="active_tab === 'communs'"> 
             <div v-if="communs && communsLoaded" class="mt-4" v-for="commun in communs" :key="commun.id_choix">
                 <div class="mb-2 relative">
                     <span class="text-sm text-rose-500 text-center block">{{ moment(commun.date_choix).format('ll') }}</span>
                 </div>
-                <div class="grid gap-2 grid-cols-2 relative">
-                    <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-                        <div class="flex items-center justify-start space-x-3 grow shrink-0 basis-auto">
+                <div class="grid gap-2 sm:grid-cols-2 grid-cols-1 relative">
+                    <div class="z-0 relative flex gap-y-3 lg:gap-y-0 flex-wrap items-center sm:justify-between justify-center lg:space-x-3 rounded-lg border border-gray-300 bg-white sm:px-6 px-2 py-5 shadow-sm hover:border-gray-400">
+                        <div class="flex items-center sm:justify-start justify-center space-x-3 grow shrink-0 basis-auto">
                             <div class="flex-shrink-0">
                                 <img class="h-10 w-10 rounded-full object-cover" @error="handleImageError" :src="`${uri}/storage/img/cli/${commun.client.id_cli}.webp`" alt="" />
                             </div>
-                            <div class="min-w-0 flex-1">
+                            <div class="min-w-0 sm:flex-1">
                                 <a href="#" class="focus:outline-none">
                                     <p class="text-sm font-medium text-gray-900" :style="`color: ${setColorName(commun.client)}`">{{ commun.client.pNoms_cli }} {{ commun.client.nom_cli }}</p>
                                     <p class="truncate text-sm text-gray-500" :style="`color: ${setColorTag(commun.client)}`">{{ commun.client.ref_cli }}</p>
@@ -515,22 +529,22 @@
                             </div>
                         </div>
 
-                        <div class="flex gap-2 items-center basis-auto">
+                        <div class="flex gap-2 sm:flex-nowrap flex-wrap items-center basis-auto">
                             <button @click="goToFicheClient(commun.client.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
                         </div>
                     </div>
 
-                    <span @click="handleCreateRencontre(commun.client.id_cli, commun.demandeur.id_cli)" class="z-10 group absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-10 h-10 bg-white ring-1 ring-inset ring-gray-300 hover:ring-rose cursor-pointer duration-300 ease-out hover:scale-90 group rounded-full flex items-center justify-center">
+                    <span @click="handleCreateRencontre(commun.client.id_cli, commun.demandeur.id_cli)" class="z-10 group sm:absolute static mx-auto top-1/2 sm:-translate-y-1/2 left-1/2 sm:-translate-x-1/2 w-10 h-10 bg-white ring-1 ring-inset ring-gray-300 hover:ring-rose cursor-pointer duration-300 ease-out hover:scale-90 group rounded-full flex items-center justify-center">
                         <BoltIcon class="w-5 h-5 group-hover:text-rose"/>
                         <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Initier la rencontre</span>
                     </span>
 
-                    <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-                        <div class="flex items-center gap-2 basis-auto">
+                    <div class="z-0 relative flex lg:flex-nowrap flex-wrap gap-y-3 lg:gap-y-0 items-center lg:justify-between sm:justify-end justify-center space-x-3 rounded-lg border border-gray-300 bg-white sm:px-6 px-2 py-5 shadow-sm hover:border-gray-400">
+                        <div class="flex sm:flex-nowrap flex-wrap items-center gap-2 basis-auto order-2 lg:order-1">
                             <button @click="goToFicheClient(commun.demandeur.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
                         </div>
 
-                        <div class="flex items-center justify-end space-x-3 grow shrink-0 basis-auto">
+                        <div class="flex items-center sm:justify-end justify-center space-x-3 grow shrink-0 basis-auto lg:order-2">
                             <div>
                                 <a href="#" class="focus:outline-none">
                                     <p class="text-sm font-medium text-gray-900 text-right" :style="`color: ${setColorName(commun.demandeur)}`">{{ commun.demandeur.pNoms_cli }} {{ commun.demandeur.nom_cli }}</p>
@@ -588,7 +602,7 @@
             <!-- #endregion -->
 
             <div v-if="communs?.length === 0">
-                <h3 class="text-center text-gray-300 font-light ">Aucun choix communs correspond à votre sélection de filtre.</h3>
+                <h3 class="text-center text-gray-300 font-light mt-5">Aucun choix communs correspond à votre sélection de filtre.</h3>
             </div>
 
 
@@ -630,7 +644,7 @@
         <!-- #endregion  -->
 
         <!-- #region CHOIX -->
-        <div class="grid grid-cols-1 gap-4 pb-24" v-if="active_tab === 'choix'"> 
+        <div class="grid grid-cols-1 sm:gap-4 gap-24 pb-24" v-if="active_tab === 'choix'"> 
             <div v-if="choix && choixLoaded" class="mt-4" v-for="ch in choix" :key="ch.id_choix">
                 <div class="mb-2 relative grid gap-8 grid-cols-2 items-center">
                     <span class="text-sm text-rose-500 text-right block">{{ moment(ch.date_choix).format('ll') }}</span>
@@ -645,13 +659,13 @@
                         </span>
                     </div>
                 </div>
-                <div class="grid gap-2 grid-cols-2 relative">
-                    <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-                        <div class="flex items-center justify-start space-x-3 grow shrink-0 basis-auto">
+                <div class="grid gap-2 sm:grid-cols-2 grid-cols-1 relative">
+                    <div class="z-0 relative flex gap-y-3 lg:gap-y-0 flex-wrap items-center sm:justify-between justify-center lg:space-x-3 rounded-lg border border-gray-300 bg-white sm:px-6 px-2 py-5 shadow-sm hover:border-gray-400">
+                        <div class="flex items-center sm:justify-start justify-center space-x-3 grow shrink-0 basis-auto">
                             <div class="flex-shrink-0">
                                 <img class="h-10 w-10 rounded-full object-cover" @error="handleImageError" :src="`${uri}/storage/img/cli/${ch.client.id_cli}.webp`" alt="" />
                             </div>
-                            <div class="min-w-0 flex-1">
+                            <div class="min-w-0 sm:flex-1">
                                 <a href="#" class="focus:outline-none">
                                     <p class="text-sm font-medium text-gray-900" :style="`color: ${setColorName(ch.client)}`">{{ ch.client.pNoms_cli }} {{ ch.client.nom_cli }}</p>
                                     <p class="truncate text-sm text-gray-500" :style="`color: ${setColorTag(ch.client)}`">{{ ch.client.ref_cli }}</p>
@@ -659,7 +673,7 @@
                             </div>
                         </div>
 
-                        <div class="flex gap-2 items-center basis-auto">
+                        <div class="flex gap-2 sm:flex-nowrap flex-wrap items-center basis-auto">
                             <a @click="handleSendingAttachment(ch.client.id_cli, 'choix', ch.demandeur)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <AtSymbolIcon class="w-5 h-5"/>
                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
@@ -674,13 +688,13 @@
                         </div>
                     </div>
 
-                    <span class="z-10 absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-10 h-10 bg-white ring-1 ring-inset ring-gray-300 rounded-full flex items-center justify-center group">
+                    <span class="z-10 sm:absolute static mx-auto top-1/2 sm:-translate-y-1/2 left-1/2 sm:-translate-x-1/2 w-10 h-10 bg-white ring-1 ring-inset ring-gray-300 rounded-full flex items-center justify-center group">
                         <ArrowRightIcon class="w-5 h-5"/>
                         <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">{{ ch.client.pNoms_cli }} à choisi {{ ch.demandeur.pNoms_cli }}</span>
                     </span>
 
-                    <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-                        <div class="flex items-center gap-2 basis-auto">
+                    <div class="z-0 relative flex lg:flex-nowrap flex-wrap gap-y-3 lg:gap-y-0 items-center lg:justify-between sm:justify-end justify-center space-x-3 rounded-lg border border-gray-300 bg-white sm:px-6 px-2 py-5 shadow-sm hover:border-gray-400">
+                        <div class="flex sm:flex-nowrap flex-wrap items-center gap-2 basis-auto order-2 lg:order-1">
                             <button @click="goToFicheClient(ch.demandeur.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
 
                             <a @click="handleSendingAttachment(ch.demandeur.id_cli, 'choix', ch.client)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
@@ -702,7 +716,7 @@
                             </a>
                         </div>
 
-                        <div class="flex items-center justify-end space-x-3 grow shrink-0 basis-auto">
+                        <div class="flex items-center sm:justify-end justify-center space-x-3 grow shrink-0 basis-auto lg:order-2">
                             <div>
                                 <a href="#" class="focus:outline-none">
                                     <p class="text-sm font-medium text-gray-900 text-right" :style="`color: ${setColorName(ch.demandeur)}`">{{ ch.demandeur.pNoms_cli }} {{ ch.demandeur.nom_cli }}</p>
@@ -802,7 +816,7 @@
         <!-- #endregion -->
 
         <!-- #region PROPOSITIONS -->
-        <div class="grid grid-cols-1 gap-4 pb-24" v-if="active_tab === 'propositions'"> 
+        <div class="grid grid-cols-1 sm:gap-4 gap-24 pb-24" v-if="active_tab === 'propositions'"> 
             <div v-if="propositions && propositionsLoaded" class="mt-4" v-for="proposition in propositions" :key="proposition.id_prop">
                 <div class="mb-2 relative grid gap-8 grid-cols-2 items-center">
                     <span class="text-sm text-rose-500 text-right block">{{ moment(proposition.date_prop).format('ll') }}</span>
@@ -820,9 +834,9 @@
 
                     
                 </div>
-                <div class="grid gap-2 grid-cols-2 relative">
-                    <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-                        <div class="flex items-center justify-start space-x-3 grow shrink-0 basis-auto">
+                <div class="grid gap-2 sm:grid-cols-2 grid-cols-1 relative">
+                    <div class="z-0 relative flex gap-y-3 lg:gap-y-0 flex-wrap items-center sm:justify-between justify-center lg:space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
+                        <div class="flex items-center sm:justify-start justify-center space-x-3 grow shrink-0 basis-auto">
                             <div class="flex-shrink-0">
                                 <img class="h-10 w-10 rounded-full object-cover" @error="handleImageError" :src="`${uri}/storage/img/cli/${proposition.client2.id_cli}.webp`" alt="" />
                             </div>
@@ -858,13 +872,13 @@
                         </div>
                     </div>
 
-                    <span class="z-10 absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-10 h-10 bg-white ring-1 ring-inset ring-gray-300 rounded-full flex items-center justify-center group">
+                    <span class="z-10 sm:absolute static mx-auto top-1/2 sm:-translate-y-1/2 left-1/2 sm:-translate-x-1/2 w-10 h-10 bg-white ring-1 ring-inset ring-gray-300 rounded-full flex items-center justify-center group">
                         <ArrowRightIcon class="w-5 h-5"/>
                         <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">{{ proposition.client2.pNoms_cli }} a été proposé à {{ proposition.client1.pNoms_cli }} </span>
                     </span>
 
-                    <div class="z-0 relative flex items-center justify-between space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400">
-                        <div class="flex gap-2 items-center basis-auto">
+                    <div class="z-0 relative flex lg:flex-nowrap flex-wrap gap-y-3 lg:gap-y-0 items-center lg:justify-between sm:justify-end justify-center space-x-3 rounded-lg border border-gray-300 bg-white sm:px-6 px-2 py-5 shadow-sm hover:border-gray-400">
+                        <div class="flex sm:flex-nowrap flex-wrap items-center gap-2 basis-auto order-2 lg:order-1">
                             <button @click="goToFicheClient(proposition.client1.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
                             
                             <a @click="handleSendingAttachment(proposition.client1.id_cli, 'prop', proposition.client2)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
@@ -878,8 +892,8 @@
                             </a>
                         </div>
 
-                        <div class="flex items-center justify-end space-x-3 grow shrink-0 basis-auto">
-                            <div class="min-w-0 flex-1">
+                        <div class="flex items-center sm:justify-end justify-center space-x-3 grow shrink-0 basis-auto lg:order-2">
+                            <div class="min-w-0 sm:flex-1">
                                 <a href="#" class="focus:outline-none">
                                     <p class="text-sm font-medium text-gray-900 text-right" :style="`color: ${setColorName(proposition.client1)}`">{{ proposition.client1.pNoms_cli }} {{ proposition.client1.nom_cli }}</p>
                                     <p class="truncate text-sm text-gray-500 text-right" :style="`color: ${setColorTag(proposition.client1)}`">{{ proposition.client1.ref_cli }}</p>
@@ -939,7 +953,6 @@
             <div v-if="propositions?.length === 0">
                 <h3 class="text-center text-gray-300 font-light ">Aucune proposition corresponde à votre sélection de filtre.</h3>
             </div>
-
 
             <div v-if="propositions" class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 sticky bottom-0 z-20">
                 <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
