@@ -26,6 +26,103 @@
 
     const documents = ref([]); // Use ref to make documents reactive
     const documentsLoaded = ref(false);
+
+    const map_politique = ref({
+        0: 'Indeterminé',
+        1: 'Sans',
+        2: 'Extrême Gauche',
+        3: 'Gauche',
+        4: 'Centre',
+        5: 'Droite',
+        6: 'Extrême droite'
+    })
+
+    const map_revenus = ref({
+        0: 'Indeterminé',
+        1: 'Modestes (- de 1500€)',
+        2: 'Corrects (de 1500€ à 2000€)',
+        3: 'Confortables (de 2000€ à 3000€)',
+        4: 'Très confortables (de 3000€ à 5000€)',
+        5: 'Elevés (5000€ et plus)'
+    })
+
+    const map_etude = ref({
+        0: 'Indeterminé',
+        1: 'Primaire',
+        2: 'Secondaire',
+        3: 'Bac à Bac+2',
+        4: 'Back + 3 et plus'
+    })
+
+    const map_logement = ref({
+        0: 'Indeterminé',
+        1: 'Non',
+        2: 'Oui (sans précision)',
+        3: 'Location appartement',
+        4: 'Location maison',
+        5: 'Propriétaire appartement',
+        6: 'Propriétaire maison',
+        7: 'En famille',
+        8: 'Autre'
+    })
+
+    const map_cheveux = ref({
+        0: 'Indeterminé',
+        1: 'Bruns',
+        2: 'Blonds',
+        3: 'Roux',
+        4: 'Blancs',
+        5: 'Chauve',
+        6: 'Noirs',
+        7: 'Châtains clairs',
+        8: 'Châtains foncés',
+        9: 'Gris',
+        10: 'Poivre et sel',
+        11: 'Auburn',
+        12: 'Acajou',
+        13: 'Mèches blondes',
+        14: 'Mèches brunes',
+        15: 'Autre'
+    })
+
+    const map_yeux = ref({
+        0: 'Indeterminé',
+        1: 'Bruns',
+        2: 'Verts',
+        3: 'Bleus',
+        4: 'Noirs',
+        5: 'Gris',
+        6: 'Noisettes',
+        7: 'Bleus/verts',
+        8: 'Bleus/gris',
+        9: 'Dominance bleue',
+        10: 'Dominance verte',
+        11: 'Dominance brune',
+        12: 'Autres',
+    })
+
+    const map_desIns = ref({
+        0: 'Indertéminé',
+        1: 'Au moins primaire',
+        2: 'Au moins secondaire',
+        3: 'Au moins Bac à Bac +3',
+        4: 'Bac + 3 et plus',
+        5: 'Sans importance',
+    })
+
+    const map_desProf = ref({
+        0: 'Indeterminé',
+        1: 'Sans importance',
+        2: 'En activité',
+        3: 'Retraité'
+    })
+
+    const map_msRech_cli = ref({
+        '_0': 'Bon',
+        '_1': 'Moyen',
+        '_2': 'Modeste',
+        '_3': 'Autre'
+    })
     
     const fetchDocuments = () => {
         handleGetClient(props.client)
@@ -125,6 +222,17 @@
         })
     }
 
+    const calculateAge = (dateString) => {
+		let today = new Date()
+		let birthDate = new Date(dateString)
+		let age = today.getFullYear() - birthDate.getFullYear()
+		let monthDifference = today.getMonth() - birthDate.getMonth()
+		if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+			age--
+		}
+		return age
+	}
+
     const handleGetClient = (client) => {
 		clientsStore.getClient(client)
 		.then(res => {
@@ -138,31 +246,31 @@
                             label: 'Nom / Prénom',
                             name: 'nom_prenom',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.nom_cli + ' ' + current_user.value.pNoms_cli,
                         },
                         {
                             label: 'Référence',
                             name: 'ref',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.ref_cli,
                         },
                         {
                             label: 'Age',
                             name: 'age',
                             type: 'text',
-                            value: '',
+                            value: calculateAge(current_user.value.dateNaiss_cli),
                         },
                         {
                             label: 'Né(e) le',
                             name: 'naissance',
                             type: 'date',
-                            value: '01/01/2024',
+                            value: current_user.value.dateNaiss_cli,
                         },
                         {
                             label: 'Nationalité',
                             name: 'nationalite',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.nat_cli,
                         },
                         {
                             label: 'CVDS',
@@ -174,13 +282,13 @@
                             label: 'Fumeur',
                             name: 'fumeur',
                             type: 'checkbox',
-                            value: '',
+                            value: current_user.value.fum_cli === 1 ? true : false,
                         },
                         {
                             label: 'Enfants',
                             name: 'enfants',
                             type: 'number',
-                            value: 0,
+                            value: current_user.value.nbEnf_cli,
                         },
                         {
                             label: 'F(âges)',
@@ -198,121 +306,121 @@
                             label: 'À charge',
                             name: 'a_charge',
                             type: 'checkbox',
-                            value: '',
+                            value: current_user.value.chargeEnf > 0 ? true : false,
                         },
                         {
                             label: 'Tendances politiques',
                             name: 'tendances',
                             type: 'text',
-                            value: '',
+                            value: map_politique.value[current_user.value.pol_cli],
                         },
                         {
                             label: 'Religion',
                             name: 'religion',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.reli_cli,
                         },
                         {
                             label: 'Code',
                             name: 'code',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.code_cli,
                         },
                         {
                             label: 'Profession',
                             name: 'profession',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.prof_cli,
                         },
                         {
                             label: 'Revenus',
                             name: 'revenus',
                             type: 'text',
-                            value: '',
+                            value: map_revenus.value[current_user.value.tranche_cli],
                         },
                         {
                             label: 'Horaires',
                             name: 'horaires',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.hor_cli,
                         },
                         {
                             label: 'Instruction',
                             name: 'instruction',
                             type: 'text',
-                            value: '',
+                            value: map_etude.value[current_user.value.etude_cli],
                         },
                         {
                             label: 'Voiture',
                             name: 'voiture',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.veh_cli == 'O' ? 'Oui' : 'Non',
                         },
                         {
                             label: 'Permis',
                             name: 'permis',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.permis_cli == 'O' ? 'Oui' : 'Non',
                         },
                         {
                             label: 'Logement',
                             name: 'logement',
                             type: 'text',
-                            value: '',
+                            value: map_logement.value[current_user.value.loge_cli],
                         },
                         {
                             label: 'Taille',
                             name: 'taille',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.taille_cli,
                         },
                         {
                             label: 'Poids',
                             name: 'poids',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.poid_cli,
                         },
                         {
                             label: 'Cheveux',
                             name: 'cheveux',
                             type: 'text',
-                            value: '',
+                            value: map_cheveux.value[current_user.value.cheveux_cli],
                         },
                         {
                             label: 'Yeux',
                             name: 'yeux',
                             type: 'text',
-                            value: '',
+                            value: map_yeux.value[current_user.value.yeux_cli],
                         },
                         {
                             label: 'Santé',
                             name: 'sante',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.sante_cli,
                         },
                         {
                             label: 'Lunettes',
                             name: 'lunettes',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.lun_cli ? 'Oui' : 'Non',
                         },
                         {
                             label: 'Caractère',
                             name: 'caractere',
                             type: 'textarea',
-                            value: '',
+                            value: current_user.value.desc_cli,
                         },
                         {
                             label: 'Goûts / loisirs',
                             name: 'gouts',
                             type: 'textarea',
-                            value: '',
+                            value: current_user.value.interets_cli,
                         },
                         {
                             label: 'Milieu d\'éducation',
                             name: 'education',
                             type: 'textarea',
-                            value: '',
+                            value: current_user.value.milieu_cli,
                         },
                         {
                             type: 'title',
@@ -322,43 +430,43 @@
                             label: 'Age de',
                             name: 'age_1',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.desAge_cli.split('-')[0],
                         },
                         {
                             label: 'à',
                             name: 'age_2',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.desAge_cli.split('-')[1],
                         },
                         {
                             label: 'Célibataire',
                             name: 'celibataire',
                             type: 'text',
-                            value: '',
+                            value: JSON.parse(current_user.value.situation_cli).celib_cli ? 'Oui' : 'Non',
                         },
                         {
                             label: 'Veuf(ve)',
                             name: 'veuf',
                             type: 'text',
-                            value: '',
+                            value: JSON.parse(current_user.value.situation_cli).veuf_cli ? 'Oui' : 'Non',
                         },
                         {
                             label: 'Divorcé(e)',
                             name: 'divorce',
                             type: 'text',
-                            value: '',
+                            value: JSON.parse(current_user.value.situation_cli).div_cli ? 'Oui' : 'Non',
                         },
                         {
                             label: 'Séparé(e)',
                             name: 'separe',
                             type: 'text',
-                            value: '',
+                            value: JSON.parse(current_user.value.situation_cli).sep_cli ? 'Oui' : 'Non',
                         },
                         {
                             label: 'Avec enfants',
                             name: 'avec_enfants',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.desNbEn_cli > 2 ? 'Oui' : 'Non',
                         },
                         {
                             label: 'À charge',
@@ -370,37 +478,37 @@
                             label: 'Allure et physique',
                             name: 'allure',
                             type: 'textarea',
-                            value: '',
+                            value: current_user.value.desPhy_cli,
                         },
                         {
                             label: 'Caractère',
                             name: 'caractere_2',
                             type: 'textarea',
-                            value: '',
+                            value: current_user.value.desCaract_cli,
                         },
                         {
                             label: 'Degré d\'instruction',
                             name: 'instruction_2',
                             type: 'text',
-                            value: '',
+                            value: map_desIns.value[current_user.value.desInst_cli],
                         },
                         {
                             label: 'Profession',
                             name: 'profession_2',
                             type: 'text',
-                            value: '',
+                            value: map_desProf.value[current_user.value.desProf_cli],
                         },
                         {
                             label: 'Milieu social',
                             name: 'milieu_social',
                             type: 'text',
-                            value: '',
+                            value: map_msRech_cli.value[current_user.value.msRech_cli],
                         },
                         {
                             label: 'Caractéristiques indispensables à toute rencontre',
                             name: 'indispensables',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.desCarctIndisp_cli,
                         },
                     ],
                     format: 'L'
@@ -423,7 +531,7 @@
                             label: 'N° de contrat',
                             name: 'numero_contrat',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.ref_cli,
                         },
                         {
                             label: 'Nom',
@@ -465,18 +573,18 @@
                             label: 'Durée',
                             name: 'duree',
                             type: 'text',
-                            value: '',
+                            value: current_user.value.duree_cli,
                         },
                         {
                             label: 'euros TTC',
                             name: 'ttc',
-                            type: 'number',
+                            type: 'text',
                             value: '',
                         },
                         {
                             label: 'euros Hors TVA',
                             name: 'hors_tva',
-                            type: 'number',
+                            type: 'text',
                             value: '',
                         },
                         {
@@ -488,6 +596,12 @@
                         {
                             label: 'Mode de règlement',
                             name: 'mode_de_reglement',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Date de paiement',
+                            name: 'date_de_paiement',
                             type: 'text',
                             value: '',
                         },
@@ -507,13 +621,18 @@
                             label: 'Degré d\'instruction',
                             name: 'degre_instruction',
                             type: 'text',
-                            value: current_user.value.desInst_cli,
+                            value: current_user.value.desInst_cli === 0 ? 
+                                'Indéterminé' : current_user.value.desInst_cli === 1 ? 
+                                'Au moins primaire' : current_user.value.desInst_cli === 2 ? 
+                                'Au moins secondaire' : current_user.value.desInst_cli === 3 ? 
+                                'Au moins Bac à Bac +3' : current_user.value.desInst_cli === 4 ? 
+                                'Bac +3 et plus' : 'Sans importance',
                         },
                         {
                             label: 'Région',
                             name: 'region',
                             type: 'text',
-                            value: current_user.value.desReg,
+                            value: current_user.value.desReg_cli === 0 ? 'Non' : 'Oui',
                         },
                         {
                             label: 'Caractéristique indispensable',
@@ -525,7 +644,7 @@
                             label: 'Allure et physique',
                             name: 'allure',
                             type: 'textarea',
-                            value: current_user.value.desAllure_cli,
+                            value: current_user.value.desPhy_cli,
                         },
                         {
                             label: 'Caractère',
@@ -587,25 +706,25 @@
                             value: '',
                         },
                         {
-                            label: 'Nom de jeune fille',
+                            label: 'Nom de jeune fille (Co-emprunteur)',
                             name: 'nom_jeune_fille_co',
                             type: 'text',
                             value: '',
                         },
                         {
-                            label: 'Né(e) le',
+                            label: 'Né(e) le (Co-emprunteur)',
                             name: 'date_naissance_co',
                             type: 'date',
                             value: '',
                         },
                         {
-                            label: 'Lieux de naissance',
+                            label: 'Lieux de naissance (Co-emprunteur)',
                             name: 'lieu_naissance_co',
                             type: 'text',
                             value: '',
                         },
                         {
-                            label: 'Département de naissance',
+                            label: 'Département de naissance (Co-emprunteur)',
                             name: 'departement_naissance_co',
                             type: 'text',
                             value: '',

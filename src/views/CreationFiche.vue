@@ -27,6 +27,7 @@ const steps = ref([
 const dataCreation = ref({
     idAgence_cli: 0,
     ref_cli: '',
+    refHist_cli: '',
     nom_cli: '',
     pNoms_cli: '',
     sexe_cli: '0',
@@ -116,6 +117,8 @@ const previousStep = () => {
 
 const handleCreationFiche = () => {
     loadingCreate.value = true;
+    dataCreation.value.refHist_cli = dataCreation.value.ref_cli;
+
     clientsStore.createClient(dataCreation.value, files.value)
     .then(res => {
         stateToast.value = true;
@@ -196,7 +199,7 @@ const onInputChange = (e) => {
 </script>
 
 <template>
-    <div class="h-screen flex-1 sm:p-10 p-5 overflow-y-auto relative">
+    <div class="h-screen flex-1 sm:p-10 p-5 overflow-y-auto">
         <nav aria-label="Progress">
             <ol role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
                 <li v-for="(step, stepIdx) in steps" :key="step.name" class="relative md:flex md:flex-1">
@@ -833,9 +836,6 @@ const onInputChange = (e) => {
 
                         <div>
                             <h2 class="text-base font-semibold leading-7 text-gray-900">Qui désirez-vous rencontrer ?</h2>
-                            <p class="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive
-                                mail.
-                            </p>
                         </div>
 
                         <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2 bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl px-4 py-6 ">
@@ -1027,11 +1027,11 @@ const onInputChange = (e) => {
             </div>
 
             <div class="flex flex-wrap justify-between items-center mt-6">
-                <span class="text-xs text-rose tracking-wide">Vous pouvez finaliser à tout moment le dossier, seulement la première étape est nécessaire pour la validation.</span>
+                <span class="text-xs text-rose tracking-wide">Vous pouvez finaliser à tout moment le dossier, seule la première étape est nécessaire pour la validation.</span>
                 <div class="flex items-center justify-end gap-x-6">
-                    <button v-if="step_index > 0" type="button" class="text-sm font-semibold leading-6 text-gray-900" @click="previousStep">Précedent</button>
+                    <button v-if="step_index > 0" type="button" class="text-sm font-semibold leading-6 text-gray-900" @click="previousStep">Précédent</button>
                     <button v-if="step_index !== steps.length - 1" type="button" class="text-sm font-semibold leading-6 text-gray-900 hover:text-rose-500 duration-300 ease-out" @click="nextStep">Suivant</button>
-                    <button type="submit" :class="[loadingCreate ? 'animate-pulse pointer-events-none' : 'pointer-events-auto' , 'rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 duration-300 ease-out']">Finaliser</button>
+                    <button type="submit" :class="[loadingCreate ? 'animate-pulse pointer-events-none' : 'pointer-events-auto' , 'rounded-md bg-rose-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600 duration-300 ease-out']">Enregistrer</button>
                 </div>
             </div>
         </form>

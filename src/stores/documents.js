@@ -84,15 +84,13 @@ export const useDocumentsStore = defineStore('documents-store', () => {
 			instance({
 				url: `pdf/${model}`,
 				method: 'POST',
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
 				data: formData,
 				params: {
 					id: id
 				},
 				headers: {
-                    Authorization: `Bearer ${userStore.userLog.token}`
+                    Authorization: `Bearer ${userStore.userLog.token}`,
+					"Content-Type": "multipart/form-data; charset=UTF-8",
                 }
 			})
             .then(res => {

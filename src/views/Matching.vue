@@ -484,7 +484,7 @@
                 </transition>
             </Menu>
 
-            <PopoverGroup class="hidden sm:flex sm:items-baseline sm:space-x-2">
+            <PopoverGroup class="sm:items-baseline sm:space-x-2">
                 <Popover as="div" v-for="(section, sectionIdx) in filtersOptions" :key="section.name" :id="`desktop-menu-${sectionIdx}`" class="relative inline-block text-left ">
                     <div>
                         <PopoverButton class="group inline-flex items-center justify-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">

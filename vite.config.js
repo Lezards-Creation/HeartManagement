@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { fileURLToPath, URL } from 'node:url'
 import Components from 'unplugin-vue-components/vite'
 
@@ -8,12 +9,17 @@ const fs = require('fs')
 
 // https://vitejs.dev/config/
 export default defineConfig({
-      plugins: [vue(), Components(), VueDevTools(),],
+      plugins: [vue(), Components(), VueDevTools(), sentryVitePlugin({
+            org: "lezardscreation",
+            project: "heartmanagement"
+      })],
+
       resolve: {
             alias: {
                   '@': fileURLToPath(new URL('./src', import.meta.url)),
             },
       },
+
       server: {
             host: 'test.heartmanagement.fr',
             port: 443,
@@ -24,4 +30,8 @@ export default defineConfig({
             cors: true,
             strictPort: true // If the port is in use, Vite will exit instead of trying another one
       },
+
+      build: {
+            sourcemap: true
+      }
 })

@@ -218,7 +218,7 @@
 						<div class="px-12 py-8">
                             <form method="POST" @submit.prevent="handleCreateUser">
                                 <div class="mx-auto max-w-2xl text-center">
-                                    <h2 class="text-2xl font-bold tracking-tight text-rose">Ajouter un utilsateur</h2>
+                                    <h2 class="text-2xl font-bold tracking-tight text-rose">Ajouter un utilisateur</h2>
                                 </div>
                                 
                                 <input type="hidden" name="id_agence" :value="route.params.id">

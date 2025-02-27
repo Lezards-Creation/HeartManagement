@@ -2,7 +2,7 @@
     import { ref, computed } from 'vue';
     import { useRouter } from 'vue-router';
     import { Menu, MenuButton, MenuItem, MenuItems, TransitionRoot, TransitionChild, Dialog, DialogTitle, DialogPanel } from '@headlessui/vue'
-    import { ChevronDownIcon, TrashIcon, UserPlusIcon, FolderPlusIcon } from '@heroicons/vue/24/outline'
+    import { ChevronDownIcon, TrashIcon, UserPlusIcon, FolderPlusIcon, XMarkIcon } from '@heroicons/vue/24/outline'
     import { useMessageStore } from '../stores/messages';
     import { useAgencesStore } from "../stores/agences";
     import { useClientsStore } from '../stores/clients';
