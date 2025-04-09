@@ -29,7 +29,7 @@
 
     const map_politique = ref({
         0: 'Indeterminé',
-        1: 'Sans',
+        0: 'Sans',
         2: 'Extrême Gauche',
         3: 'Gauche',
         4: 'Centre',
@@ -38,12 +38,11 @@
     })
 
     const map_revenus = ref({
-        0: 'Indeterminé',
-        1: 'Modestes (- de 1500€)',
-        2: 'Corrects (de 1500€ à 2000€)',
-        3: 'Confortables (de 2000€ à 3000€)',
-        4: 'Très confortables (de 3000€ à 5000€)',
-        5: 'Elevés (5000€ et plus)'
+        0: 'Modestes (- de 1500€)',
+        1: 'Corrects (de 1500€ à 2000€)',
+        2: 'Confortables (de 2000€ à 3000€)',
+        3: 'Très confortables (de 3000€ à 5000€)',
+        4: 'Elevés (5000€ et plus)'
     })
 
     const map_etude = ref({
@@ -409,18 +408,21 @@
                             name: 'caractere',
                             type: 'textarea',
                             value: current_user.value.desc_cli,
+                            max: 320,
                         },
                         {
                             label: 'Goûts / loisirs',
                             name: 'gouts',
                             type: 'textarea',
                             value: current_user.value.interets_cli,
+                            max: 355,
                         },
                         {
                             label: 'Milieu d\'éducation',
                             name: 'education',
                             type: 'textarea',
                             value: current_user.value.milieu_cli,
+                            max: 140
                         },
                         {
                             type: 'title',
@@ -442,25 +444,25 @@
                             label: 'Célibataire',
                             name: 'celibataire',
                             type: 'text',
-                            value: JSON.parse(current_user.value.situation_cli).celib_cli ? 'Oui' : 'Non',
+                            value: current_user.value.desCelib_cli ? 'Oui' : 'Non',
                         },
                         {
                             label: 'Veuf(ve)',
                             name: 'veuf',
                             type: 'text',
-                            value: JSON.parse(current_user.value.situation_cli).veuf_cli ? 'Oui' : 'Non',
+                            value: current_user.value.desVeuf_cli ? 'Oui' : 'Non',
                         },
                         {
                             label: 'Divorcé(e)',
                             name: 'divorce',
                             type: 'text',
-                            value: JSON.parse(current_user.value.situation_cli).div_cli ? 'Oui' : 'Non',
+                            value: current_user.value.desDiv_cli ? 'Oui' : 'Non',
                         },
                         {
                             label: 'Séparé(e)',
                             name: 'separe',
                             type: 'text',
-                            value: JSON.parse(current_user.value.situation_cli).sep_cli ? 'Oui' : 'Non',
+                            value: current_user.value.desSep_cli ? 'Oui' : 'Non',
                         },
                         {
                             label: 'Avec enfants',
@@ -479,12 +481,14 @@
                             name: 'allure',
                             type: 'textarea',
                             value: current_user.value.desPhy_cli,
+                            max: 220,
                         },
                         {
                             label: 'Caractère',
                             name: 'caractere_2',
                             type: 'textarea',
                             value: current_user.value.desCaract_cli,
+                            max: 330
                         },
                         {
                             label: 'Degré d\'instruction',
@@ -549,7 +553,7 @@
                             label: 'Adresse',
                             name: 'adresse',
                             type: 'text',
-                            value: current_user.value.adr_cli,
+                            value: current_user.value.adr_cli + ', ' + current_user.value.ville_cli + ' ' + current_user.value.cp_cli,
                         },
                         {
                             label: 'Date et lieu de naissance',
@@ -645,12 +649,14 @@
                             name: 'allure',
                             type: 'textarea',
                             value: current_user.value.desPhy_cli,
+                            max: 185
                         },
                         {
                             label: 'Caractère',
                             name: 'caractere',
                             type: 'textarea',
                             value: current_user.value.desCaract_cli,
+                            max: 310
                         },
                     ]
                 },
@@ -748,8 +754,14 @@
                             value: '',
                         },
                         {
-                            label: 'Nombre de mensualité',
+                            label: 'Durée du contrat',
                             name: 'duree_cli',
+                            type: 'number',
+                            value: current_user.value.duree_cli,
+                        },
+                        {
+                            label: 'Nombre de mensualité',
+                            name: 'mensualite',
                             type: 'number',
                             value: current_user.value.duree_cli,
                         },
@@ -801,14 +813,26 @@
                             value: '',
                         },
                         {
-                            label: 'Nombre de mensualité',
+                            label: 'Durée du contrat',
                             name: 'duree_cli',
+                            type: 'number',
+                            value: current_user.value.duree_cli,
+                        },
+                        {
+                            label: 'Nombre de mensualité',
+                            name: 'mensualite',
                             type: 'number',
                             value: current_user.value.duree_cli,
                         },
                         {
                             label: 'Coût de la mensualité',
                             name: 'prix_mensualite',
+                            type: 'text',
+                            value: '',
+                        },
+                        {
+                            label: 'Total crédit',
+                            name: 'total_credit',
                             type: 'text',
                             value: '',
                         },
@@ -1049,7 +1073,7 @@
                         <div v-if="input.type === 'textarea'">    
                             <label :for="input.name" class="block text-sm/6 font-medium text-gray-900">{{ input.label }}</label>
                             <div class="mt-2">
-                                <textarea v-model="input.value" rows="2" maxlength="130" :name="input.name" :id="input.name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose sm:text-sm/6"></textarea>
+                                <textarea v-model="input.value" rows="2" :maxlength="input.max" :name="input.name" :id="input.name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose sm:text-sm/6"></textarea>
                             </div>
                         </div>
 

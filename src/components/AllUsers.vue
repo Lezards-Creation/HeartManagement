@@ -6,7 +6,7 @@
 	import { useUserStore } from "../stores/user";
 	import { AdjustmentsHorizontalIcon, PlusIcon, CheckIcon, ChevronDownIcon, IdentificationIcon, AdjustmentsVerticalIcon, BuildingOffice2Icon, ListBulletIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 	import { Popover, PopoverButton, PopoverPanel, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
-
+	import LazyImage from "./LazyImage.vue";
 	import moment from "moment";
 
 	const uri = import.meta.env.VITE_URL;
@@ -684,7 +684,11 @@
 				<ul role="list" class="divide-y divide-gray-100">
 					<li v-for="person in filtered_clients.filteredDirectory[letter]" :key="person.email">
 						<router-link class="flex gap-x-4 px-3 py-5 hover:bg-rose-50 items-center transition-all pointer" :to="{ name: 'Client', params: { id: person.id_cli }}" >
-							<img @error="event => handleImageError(event, person.id_cli)" class="h-8 w-8 2xl:h-12 2xl:w-12 flex-none object-cover object-center rounded-full bg-gray-50" :src="`${uri}/storage/img/cli/${person.id_cli}.webp`" loading="lazy" />
+							<LazyImage
+								:src="`${uri}/storage/img/cli/${person.id_cli}.webp`"
+								:imgClass="'h-8 w-8 2xl:h-12 2xl:w-12 flex-none object-cover object-center rounded-full bg-gray-50'"
+								:onError="(e) => handleImageError(e, person.id_cli)"
+							/>
 							<div class="min-w-0">
 								<p class="flex gap-2 items-center xl:text-xs 2xl:text-sm font-medium" :style="'color: ' + setColorName(person)">
 									{{ isFromAgence(person) }}

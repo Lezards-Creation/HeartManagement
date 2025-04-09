@@ -410,7 +410,7 @@
 					</div>
 				</div>
 				<div class="pt-1.5">
-					<h1 class="text-2xl font-bold" :style="`color: ${setColorName()}`">{{ isFromAgence(current_user).name }}</h1>
+					<h1 class="text-2xl font-bold" :style="`color: ${setColorName()}`">{{ isFromAgence(current_user).name }} <router-link :to="{path: `/agences/fiche/${current_user.idAgence_cli}`}" class="text-xs underline ml-4" v-if="!isFromAgence(current_user).can">Voir l'agence</router-link></h1>
 					<p class="text-sm font-medium text-gray-500">
 						<a href="#" class="text-gray-900">{{ current_user.prof_cli }}</a>, de {{ current_user.ville_cli}}, {{ current_user.dateNaiss_cli ? calculateAge(current_user.dateNaiss_cli) + ' ans' : '' }}
 					</p>

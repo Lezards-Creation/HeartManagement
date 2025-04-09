@@ -117,7 +117,10 @@ export const useClientsStore = defineStore('clients-store', () => {
                 }
 			})
             .then(res => {
-				clients.value = [...clients.value, res.data.client]				
+				if(clients.value){
+					clients.value = [...clients.value, res.data.client]				
+				}
+				
 				resolve(res.data);
             })
             .catch(err => {
@@ -130,7 +133,9 @@ export const useClientsStore = defineStore('clients-store', () => {
 		return new Promise((resolve, reject) => {
 			const formData = new FormData();
 			// Append payload as a JSON string (if it needs to be sent as JSON)
-			formData.append('data', JSON.stringify(payload));
+
+			const {desAge_cli_min, desAge_cli_max, ...payloadTrimmed} = payload
+			formData.append('data', JSON.stringify(payloadTrimmed));
 			
 			if (files && files.length) {
 				formData.append('photo', files[0].file, files[0].file.name);

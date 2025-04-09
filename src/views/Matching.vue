@@ -423,7 +423,7 @@
     <div class="px-4 sm:px-6 lg:px-8 overflow-auto h-screen">
         <div class="pb-5 mt-12">
             <div>
-                <h3 class="text-3xl font-semibold leading-6 text-gray-900">Dernières intéractions clients</h3>
+                <h3 class="text-3xl font-semibold leading-6 text-gray-900">Dernières interactions clients</h3>
             </div>
         </div>
         

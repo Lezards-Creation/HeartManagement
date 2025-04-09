@@ -65,7 +65,7 @@
     const fetchAgences = () => {
         agencesStore.getAgences()
         .then(res => agences.value = res.agences)
-        .catch(err => console.err(err));
+        .catch(err => console.error(err));
     }
     fetchAgences();
 
@@ -89,6 +89,9 @@
             target = e.target;
         }
         
+        let value = [current_user.value.desAge_cli_min, current_user.value.desAge_cli_max];
+        current_user.value.desAge_cli = `${value[0]}-${value[1]}`;
+
         clientsStore.updateClient(current_user.value, files.value)
         .then(res => {
             if(target){
@@ -122,6 +125,10 @@
 
             editorAnn1.value.commands.setContent(current_user.value.ann1_cli);
             editorAnn2.value.commands.setContent(current_user.value.ann2_cli);
+
+            current_user.value.desAge_cli_min = current_user.value.desAge_cli.split('-')[0];
+            current_user.value.desAge_cli_max = current_user.value.desAge_cli.split('-')[1];
+
 
             if(!isFromAgence(res.client).can){
                 isReadOnly.value = true;
@@ -1279,7 +1286,7 @@ export default {
                                                     <input v-model="current_user.personnalite_cli" id="savoir-vivre" value="12" name="savoir-vivre" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
                                                 </div>
                                                 <div class="ml-3 text-sm leading-6">
-                                                    <label for="savoir-vivre" class="font-medium text-gray-900">Savoir-vire</label>
+                                                    <label for="savoir-vivre" class="font-medium text-gray-900">Savoir-vivre</label>
                                                 </div>
                                             </div>
 
@@ -1401,10 +1408,10 @@ export default {
 
                                             <div class="relative flex items-start">
                                                 <div class="flex h-6 items-center">
-                                                    <input v-model="current_user.personnalite_cli" id="savoir_vivre" value="26" name="savoir_vivre" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    <input v-model="current_user.personnalite_cli" id="paisible" value="26" name="savoir_vivre" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
                                                 </div>
                                                 <div class="ml-3 text-sm leading-6">
-                                                    <label for="savoir_vivre" class="font-medium text-gray-900">Savoir-vivre</label>
+                                                    <label for="paisible" class="font-medium text-gray-900">Paisible</label>
                                                 </div>
                                             </div>
 
@@ -1413,7 +1420,7 @@ export default {
                                                     <input v-model="current_user.personnalite_cli" id="franc" value="27" name="franc" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
                                                 </div>
                                                 <div class="ml-3 text-sm leading-6">
-                                                    <label for="savoir_vivre" class="font-medium text-gray-900">Franc(he)</label>
+                                                    <label for="franc" class="font-medium text-gray-900">Franc(he)</label>
                                                 </div>
                                             </div>
 
@@ -1446,7 +1453,7 @@ export default {
 
                                             <div class="relative flex items-start">
                                                 <div class="flex h-6 items-center">
-                                                    <input v-model="current_user.personnalite_cli" id="citadin" value="30" name="citadin" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    <input v-model="current_user.personnalite_cli" id="citadin" value="31" name="citadin" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
                                                 </div>
                                                 <div class="ml-3 text-sm leading-6">
                                                     <label for="citadin" class="font-medium text-gray-900">Citadin(e)</label>
@@ -1594,7 +1601,6 @@ export default {
                                 <legend class="text-sm font-semibold leading-6 text-gray-900">Situation</legend>
                                 <div class="mt-6 grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-6">
                                     <div class="sm:col-span-2 self-start mb-2">
-
                                         <SwitchGroup as="div" class="flex items-center flex-wrap">
                                             <Switch @click="debouncedFunction" v-model="current_user.desCelib_cli" name="desCelib_cli"
                                                 :class="[current_user.desCelib_cli ? 'bg-rose-600' : 'bg-gray-200', !isFromAgence(current_user).can ? 'pointer-events-none' : 'pointer-events-auto', 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2']">
@@ -1653,14 +1659,14 @@ export default {
                                     <div class="sm:col-span-3">
                                         <label for="desAge_cli_min" class="block text-sm font-medium leading-6 text-gray-900">Age minimum</label>
                                         <div class="mt-2">
-                                            <input type="text" v-model="current_user.desAge_cli.split('-')[0]" name="desAge_cli_min" id="ldesAge_cli_min" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                            <input type="text" v-model="current_user.desAge_cli_min" name="desAge_cli_min" id="desAge_cli_min" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                             <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         </div>
                                     </div>
                                     <div class="sm:col-span-3">
                                         <label for="desAge_cli_max" class="block text-sm font-medium leading-6 text-gray-900">Age maximum</label>
                                         <div class="mt-2">
-                                            <input type="text" v-model="current_user.desAge_cli.split('-')[1]" name="desAge_cli_max" id="desAge_cli_max" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                            <input type="text" v-model="current_user.desAge_cli_max" name="desAge_cli_max" id="desAge_cli_max" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
                                             <span class="text-green-600 text-xs items-center gap-2 mt-2 hidden">Champ mis à jour<CheckIcon class="w-3 h-3"/></span>
                                         </div>
                                     </div>

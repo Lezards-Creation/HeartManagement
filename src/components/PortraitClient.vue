@@ -139,7 +139,7 @@
 <template>
     <div v-if="client && current_user && type === 'complet'" :class="isOpen ? 'pointer-events-all left-0' : 'pointer-events-none -left-[9999px]'" class="overflow-hidden fixed top-0 w-full h-full z-[999]">
         <div class="wrapperPDF">
-            <button @click="closePDF" class="absolute top-8 right-8 z-[2] w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer">
+            <button @click="closePDF" class="absolute top-8 right-8 z-[2] w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer bg-rose">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
                     <path fill="white" d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
                 </svg>
@@ -347,7 +347,7 @@
                             </div>
                         </div>
 
-                        <div class="border-4 rounded-xl border-rose-600 pt-5 pb-6 px-10 mt-12 relative">
+                        <div class="border-4 rounded-xl border-rose-600 pt-5 pb-6 px-10 mt-8 relative">
                             <svg class="absolute -top-11 -left-4" width="60px" height="58px" viewBox="0 0 28 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                 <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                     <g id="Group-3" transform="translate(0.192095, -0.000000)" fill="#ED5390">
@@ -359,16 +359,17 @@
 
                             <h2 class="text-rose-600 text-4xl font-['Baloo_Bhai'] mb-4">Le profil recherché</h2>
 
-                            <p class="font-normal text-xs leading-5">
-                                <span class="text-rose-600 font-black">Âge :</span>
-                                {{ current_user.desAge_cli }} ans
-                            </p>
-
-                            <p class="font-normal text-xs leading-5">
-                                <span class="text-rose-600 font-black">Enfants :</span>
-                                {{ mapKey('desNbEn_cli', current_user.desNbEn_cli) }}
-                            </p>
-                            
+                            <div class="flex gap-x-5">
+                                <p class="font-normal text-xs leading-5">
+                                    <span class="text-rose-600 font-black">Âge :</span>
+                                    {{ current_user.desAge_cli }} ans
+                                </p>
+                                <p class="font-normal text-xs leading-5">
+                                    <span class="text-rose-600 font-black">Enfants :</span>
+                                    {{ mapKey('desNbEn_cli', current_user.desNbEn_cli) }}
+                                </p>
+                                
+                            </div>
                             <p class="font-normal text-xs leading-5">
                                 <span class="text-rose-600 font-black">Célibataire :</span>
                                 {{ current_user.desCelib_cli ? 'Oui' : 'Non' }}
@@ -383,7 +384,7 @@
                                 {{ current_user.desSep_cli ? 'Oui' : 'Non' }}
                             </p>
 
-                            <p class="font-normal text-xs leading-5 mt-5">
+                            <p class="font-normal text-xs leading-5">
                                 <span class="text-rose-600 font-black">Allure et physique :</span>
                                 {{ current_user.desPhy_cli }}
                             </p>
@@ -427,8 +428,8 @@
                             </svg>
                         </div>
 
-                        <div class="mt-7 flex">
-                            <div class="basis-4/5">
+                        <div class="mt-7 flex justify-between">
+                            <div class="basis-3/5">
                                 <p class="text-rose font-black">PROTECTION DES DONNÉES PERSONNELLES</p>
                                 <ul class="leading-3">
                                     <li><span class="text-rose">1°</span> Les réponses aux questions posées sont facultatives.</li>
@@ -439,7 +440,8 @@
                                     <li><span class="text-rose">6°</span> Vous pouvez retirer votre consentement à tout moment et déposer une réclamation auprès de l’autorité de contrôle compétente (en France, la CNIL).</li>
                                 </ul>
                             </div>
-                            <div>
+                            <div class="flex flex-col gap-8 justify-start grow pl-12 mt-4">
+                                <span class="text-rose-600 font-black text-sm">Date :</span>
                                 <span class="text-rose-600 font-black text-sm">Signature :</span>
                             </div>
                         </div>
@@ -451,7 +453,7 @@
 
     <div v-if="client && current_user && type === 'court'" :class="isOpen ? 'pointer-events-all left-0' : 'pointer-events-none -left-[9999px]'" class="overflow-hidden fixed top-0 w-full h-full z-[999]">
         <div class="wrapperPDF">
-            <button @click="closePDF" class="absolute top-8 right-8 z-[2] w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer">
+            <button @click="closePDF" class="absolute top-8 right-8 z-[2] w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer bg-rose">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
                     <path fill="white" d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
                 </svg>

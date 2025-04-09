@@ -164,7 +164,7 @@
                     <p class="mt-2 text-sm text-gray-700">Liste des comptes associés à l'agence.</p>
                 </div>
                 <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                    <button @click="() => { openPopupUser = true; }" type="button" class="block rounded-md bg-rose px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">Ajouter un utilisateur</button>
+                    <button v-if="userStore.userLog.adm_util == 1" @click="() => { openPopupUser = true; }" type="button" class="block rounded-md bg-rose px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">Ajouter un utilisateur</button>
                 </div>
             </div>
             <div class="mt-8 flow-root">
@@ -193,7 +193,7 @@
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ agent.prenom }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ agent.role }}</td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
-                                        <a @click="updateAgent(agent)" href="#" class="text-rose hover:text-rose-400">Modifier</a>
+                                        <a v-if="userStore.userLog.adm_util == 1" @click="updateAgent(agent)" href="#" class="text-rose hover:text-rose-400">Modifier</a>
                                     </td>
                                 </tr>
                             </template>
