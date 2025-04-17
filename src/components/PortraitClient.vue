@@ -502,7 +502,7 @@
                             </svg>
                         </div>
 
-                        <div class="flex justify-center mt-12 flex-wrap">
+                        <div class="flex justify-center mt-5 flex-wrap">
                             <div class="basis-full">
                                 <p class="text-center">
                                     <span class="text-bleu block text-lg leading-5">X, Harmonie vous propose</span>
@@ -576,6 +576,11 @@
                                     <span class="text-rose font-black">Histoires : </span>
                                     <span class="font-[Avenir]" v-if="current_user.rem_cli">{{ current_user.rem_cli }}</span>
                                     <span class="font-[Avenir]">..................................................................................................................................<br>........................................................................................................................................................</span>
+                                </p>
+
+                                <p class="font-normal text-sm leading-5">
+                                    <span class="text-rose font-black">Annonce : </span>
+                                    <div class="font-[Avenir]" v-html="current_user.ann1_cli"></div>
                                 </p>
                             </div>
                         </div>

@@ -486,6 +486,7 @@
                                                         }}
                                                     </span>
                                                     <span class="text-xs text-[#707070] font-normal" v-if="choice.dateEnv_choix">{{ `Envoyée le ${moment(choice.dateEnv_choix).format('ll')}`  }}</span>
+                                                    <span class="text-xs text-[#707070] font-normal" v-if="choice.date_choix">{{ `- Fait le ${moment(choice.date_choix).format('ll')}`  }}</span>
                                                 </a>
                                             </p>
                                             <p class="mt-1 inline-flex text-xs leading-5" :style="`color: ${setColorTag(choice.client)}`">
@@ -500,7 +501,7 @@
                                             <button @click="handleOpeningFiche(choice.client)" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                                 Voir la fiche
                                             </button>
-                                            <a @click="handleSendingAttachment(choice.client, 'choix')" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                            <a v-if="choice.client.mail_cli" @click="handleSendingAttachment(choice.client, 'choix')" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                                 <AtSymbolIcon class="w-5 h-5"/>
                                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                                             </a>
@@ -543,6 +544,7 @@
                                                         }}
                                                     </span>
                                                     <span class="text-xs text-[#707070] font-normal" v-if="demande.dateEnv_choix">{{ `Envoyée le ${moment(demande.dateEnv_choix).format('ll')}`  }}</span>
+                                                    <span class="text-xs text-[#707070] font-normal" v-if="demande.date_choix">{{ `Fait le ${moment(demande.date_choix).format('ll')}`  }}</span>
                                                 </a>
                                             </p>
                                             <span class="mt-1 inline-flex text-xs leading-5" :style="`color: ${setColorTag(demande.client)}`">
@@ -557,7 +559,7 @@
                                             <button @click="handleOpeningFiche(demande.client)" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                                 Voir la fiche
                                             </button>
-                                            <a @click="handleSendingAttachment(demande.client, 'choix', false, mail)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                            <a v-if="demande.client.mail_cli" @click="handleSendingAttachment(demande.client, 'choix', false, mail)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                                 <AtSymbolIcon class="w-5 h-5"/>
                                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                                             </a>
@@ -606,6 +608,7 @@
                                                         }}
                                                     </span>
                                                     <span class="text-xs text-[#707070] font-normal" v-if="proposition.dateEnv_prop">{{ `Envoyée le ${moment(proposition.dateEnv_prop).format('ll')}`  }}</span>
+                                                    <span class="text-xs text-[#707070] font-normal" v-if="proposition.date_prop">{{ `- Faite le ${moment(proposition.date_prop).format('ll')}`  }}</span>
                                                 </a>
                                             </p>
                                             <span class="mt-1 inline-flex text-xs leading-5" :style="`color: ${setColorTag(proposition.client)}`">
@@ -620,8 +623,7 @@
                                             <button @click="handleOpeningFiche(proposition.client)" type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                                 Voir la fiche
                                             </button>
-                        
-                                            <a @click="handleSendingAttachment(proposition.client, 'prop', false, mail)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                            <a v-if="proposition.client.mail_cli" @click="handleSendingAttachment(proposition.client, 'prop', false, mail)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                                 <AtSymbolIcon class="w-5 h-5"/>
                                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                                             </a>
@@ -662,12 +664,15 @@
                                             <p class="text-xs 2xl:text-sm font-semibold 2xl:leading-6 text-gray-900">
                                                 <a class="flex gap-y-2 gap-x-2 items-center flex-wrap" :style="`color: ${setColorName(rencontre.laureat)}`">
                                                     {{ rencontre.laureat.nom_cli + ' ' + rencontre.laureat.pNoms_cli }}
+                                                    <span class="text-xs text-[#707070] font-normal">- Rencontre envoyé le {{  moment(rencontre.dateCre_renc).format('ll')  }}</span>
                                                 </a>
                                             </p>
                                             <p class="mt-1 flex text-xs leading-5" :style="`color: ${setColorTag(rencontre.laureat)}`">
                                                 Réf. {{ rencontre.laureat.ref_cli }}
+                                                
                                             </p>
                                         </div>
+                                        
                                     </div>
                                     <div class="flex shrink-0 items-center gap-x-4 lg:mt-0 mt-5">
                                         <div v-if="rencontre.laureat" class="flex flex-none items-center gap-x-4">
@@ -708,7 +713,7 @@
                                                                 <div class="mt-1">
                                                                     <textarea v-model="rencontre_ref.comm_renc" id="comm_renc" name="comm_renc" rows="3" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6"/>
                                                                     <div class="flex gap-x-2 mt-1">
-                                                                        <a @click="handleSendingAttachment(rencontre_ref.laureat, 'renc', false, mail)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                                        <a v-if="rencontre_ref.laureat.mail_cli" @click="handleSendingAttachment(rencontre_ref.laureat, 'renc', false, mail)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                                                             <AtSymbolIcon class="w-5 h-5"/>
                                                                         </a>
                                                                         <a @click="handlePrint(rencontre_ref.laureat, 'renc')" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
@@ -722,7 +727,7 @@
                                                                 <div class="mt-1">
                                                                     <textarea v-model="rencontre_ref.comm1_renc" id="comm1_renc" name="comm_renc1" rows="3" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6"/>
                                                                     <div class="flex justify-end gap-x-2 mt-1">
-                                                                        <a @click="handleSendingAttachment(client, 'renc', rencontre_ref.laureat)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                                        <a v-if="rencontre_ref.laureat.mail_cli" @click="handleSendingAttachment(client, 'renc', rencontre_ref.laureat)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                                                             <AtSymbolIcon class="w-5 h-5"/>
                                                                         </a>
                                                                         <a @click="handlePrint(client, 'renc', rencontre_ref.laureat)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">

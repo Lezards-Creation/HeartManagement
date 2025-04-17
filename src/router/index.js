@@ -13,6 +13,7 @@ import Leads from '../views/Leads.vue'
 import Reglages from '../views/Reglages.vue'
 import Facture from '../views/Facture.vue'
 import PageNotFound from '../views/404.vue'
+import Tutorial from '../views/Tutorial.vue'
 
 
 import { useUserStore } from '../stores/user'
@@ -31,6 +32,14 @@ const router = createRouter({
 			path: '/connexion',
 			name: 'Connexion',
 			component: Connexion,
+			meta: {
+				requiresAuth: false
+			}
+		},
+		{
+			path: '/tutoriels',
+			name: 'Tutoriels',
+			component: Tutorial,
 			meta: {
 				requiresAuth: false
 			}

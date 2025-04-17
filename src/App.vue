@@ -5,7 +5,7 @@
 
 <template>
 	<main class="sm:h-screen sm:overflow-hidden">
-		<Sidebar v-if="location.name !== 'Connexion'"  />
+		<Sidebar v-if="location.name !== 'Connexion' && location.name !== 'Tutoriels'"  />
 		<RouterView v-else />
 	</main>
 </template>

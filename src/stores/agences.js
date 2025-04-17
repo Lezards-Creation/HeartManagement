@@ -4,7 +4,7 @@ import { defineStore, acceptHMRUpdate } from 'pinia';
 import { useUserStore } from './user';
 
 const instance = axios.create({
-	baseURL: 'https://api.heartmanagement.fr/api/',
+	baseURL: 'https://application.heartmanagement.fr/api/',
 })
 
 export const useAgencesStore = defineStore('agences-store', () => {    
@@ -52,9 +52,33 @@ export const useAgencesStore = defineStore('agences-store', () => {
 		})
     }
 
+	const addUserToAgence = (id_agence, id_util) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `conseiller`,
+				method: 'POST',
+				data: {
+					id_agence: id_agence,
+					id_util: id_util
+				},
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
+
 	return {
 		// Variables
 		agences,
+		addUserToAgence,
 		// Functions
 		getAgences,
         getAgence

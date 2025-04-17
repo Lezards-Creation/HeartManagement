@@ -16,6 +16,7 @@
     } from '@heroicons/vue/24/outline'
     import { Menu, MenuButton, MenuItem, MenuItems, TransitionRoot, TransitionChild, Dialog, DialogTitle, DialogPanel } from '@headlessui/vue'
     import { useUserStore } from "../stores/user"
+import { ArrowRightIcon } from "@heroicons/vue/24/solid"
 
     const agencesStore = useAgencesStore();
     const userStore = useUserStore();
@@ -24,10 +25,17 @@
     const openPopupUserUpdate = ref(false);
     
     const agence = ref(null)
-
+    const erreur = ref('');
     const inCreation = ref(false);
     const successCreation = ref(false);
     const errorCreation = ref(false);
+
+    const openTestPopup = ref(false);
+
+    const agent_to_add = ref(null);
+    const agents = ref(null);
+
+    const sending = ref(false);
 
     const users = ref([
         {
@@ -47,6 +55,18 @@
         openPopupUserUpdate.value = true;
 
         console.log(agentInfo.value)
+    }
+
+    const deleteAgent = (agent) => {
+        if(confirm('Êtes-vous sur de vouleur supprimer ce conseiller ?')){
+            userStore.deleteUser(agent.ID)
+            .then(res => {
+                fetchConseiller();
+            })
+            .catch(err => {
+                console.error(err)
+            });
+        }
     }
 
     const handleCreateUser = (event) => {
@@ -89,6 +109,41 @@
             console.error(err);
         }) 
     }
+
+    const fetchAllConseiller = () => {
+        userStore.getAllUser()
+        .then(res => {
+            agents.value = res.users;
+        })
+    }
+    fetchAllConseiller();
+
+    const addUserToAgent = () => {
+        sending.value = true;
+        agencesStore.addUserToAgence(agence.value.id_agence, agent_to_add.value)
+        .then(res =>{
+            fetchConseiller();
+            sending.value = false;
+            setTimeout(() => {
+                openTestPopup.value = false;
+                
+            }, 1500)
+        })
+        .catch(err => {
+            console.log()
+            if(err.response?.data?.message){
+                erreur.value = err.response.data.message;
+            } else {
+                erreur.value = err.message
+            }
+            sending.value = false;
+
+            setTimeout(() => {
+                erreur.value = '';
+            }, 1500)
+        })
+    }
+
     watch(() => route.params.id, fetchConseiller, {immediate: true});
 </script>
 
@@ -163,8 +218,20 @@
                     <h1 class="text-base font-semibold leading-6 text-gray-900">Utilisateurs</h1>
                     <p class="mt-2 text-sm text-gray-700">Liste des comptes associés à l'agence.</p>
                 </div>
-                <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                    <button v-if="userStore.userLog.adm_util == 1" @click="() => { openPopupUser = true; }" type="button" class="block rounded-md bg-rose px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">Ajouter un utilisateur</button>
+                <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none flex items-center gap-x-2">
+                    <button 
+                        v-if="userStore.userLog.adm_util == 1" @click="() => { openTestPopup = true; }" 
+                        type="button" 
+                        class="block rounded-md bg-rose px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">
+                        Ajouter un conseiller
+                    </button>
+
+                    <button 
+                        v-if="userStore.userLog.adm_util == 1" @click="() => { openPopupUser = true; }" 
+                        type="button" 
+                        class="block rounded-md bg-rose px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">
+                        Ajouter un utilisateur
+                    </button>
                 </div>
             </div>
             <div class="mt-8 flow-root">
@@ -194,6 +261,9 @@
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ agent.role }}</td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
                                         <a v-if="userStore.userLog.adm_util == 1" @click="updateAgent(agent)" href="#" class="text-rose hover:text-rose-400">Modifier</a>
+                                    </td>
+                                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
+                                        <a v-if="userStore.userLog.adm_util == 1" @click="deleteAgent(agent)" href="#" class="text-rose hover:text-rose-400">Supprimer</a>
                                     </td>
                                 </tr>
                             </template>
@@ -321,7 +391,7 @@
 						<div class="px-12 py-8">
                             <form method="POST" @submit.prevent="handleCreateUser">
                                 <div class="mx-auto max-w-2xl text-center">
-                                    <h2 class="text-2xl font-bold tracking-tight text-rose">Ajouter un utilsateur</h2>
+                                    <h2 class="text-2xl font-bold tracking-tight text-rose">Modifier un utilsateur</h2>
                                 </div>
                                 
                                 <input type="hidden" name="id_agence" :value="route.params.id">
@@ -331,21 +401,21 @@
                                         <div class="sm:col-span-3">
                                             <label for="nom" class="block text-sm/6 font-medium text-gray-900">Nom</label>
                                             <div class="mt-2">
-                                                <input v-model="agentInfo.nom" type="text" name="nom" id="nom" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                                <input v-model="agentInfo.nom" type="text" name="nom_util" id="nom_util" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
                                             </div>
                                         </div>
 
                                         <div class="sm:col-span-3">
                                             <label for="prenom" class="block text-sm/6 font-medium text-gray-900">Prénom</label>
                                             <div class="mt-2">
-                                                <input v-model="agentInfo.prenom" type="text" name="prenom" id="prenom" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                                <input v-model="agentInfo.prenom" type="text" name="prenom_util" id="prenom_util" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
                                             </div>
                                         </div>
 
                                         <div class="sm:col-span-full">
                                             <label for="id_util" class="block text-sm/6 font-medium text-gray-900">Nom d'utilisateur</label>
                                             <div class="mt-2">
-                                                <input type="text" v-model="agentInfo.ID"  name="ID" id="ID" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                                                <input type="text" v-model="agentInfo.ID"  name="id_util" id="id_util" class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
                                             </div>
                                         </div>
 
@@ -396,13 +466,62 @@
                                 </div>   
 
                                 <span class="block text-center text-green-500 mt-2" v-if="successCreation">
-                                    L'utilisateur a été ajouté avec succès
+                                    L'utilisateur a été modifié avec succès
                                 </span>
 
                                 <span class="block text-center text-red-500 mt-2" v-if="errorCreation">
                                     Une erreur est survenue.
                                 </span>
                             </form>
+						</div>
+					</DialogPanel>
+				</TransitionChild>
+			</div>
+		</Dialog>
+	</TransitionRoot>
+    <!-- #endregion -->
+
+    <!-- #region POPUP ajout Conseiller -->
+	<TransitionRoot :show="openTestPopup" as="template" appear>
+		<Dialog as="div" class="relative z-50" @close="openTestPopup = false">
+			<TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+				<div class="fixed inset-0 bg-black backdrop-blur-sm bg-opacity-50 transition-opacity" />
+			</TransitionChild>
+
+			<div class="fixed inset-0 z-10 w-screen overflow-y-auto p-4 sm:p-6 md:p-20">
+				<TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 scale-95" enter-to="opacity-100 scale-100" leave="ease-in duration-200" leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
+					<DialogPanel class="mx-auto max-w-xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
+						<div class="px-12 py-8">
+							<div class="mx-auto max-w-2xl text-center">
+								<h2 class="text-4xl font-bold tracking-tight text-rose">Ajouter un conseiller</h2>
+								<p class="mt-6 text-sm leading-6">Sélectionner un agent pour l'associé à l'agence.</p>
+							</div>
+
+							<div class="mt-4">
+								<label for="agent_to_add" class="block text-sm leading-6 text-gray-800">Agent</label>
+								<select v-model="agent_to_add" id="agent_to_add" name="agent_to_add" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                    <option value="none" selected>Sélectionner un agent</option>
+									<option v-for="agent in agents" :key="agent.id_util" :value="agent.id_util">{{ agent.pNoms_util }} {{ agent.nom_util }}</option>
+								</select>
+							</div>
+
+							<div class="mt-5 flex items-center justify-center gap-x-2">
+								<a @click="openTestPopup = false; openTestPopup = false;" class="inline-flex gap-2 items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Annuler</a>
+								<a @click="addUserToAgent" :class="sending ? 'active opacity-75 pointer-events-none' : false" class="group inline-flex gap-2 items-center justify-center rounded-md bg-rose px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-600">
+									Ajouter 
+									<span class="group-[.active]:hidden" aria-hidden="true">
+										<ArrowRightIcon class="ml-1 h-3 w-3 text-white"/>
+									</span>
+									<span class="group-[.active]:block hidden" aria-hidden="true">
+										<svg class="animate-spin ml-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+											<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+											<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+										</svg>
+									</span>
+								</a>
+							</div> 
+
+                            <p v-if="erreur" class="text-center text-xs mt-6 text-red-400">Impossible d'ajouter l'agent - {{ erreur }}</p>
 						</div>
 					</DialogPanel>
 				</TransitionChild>

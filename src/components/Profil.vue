@@ -165,8 +165,10 @@
             if(userStore.userLog.agences.includes(client.idAgence_cli)){
                 return {name: client.pNoms_cli + ' ' + client.nom_cli, can: true};
             } else {
-                let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
-                return {name: formattedNomCli, can: false};
+                if(client.nom_cli){
+                    let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
+                    return {name: formattedNomCli, can: false};
+                }
             }    
         }
 

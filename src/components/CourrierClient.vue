@@ -406,7 +406,7 @@
                             </div>
                         </div>
 
-                        <span class="font-[Avenir] text-xs mt-2">Une question sur ce profil ? Contactez-nous. N° Vert 0800 77 82 37 (appel gratuit depuis un poste fixe).</span>
+                        <span class="font-[Avenir] text-xs mt-2">Une question sur ce profil ? Contactez-nous. {{current_agence.tel_agence}} (appel gratuit depuis un poste fixe).</span>
                         <!-- #endregion -->
                     </div>
                 </div>

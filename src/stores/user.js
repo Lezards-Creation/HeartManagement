@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { defineStore, acceptHMRUpdate } from 'pinia';
 
 const instance = axios.create({
-	baseURL: 'https://api.heartmanagement.fr/api/',
+	baseURL: 'https://application.heartmanagement.fr/api/',
 })
 
 export const useUserStore = defineStore('user-store', () => {    
@@ -26,7 +26,7 @@ export const useUserStore = defineStore('user-store', () => {
             })
             .catch(err => {
 				console.log(err)
-				reject(err.response.data.error);
+				reject(err);
             })
         }) 
     }
@@ -85,6 +85,53 @@ export const useUserStore = defineStore('user-store', () => {
             })
 		})
 	}
+
+	const deleteUser = (ID) => {
+		return new Promise((resolve, reject) => {
+
+			let data = new FormData();
+			data.append('id', ID);
+
+			instance({
+				url: 'user/delete',
+				method: 'POST',
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+				data: data,
+				headers: {
+                    Authorization: `Bearer ${userLog.value.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
+	const getAllUser = () => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: 'users',
+				method: 'GET',
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+				headers: {
+                    Authorization: `Bearer ${userLog.value.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
 	
 	return {
 		// Variables
@@ -93,6 +140,8 @@ export const useUserStore = defineStore('user-store', () => {
 		login,
 		checkToken,
 		createUser,
+		deleteUser,
+		getAllUser,
 		logout
 	}
 }, { persistedState: { persist: true } })
