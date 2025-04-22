@@ -97,6 +97,27 @@ export const useChoixStore = defineStore('choix-store', () => {
 		})
 	}
 
+	const supprChoice = (id) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `choix/delete`,
+				method: 'POST',
+				data: {
+					id: id
+				},
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
 	const updateChoice = (payload) => {
 		return new Promise((resolve, reject) => {
 			instance({
@@ -123,6 +144,7 @@ export const useChoixStore = defineStore('choix-store', () => {
 		getAllChoices,
         getChoices,
 		addChoice,
+		supprChoice,
 		updateChoice
 	}
 }, { persistedState: { persist: true } })

@@ -279,6 +279,7 @@
                                             {{ target_user.situation_cli.veuf_cli ? 'Veuf(ve),' : '' }}
                                             {{ target_user.situation_cli.div_cli ? 'Divorcé(e),' : '' }}
                                             {{ target_user.situation_cli.sep_cli ? 'Séparé(e)' : '' }}
+                                            {{ target_user.situation_cli.instDiv_cli ? 'Instance de divorce' : '' }}
                                         </span>
                                     </p>
                                     <p class="font-normal text-sm leading-5 space-x-1">

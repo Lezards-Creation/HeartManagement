@@ -96,7 +96,6 @@
         .then(res => {
             if(target){
                 target.classList.add('updated');
-                console.log(res)
                 setTimeout(() => {
                     target.classList.remove('updated');
                 }, 2500)
@@ -129,7 +128,7 @@
             current_user.value.desAge_cli_min = current_user.value.desAge_cli.split('-')[0];
             current_user.value.desAge_cli_max = current_user.value.desAge_cli.split('-')[1];
 
-
+            console.log(current_user.value)
             if(!isFromAgence(res.client).can){
                 isReadOnly.value = true;
                 tabs.value = [
@@ -963,7 +962,7 @@ export default {
                                         <div class="gap-4 grid sm::grid-cols-4 grid-cols-2">
                                             <div class="relative flex items-start">
                                                 <div class="flex h-6 items-center">
-                                                    <input v-model="current_user.gouts_cli" id="indetermine" value="0" name="indetermine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    <input v-model="current_user.gouts_cli" id="indetermine" value="0" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
                                                 </div>
                                                 <div class="ml-3 text-sm leading-6">
                                                     <label for="indetermine" class="font-medium text-gray-900">Indeterminé</label>
@@ -972,7 +971,7 @@ export default {
 
                                             <div class="relative flex items-start">
                                                 <div class="flex h-6 items-center">
-                                                    <input v-model="current_user.gouts_cli" id="enfants" value="1" name="enfants" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    <input v-model="current_user.gouts_cli" id="enfants" value="1" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
                                                 </div>
                                                 <div class="ml-3 text-sm leading-6">
                                                     <label for="enfants" class="font-medium text-gray-900">Les enfants</label>
@@ -981,7 +980,7 @@ export default {
 
                                             <div class="relative flex items-start">
                                                 <div class="flex h-6 items-center">
-                                                    <input v-model="current_user.gouts_cli" id="cuisine" value="2" name="cuisine" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
+                                                    <input v-model="current_user.gouts_cli" id="cuisine" value="2" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600" />
                                                 </div>
                                                 <div class="ml-3 text-sm leading-6">
                                                     <label for="cuisine" class="font-medium text-gray-900">La cuisine</label>

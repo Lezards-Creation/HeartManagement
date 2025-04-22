@@ -42,6 +42,7 @@
 		contrat_cli: "",
 		proc_cli: "",
 		idAgence_cli: "",
+		sans_annonce: "non",
 	})
 
 	const filterOptions = [
@@ -123,6 +124,12 @@
 									let monthDifference = referenceDate.diff(dateToCheck, 'month');
 									filtersMatch = filtersMatch && (monthDifference <= parseInt(value));
 								}
+							}
+						}
+
+						if(key === 'sans_annonce'){
+							if(value === 'oui'){
+								filtersMatch = user.ann1_cli?.length === 0 && user.ann2_cli?.length === 0;
 							}
 						}
 					}
@@ -657,6 +664,16 @@
 														<option value="">Sans importance</option>
 														<option value="O">Oui</option>
 														<option value="N">Non</option>
+													</select>
+												</div>
+											</div>
+
+											<div class="sm:col-span-full">
+												<label for="sans_annonce" class="block text-sm font-medium leading-6 text-gray-900">Sans annonce</label>
+												<div class="mt-2">
+													<select v-model="filters.sans_annonce" id="sans_annonce" name="sans_annonce" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6">
+														<option value="non">Non</option>
+														<option value="oui">Oui</option>
 													</select>
 												</div>
 											</div>

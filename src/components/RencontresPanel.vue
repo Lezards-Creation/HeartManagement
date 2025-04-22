@@ -6,7 +6,7 @@
     import { useUserStore } from '../stores/user'
     import { useClientsStore } from '../stores/clients'
     import { useRouter } from 'vue-router'
-	import { PrinterIcon, AtSymbolIcon, CheckIcon, XMarkIcon, UsersIcon, BoltIcon, HomeModernIcon, ArrowRightCircleIcon, ArrowLeftCircleIcon} from '@heroicons/vue/24/outline'
+	import { PrinterIcon, AtSymbolIcon, CheckIcon, XMarkIcon, UsersIcon, BoltIcon, HomeModernIcon, ArrowRightCircleIcon, ArrowLeftCircleIcon, TrashIcon} from '@heroicons/vue/24/outline'
     import { TransitionRoot, TransitionChild, Dialog, DialogTitle, DialogPanel } from '@headlessui/vue'
     import SkeletonRow from './SkeletonRow.vue';
     import CourrierClient from './CourrierClient.vue';
@@ -299,25 +299,25 @@
     }
 
     const handleSendingAttachment = (obj, type, inverse, mail) => {
-        // popupCourrier.value = true; 
-        // currentType.value = type; 
-        // targetClient.value = obj; 
+        popupCourrier.value = true; 
+        currentType.value = type; 
+        targetClient.value = obj; 
 
-        // let email;
-        // if(mail){
-        //     email = mail
-        // } else {
-        //     email = !inverse ? obj.mail_cli : inverse.mail_cli
-        // }
+        let email;
+        if(mail){
+            email = mail
+        } else {
+            email = !inverse ? obj.mail_cli : inverse.mail_cli
+        }
         
-        // generateBase64Courrier.value = { 
-        //     state: true, 
-        //     email: email,
-        // }
+        generateBase64Courrier.value = { 
+            state: true, 
+            email: email,
+        }
 
-        // if(inverse){
-        //     isInverse.value = inverse;
-        // }
+        if(inverse){
+            isInverse.value = inverse;
+        }
     }
 
     const handlePrint = (obj, type, inverse) => {
@@ -407,6 +407,30 @@
 
 		return color;
 	}
+
+    const supprProposition = (proposition) => {
+        if(confirm('Êtes-vous sûr de vouloir supprimer cette proposition ?')){
+            propositionsStore.supprProposition(proposition.id_prop)
+            .then(res => {
+                    console.log(res)
+                    fetchRencontresData();
+                }
+            )
+            .catch(err => console.error(err))
+        }
+    }
+
+    const supprChoice = (choix) => {
+        if(confirm('Êtes-vous sûr de vouloir supprimer ce choix ?')){
+            choixStore.supprChoice(choix.id_choix)
+            .then(res => {
+                    console.log(res)
+                    fetchRencontresData();
+                }
+            )
+            .catch(err => console.error(err))
+        }
+    }
 
     watch(() => props.client, fetchRencontresData, {immediate: true});
     //#endregion
@@ -509,6 +533,10 @@
                                                 <PrinterIcon class="w-5 h-5"/>
                                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
                                             </a>
+                                            <a @click="supprChoice(choice)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <TrashIcon class="w-5 h-5"/>
+                                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Supprimer</span>
+                                            </a>
                                         </div>
                                     </div>
                                 </li>
@@ -573,6 +601,10 @@
                                             <a v-if="demande.res_choix === null" @click="handeUpdateChoice(demande.id_choix, false)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                                 <XMarkIcon class="w-5 h-5"/>
                                             </a>
+                                            <a @click="supprChoice(demande)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <TrashIcon class="w-5 h-5"/>
+                                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Supprimer</span>
+                                            </a>
                                         </div>
                                     </div>
                                 </li>
@@ -636,6 +668,10 @@
                                             </a>
                                             <a v-if="proposition.res_prop === null" @click="handeUpdateProposition(proposition.id_prop, false)" class="hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-red-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                                 <XMarkIcon class="w-5 h-5"/>
+                                            </a>
+                                            <a @click="supprProposition(proposition)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
+                                                <TrashIcon class="w-5 h-5"/>
+                                                <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Supprimer</span>
                                             </a>
                                         </div>
                                     </div>

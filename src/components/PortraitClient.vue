@@ -107,6 +107,9 @@
                     case 'veuf_cli' :
                         string += 'Veuf(ve)'
                         break;
+                    case 'instDiv_cli' :
+                        string +=  'Instance de divorce'
+                        break;
                 }
             }
         }
@@ -148,8 +151,8 @@
             <div class="wrapperPDF__background bg-black/30 absolute top-0 left-0 w-full h-full z-[-1] backdrop-blur-sm"></div>
             <div class="wrapperPDF__content absolute top-0 left-0 w-full h-full z-[1] overflow-y-scroll">
                 <div id="pdf" class="font-[Avenir]">
-                    <div class="page flex flex-col overflow-hidden relative p-8" ref="page">
-                        <div class="mt-20">
+                    <div class="page flex flex-col overflow-hidden relative p-5" ref="page">
+                        <div class="mt-10">
                             <h2 class="text-rose-600 text-4xl font-['Baloo_Bhai']">Le profil</h2>
                         </div>
 
@@ -292,7 +295,7 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-12 mt-8 items-start">
+                        <div class="grid grid-cols-12 mt-4 items-start">
                             <div class="col-span-5 border-r border-r-rose-600 leading-5">
                                 <p class="font-normal text-xs leading-5">
                                     <span class="text-rose-600 font-black">Milieu Social :</span>
@@ -347,7 +350,7 @@
                             </div>
                         </div>
 
-                        <div class="border-4 rounded-xl border-rose-600 pt-5 pb-6 px-10 mt-8 relative">
+                        <div class="border-4 rounded-xl border-rose-600 pt-5 pb-6 px-10 mt-6 relative">
                             <svg class="absolute -top-11 -left-4" width="60px" height="58px" viewBox="0 0 28 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                 <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                     <g id="Group-3" transform="translate(0.192095, -0.000000)" fill="#ED5390">
@@ -428,7 +431,7 @@
                             </svg>
                         </div>
 
-                        <div class="mt-7 flex justify-between">
+                        <div class="mt-auto flex justify-between">
                             <div class="basis-3/5">
                                 <p class="text-rose font-black">PROTECTION DES DONNÉES PERSONNELLES</p>
                                 <ul class="leading-3">
@@ -462,7 +465,7 @@
             <div class="wrapperPDF__background bg-black/30 absolute top-0 left-0 w-full h-full z-[-1] backdrop-blur-sm"></div>
             <div class="wrapperPDF__content absolute top-0 left-0 w-full h-full z-[1] overflow-y-scroll">
                 <div id="pdf">
-                    <div class="page flex flex-col overflow-hidden relative p-8" ref="page">
+                    <div class="page flex flex-col overflow-hidden relative p-5" ref="page">
                         <!-- #region HEADER COURRIER -->
                         <div class="border-b border-bleu/20 pb-2 flex justify-between">
                             <div class="basis-4/6">
@@ -502,7 +505,7 @@
                             </svg>
                         </div>
 
-                        <div class="flex justify-center mt-5 flex-wrap">
+                        <div class="flex justify-center mt-1 flex-wrap">
                             <div class="basis-full">
                                 <p class="text-center">
                                     <span class="text-bleu block text-lg leading-5">X, Harmonie vous propose</span>
@@ -552,6 +555,7 @@
                                             {{ current_user.situation_cli.veuf_cli ? 'Veuf(ve),' : '' }}
                                             {{ current_user.situation_cli.div_cli ? 'Divorcé(e),' : '' }}
                                             {{ current_user.situation_cli.sep_cli ? 'Séparé(e)' : '' }}
+                                            {{ current_user.situation_cli.instDiv_cli ? 'Instance de divorce' : '' }}
                                         </span>
                                     </p>
                                     <p class="font-normal text-sm leading-5 space-x-1">

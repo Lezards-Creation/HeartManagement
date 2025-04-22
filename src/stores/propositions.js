@@ -71,6 +71,27 @@ export const usePropositionsStore = defineStore('propositions-store', () => {
 		})
 	}
 
+	const supprProposition = (id) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `proposition/delete`,
+				method: 'POST',
+				data: {
+					id: id
+				},
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
+
 	const updateProposition = (payload) => {
 		return new Promise((resolve, reject) => {
 			instance({
@@ -97,6 +118,7 @@ export const usePropositionsStore = defineStore('propositions-store', () => {
 		getAllPropositions,
         getPropositions,
 		addProposition,
+		supprProposition,
 		updateProposition
 	}
 }, { persistedState: { persist: true } })
