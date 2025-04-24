@@ -4,7 +4,7 @@ import { defineStore, acceptHMRUpdate } from 'pinia';
 import { useUserStore } from './user';
 
 const instance = axios.create({
-	baseURL: 'https://application.heartmanagement.fr/api/',
+	baseURL: 'https://laravel.heartmanagement.fr/api/',
 })
 
 export const usePropositionsStore = defineStore('propositions-store', () => {    

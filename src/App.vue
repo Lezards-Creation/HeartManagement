@@ -1,11 +1,15 @@
 <script setup>
 	import { useRouter, useRoute } from 'vue-router'
-	const location = useRoute();
+	const route = useRoute();
 </script>
 
 <template>
 	<main class="sm:h-screen sm:overflow-hidden">
-		<Sidebar v-if="location.name !== 'Connexion' && location.name !== 'Tutoriels'"  />
-		<RouterView v-else />
+		<Sidebar
+			v-if="route.name !== 'Connexion'
+				&& route.name !== 'Tutoriels'
+				&& route.name !== 'password'"
+			/>
+		<RouterView />
 	</main>
 </template>

@@ -284,8 +284,11 @@
 			if(userStore.userLog.agences.includes(client.idAgence_cli)){
 				return client.pNoms_cli + ' ' + client.nom_cli;
 			} else {
-				let formattedNomCli = client.nom_cli.substring(0, 3) + '*'.repeat(client.nom_cli.length - 3);
-				return client.pNoms_cli + ' ' + formattedNomCli;
+				if (client.nom_cli) {
+					let formattedNomCli = client.nom_cli.substring(0, 3)
+						+ '*'.repeat(Math.max(client.nom_cli.length - 3, 0));
+					return client.pNoms_cli + ' ' + formattedNomCli;
+				}
 			}
 		}
 		

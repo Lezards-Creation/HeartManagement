@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { defineStore, acceptHMRUpdate } from 'pinia';
 
 const instance = axios.create({
-	baseURL: 'https://application.heartmanagement.fr/api/',
+	baseURL: 'https://laravel.heartmanagement.fr/api/',
 })
 
 export const useUserStore = defineStore('user-store', () => {    
@@ -37,6 +37,18 @@ export const useUserStore = defineStore('user-store', () => {
 			resolve();
 		})
     }
+
+	const checkUsername = async (login) => {
+		return instance.post('/check-username', { login });
+	}
+
+	const sendResetLink = async (login) => {
+		return instance.post('/forgot-password', { login });
+	}
+	
+	const resetPassword = async (payload) => {
+		return instance.post('/reset-password', payload);
+	}
 	
 	const checkToken = (id, token) => {
 		return new Promise((resolve, reject) => {
@@ -138,6 +150,9 @@ export const useUserStore = defineStore('user-store', () => {
 		userLog,
 		// Functions
 		login,
+		checkUsername,
+		sendResetLink,
+		resetPassword,
 		checkToken,
 		createUser,
 		deleteUser,

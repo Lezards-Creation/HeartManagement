@@ -4,7 +4,7 @@ import router from '../router';
 
 // Create an Axios instance
 const api = axios.create({
-    baseURL: 'https://application.heartmanagement.fr/api/',
+    baseURL: 'https://laravel.heartmanagement.fr/api/',
 });
 
 export function createAxiosInstance(baseURL) {

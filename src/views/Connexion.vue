@@ -29,12 +29,13 @@ const handleConnexion = () => {
 		router.push({name: 'Dashboard'});
 	})
 	.catch(err => {
-		if(err.code === 'invalid_pass'){
+		console.log(err.response)
+		if(err.response.data.error.code === 'invalid_pass'){
 			passwordState.value = true
-		} else if(err.code === 'invalid_username') {
+		} else if(err.response.data.error.code === 'invalid_username') {
 			loginState.value = true
 		}
-		error_message.value = err.message;
+		error_message.value = err.response.data.error.message;
 	})
 }
 </script>
@@ -89,7 +90,7 @@ const handleConnexion = () => {
 					</div>
 
 					<div class="text-sm leading-6">
-						<a href="#" class="font-medium text-rose-500 hover:text-rose-600" >Mot de passe oublié ?</a>
+						<router-link :to="{name: 'password'}" class="font-medium text-rose-500 hover:text-rose-600">Mot de passe oublié ?</router-link>
 					</div>
 				</div>
 

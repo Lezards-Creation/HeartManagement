@@ -14,9 +14,10 @@ import Reglages from '../views/Reglages.vue'
 import Facture from '../views/Facture.vue'
 import PageNotFound from '../views/404.vue'
 import Tutorial from '../views/Tutorial.vue'
-
+import Password from '../views/Password.vue'
 
 import { useUserStore } from '../stores/user'
+
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
 	routes: [
@@ -32,6 +33,14 @@ const router = createRouter({
 			path: '/connexion',
 			name: 'Connexion',
 			component: Connexion,
+			meta: {
+				requiresAuth: false
+			}
+		},
+		{
+			path: '/mot-de-passe',
+			name: 'password',
+			component: Password,
 			meta: {
 				requiresAuth: false
 			}

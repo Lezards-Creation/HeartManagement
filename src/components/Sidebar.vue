@@ -1,5 +1,5 @@
 <script setup>
-	import { ref, computed } from 'vue';
+	import { ref, computed, onMounted } from 'vue';
 	import { version } from "../../package.json"
 	import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption, Dialog, DialogPanel, Menu, MenuButton, MenuItem, MenuItems, TransitionChild, TransitionRoot } from '@headlessui/vue'
 	import { Bars3Icon, BellIcon, BellAlertIcon, HomeIcon, UsersIcon, XMarkIcon, MagnifyingGlassIcon, BoltIcon, HeartIcon, ChatBubbleLeftRightIcon, FolderIcon, AdjustmentsVerticalIcon, HomeModernIcon } from '@heroicons/vue/24/outline'
@@ -86,17 +86,22 @@
 			console.error(err)
 		})
 	}
-	fetchAgences();
-
 
 	const fetchNotifCount = () => {
 		messageStore.getMessagesCount()
 		.then(res => countNotif.value = res.count)
 		.catch(err => console.error(err))
 	}
-	fetchNotifCount();
+	
 
 	const sidebarOpen = ref(false);
+
+	onMounted(() => {
+		if(userStore.userLog){
+			fetchNotifCount();
+			fetchAgences();
+		}
+	})
 </script>
 
 
@@ -253,7 +258,7 @@
 						<div class="hidden xl:block xl:h-6 xl:w-px xl:bg-gray-900/10" aria-hidden="true" />
 
 						<!-- Profile dropdown -->
-						<Menu as="div" class="relative">
+						<Menu as="div" class="relative" v-if="userStore.userLog">
 							<MenuButton class="-m-1.5 flex items-center p-1.5">
 								<span class="sr-only">Open user menu</span>
 
