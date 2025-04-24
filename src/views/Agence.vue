@@ -130,7 +130,6 @@ import { ArrowRightIcon } from "@heroicons/vue/24/solid"
             }, 1500)
         })
         .catch(err => {
-            console.log()
             if(err.response?.data?.message){
                 erreur.value = err.response.data.message;
             } else {
@@ -142,6 +141,15 @@ import { ArrowRightIcon } from "@heroicons/vue/24/solid"
                 erreur.value = '';
             }, 1500)
         })
+    }
+
+    const removeUserFromAgence = (agent) => {
+        if(window.confirm('Êtes-vous sur de vouloir retirer cet agent de l\'agence')){
+            agencesStore.removeUserFromAgence(agence.value.id_agence, agent.ID)
+            .then(res => {
+                fetchConseiller();
+            })
+        }
     }
 
     watch(() => route.params.id, fetchConseiller, {immediate: true});
@@ -226,12 +234,12 @@ import { ArrowRightIcon } from "@heroicons/vue/24/solid"
                         Ajouter un conseiller
                     </button>
 
-                    <button 
+                    <!-- <button 
                         v-if="userStore.userLog.adm_util == 1" @click="() => { openPopupUser = true; }" 
                         type="button" 
                         class="block rounded-md bg-rose px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600">
                         Ajouter un utilisateur
-                    </button>
+                    </button> -->
                 </div>
             </div>
             <div class="mt-8 flow-root">
@@ -260,10 +268,7 @@ import { ArrowRightIcon } from "@heroicons/vue/24/solid"
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ agent.prenom }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ agent.role }}</td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
-                                        <a v-if="userStore.userLog.adm_util == 1" @click="updateAgent(agent)" href="#" class="text-rose hover:text-rose-400">Modifier</a>
-                                    </td>
-                                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
-                                        <a v-if="userStore.userLog.adm_util == 1" @click="deleteAgent(agent)" href="#" class="text-rose hover:text-rose-400">Supprimer</a>
+                                        <a v-if="userStore.userLog.adm_util == 1" @click="removeUserFromAgence(agent)" href="#" class="text-rose hover:text-rose-400">Retirer de l'agence</a>
                                     </td>
                                 </tr>
                             </template>

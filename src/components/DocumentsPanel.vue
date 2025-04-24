@@ -944,8 +944,83 @@
 </script>
 
 <template>
-    <div class="overflow-hidden">
-        <ul v-if="documents.length > 0" role="list" class="divide-y divide-gray-200">
+    <div class="">
+        <Menu as="div" class="relative inline-block text-left mt-10">
+            <div>
+                <MenuButton class="inline-flex w-full justify-center rounded-md bg-rose px-4 py-2 text-sm font-medium text-white hover:bg-rose/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
+                    Générer un document
+                    <ChevronDownIcon class="-mr-1 ml-2 h-5 w-5 text-violet-200 hover:text-violet-100" aria-hidden="true" />
+                </MenuButton>
+            </div>
+
+            <transition enter-active-class="transition duration-100 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
+                <MenuItems class="absolute left-0 top-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                    <div class="px-1 py-1">
+                        <MenuItem v-slot="{ active }">
+                            <button @click="openModal('additif_vip')" type="button" :class="[ active ? 'bg-rose-500 text-white' : 'text-gray-900', 'group flex w-full items-center rounded-md px-2 py-2 text-sm']">
+                                Additif VIP
+                            </button>
+                        </MenuItem>
+                        <MenuItem v-slot="{ active }">
+                            <button @click="openModal('contrat_adhesion')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center rounded-md px-2 py-2 text-sm',]">
+                                Contrat d'adhésion
+                            </button>
+                        </MenuItem>
+                        <MenuItem v-slot="{ active }">
+                            <button  @click="openModal('contrat_de_credit')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center rounded-md px-2 py-2 text-sm',]">
+                                Contrat de crédit
+                            </button>
+                        </MenuItem>
+                        <MenuItem v-slot="{ active }">
+                            <button @click="openModal('informations_europeenes_commun')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm',]">
+                                Information précontractuelles Européene
+                            </button>
+                        </MenuItem>
+                        <MenuItem v-slot="{ active }">
+                            <button type="button" @click="generatePDF('pre-requis_adherents', {})" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center rounded-md px-2 py-2 text-sm',]">
+                                Pré-requis adhérent
+                            </button>
+                        </MenuItem>
+                        <MenuItem v-slot="{ active }">
+                            <button @click="openModal('informations_prealable_conso')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm',]">
+                                Information préalable du consommateur
+                            </button>
+                        </MenuItem>
+                        <MenuItem v-slot="{ active }">
+                            <button @click="openModal('portrait')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm',]">
+                                Portrait à compléter
+                            </button>
+                        </MenuItem>
+                    </div>
+                </MenuItems>
+            </transition>
+        </Menu>
+    
+        <DropZone class="drop-area mt-4" @files-dropped="addFiles" #default="{ dropZoneActive }">
+            <div v-show="!files.length" :class="[dropZoneActive ? 'border-solid border-rose' : 'border-dashed','mt-2 flex justify-center rounded-lg border border-gray-900/25 px-6 py-10']">
+                <div class="text-center">
+                    <PhotoIcon class="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
+                    <div class="mt-4 flex text-sm leading-6 text-gray-600">
+                        <label for="file-upload" class="relative cursor-pointer rounded-md bg-white font-semibold text-rose-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-rose-600 focus-within:ring-offset-2 hover:text-rose-500">
+                            <span>Téléverser un document</span>
+                            <input id="file-upload" @change="onInputChange" name="file-upload" type="file" class="sr-only" />
+                        </label>
+                        <p class="pl-1">ou glisser, déposer</p>
+                    </div>
+                    <p class="text-xs leading-5 text-gray-600">PDF, PNG, JPG, DOCX, jusqu'à 10 Mo...</p>
+                </div>
+            </div>
+
+            <ul v-show="files.length">
+                <FilesListPreview v-for="file of files" :key="file.id" :file="file" tag="li" @remove="removeFile" />
+            </ul>
+        </DropZone>
+        <div v-if="files.length" class="mt-5 gap-x-2 flex items-center justify-center mb-10">
+            <button type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Annuler</button>
+            <button @click="uploadDocs" type="button" class="rounded-md bg-rose px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm">Valider</button>
+        </div>
+
+        <ul v-if="documents.length > 0" role="list" class="divide-y divide-gray-200 mt-6">
             <li v-for="document in documents"
                 class="flex items-cente flex-wrap justify-between gap-x-6 py-5">
                 <div class="min-w-0">
@@ -970,88 +1045,15 @@
             </li>
         </ul>
         
-        <div v-else-if="documentsLoaded">
+        <div v-else-if="documentsLoaded" class="mt-6">
             <p class="text-gray-400 text-2xl text-center py-4">Aucun documents...</p>
         </div>
         <ul v-else>
             <SkeletonRow />
         </ul>
-
-        <DropZone class="drop-area" @files-dropped="addFiles" #default="{ dropZoneActive }">
-            <div v-show="!files.length" :class="[dropZoneActive ? 'border-solid border-rose' : 'border-dashed','mt-2 flex justify-center rounded-lg border border-gray-900/25 px-6 py-10']">
-                <div class="text-center">
-                    <PhotoIcon class="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
-                    <div class="mt-4 flex text-sm leading-6 text-gray-600">
-                        <label for="file-upload" class="relative cursor-pointer rounded-md bg-white font-semibold text-rose-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-rose-600 focus-within:ring-offset-2 hover:text-rose-500">
-                            <span>Téléverser un document</span>
-                            <input id="file-upload" @change="onInputChange" name="file-upload" type="file" class="sr-only" />
-                        </label>
-                        <p class="pl-1">ou glisser, déposer</p>
-                    </div>
-                    <p class="text-xs leading-5 text-gray-600">PDF, PNG, JPG, DOCX, jusqu'à 10 Mo...</p>
-                </div>
-            </div>
-
-            <ul v-show="files.length">
-                <FilesListPreview v-for="file of files" :key="file.id" :file="file" tag="li" @remove="removeFile" />
-            </ul>
-        </DropZone>
-        <div v-if="files.length" class="mt-5 gap-x-2 flex items-center justify-center mb-10">
-            <button type="button" class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Annuler</button>
-            <button @click="uploadDocs" type="button" class="rounded-md bg-rose px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm">Valider</button>
-        </div>
     </div>
 
-    <Menu as="div" class="relative inline-block text-left mt-10">
-        <div>
-            <MenuButton class="inline-flex w-full justify-center rounded-md bg-rose px-4 py-2 text-sm font-medium text-white hover:bg-rose/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
-                Générer un document
-                <ChevronDownIcon class="-mr-1 ml-2 h-5 w-5 text-violet-200 hover:text-violet-100" aria-hidden="true" />
-            </MenuButton>
-        </div>
-
-        <transition enter-active-class="transition duration-100 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-            <MenuItems class="absolute left-0 bottom-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                <div class="px-1 py-1">
-                    <MenuItem v-slot="{ active }">
-                        <button @click="openModal('additif_vip')" type="button" :class="[ active ? 'bg-rose-500 text-white' : 'text-gray-900', 'group flex w-full items-center rounded-md px-2 py-2 text-sm']">
-                            Additif VIP
-                        </button>
-                    </MenuItem>
-                    <MenuItem v-slot="{ active }">
-                        <button @click="openModal('contrat_adhesion')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center rounded-md px-2 py-2 text-sm',]">
-                            Contrat d'adhésion
-                        </button>
-                    </MenuItem>
-                    <MenuItem v-slot="{ active }">
-                        <button  @click="openModal('contrat_de_credit')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center rounded-md px-2 py-2 text-sm',]">
-                            Contrat de crédit
-                        </button>
-                    </MenuItem>
-                    <MenuItem v-slot="{ active }">
-                        <button @click="openModal('informations_europeenes_commun')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm',]">
-                            Information précontractuelles Européene
-                        </button>
-                    </MenuItem>
-                    <MenuItem v-slot="{ active }">
-                        <button type="button" @click="generatePDF('pre-requis_adherents', {})" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center rounded-md px-2 py-2 text-sm',]">
-                            Pré-requis adhérent
-                        </button>
-                    </MenuItem>
-                    <MenuItem v-slot="{ active }">
-                        <button @click="openModal('informations_prealable_conso')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm',]">
-                            Information préalable du consommateur
-                        </button>
-                    </MenuItem>
-                    <MenuItem v-slot="{ active }">
-                        <button @click="openModal('portrait')" type="button" :class="[active ? 'bg-rose-500 text-white' : 'text-gray-900','group flex w-full items-center text-left rounded-md px-2 py-2 text-sm',]">
-                            Portrait à compléter
-                        </button>
-                    </MenuItem>
-                </div>
-            </MenuItems>
-        </transition>
-    </Menu>
+    
 
     <TransitionRoot appear :show="isOpen" as="template">
         <Dialog as="div" @close="closeModal" class="relative z-[999999]">

@@ -66,6 +66,9 @@ export const useAgencesStore = defineStore('agences-store', () => {
                 }
 			})
             .then(res => {
+				if(userStore.userLog.id_util === id_util){
+					userStore.userLog.agences.push(id_agence)
+				}
 				resolve(res.data);
             })
             .catch(err => {
@@ -74,11 +77,37 @@ export const useAgencesStore = defineStore('agences-store', () => {
 		})
 	}
 
+	const removeUserFromAgence = (id_agence, id_util) => {
+		return new Promise((resolve, reject) => {
+			instance({
+				url: `conseiller`,
+				method: 'DELETE',
+				data: {
+					id_agence: id_agence,
+					id_util: id_util
+				},
+				headers: {
+                    Authorization: `Bearer ${userStore.userLog.token}`
+                }
+			})
+            .then(res => {
+				if(userStore.userLog.id_util === id_util){
+					const index = userStore.userLog.agences.indexOf(id_agence);
+					const x = userStore.userLog.agences.splice(index, 1);
+				}
+				resolve(res.data);
+            })
+            .catch(err => {
+				reject(err);
+            })
+		})
+	}
 
 	return {
 		// Variables
 		agences,
 		addUserToAgence,
+		removeUserFromAgence,
 		// Functions
 		getAgences,
         getAgence
