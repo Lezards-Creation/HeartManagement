@@ -311,8 +311,10 @@ const onInputChange = (e) => {
                             <div class="sm:col-span-full" v-if="dataCreation.type_cli === 'adherent'">
                                 <label for="duree_cli" class="block text-sm font-medium leading-6 text-gray-900">Durée du contrat</label>
                                 <div class="mt-2">
-                                    <input type="number" min="1" max="12" name="duree_cli" id="duree_cli" required v-model="dataCreation.duree_cli"
-                                        class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                    <div class="flex items-center rounded-md bg-white px-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-rose-500">
+                                        <input type="number" min="1" max="12" name="duree_cli" id="duree_cli" required v-model="dataCreation.duree_cli" class="block min-w-0 border-0 grow py-1.5 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6" placeholder="0.00" aria-describedby="price-currency" />
+                                        <div class="shrink-0 select-none text-base text-gray-500 sm:text-sm/6">mois</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -899,9 +901,12 @@ const onInputChange = (e) => {
                                             <label for="desAge_cli_min"
                                                 class="block text-sm font-medium leading-6 text-gray-900">Age minimum</label>
                                             <div class="mt-2">
-                                                <input type="text"
-                                                    name="desAge_cli_min" id="ldesAge_cli_min" v-model="dataCreation.desAge_cli_min"
-                                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                                <div class="flex items-center rounded-md bg-white px-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-rose-500">
+                                                    <input type="text"
+                                                        name="desAge_cli_min" id="ldesAge_cli_min" v-model="dataCreation.desAge_cli_min"
+                                                        class="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6 border-0" />
+                                                    <div class="shrink-0 select-none text-base text-gray-500 sm:text-sm/6">ans</div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="sm:col-span-3">
@@ -909,9 +914,12 @@ const onInputChange = (e) => {
                                                 class="block text-sm font-medium leading-6 text-gray-900">Age
                                                 maximum</label>
                                             <div class="mt-2">
-                                                <input type="text"
-                                                    name="desAge_cli_max" id="desAge_cli_max" v-model="dataCreation.desAge_cli_max"
-                                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-rose-600 sm:text-sm sm:leading-6" />
+                                                <div class="flex items-center rounded-md bg-white px-3 outline outline-1 -outline-offset-1 outline-gray-300 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-rose-500">
+                                                    <input type="text"
+                                                        name="desAge_cli_max" id="desAge_cli_max" v-model="dataCreation.desAge_cli_max"
+                                                        class="block min-w-0 grow py-1.5 pl-1 pr-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline focus:outline-0 sm:text-sm/6 border-0" />
+                                                    <div class="shrink-0 select-none text-base text-gray-500 sm:text-sm/6">ans</div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="sm:col-span-3">

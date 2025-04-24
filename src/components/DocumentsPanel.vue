@@ -1046,7 +1046,7 @@
         </ul>
         
         <div v-else-if="documentsLoaded" class="mt-6">
-            <p class="text-gray-400 text-2xl text-center py-4">Aucun documents...</p>
+            <p class="text-gray-400 text-2xl text-center py-4">Aucun document...</p>
         </div>
         <ul v-else>
             <SkeletonRow />

@@ -33,7 +33,7 @@
 		{ name: 'Agences', href: '/agences', icon: HomeModernIcon, current: route.path == '/agences' || route.path.includes('/agences') },
 		{ name: 'Rencontres', href: '/rencontres', icon: BoltIcon, current: route.path == '/rencontres' },
 		{ name: 'Matchings', href: '/matchings', icon: HeartIcon, current: route.path == '/matchings' },
-		{ name: 'E-mails', href: '/messages', icon: BellIcon, current: route.path == '/messages' },
+		{ name: 'Contacts du site', href: '/messages', icon: BellIcon, current: route.path == '/messages' },
 		// { name: 'Documents', href: '/factures', icon: FolderIcon, current: route.path == '/factures' },
 		// { name: 'Leads', href: '/leads', icon: BellAlertIcon, current: route.path == '/leads' },
 		// { name: 'Réglages', href: '/reglages', icon: AdjustmentsVerticalIcon, current: route.path == '/reglages' },
