@@ -349,7 +349,7 @@
 </script>
 
 <template>
-    <div class="px-4 sm:px-6 lg:px-8 overflow-auto h-screen pb-24">
+    <div class="px-4 sm:px-6 lg:px-8 overflow-auto h-screen pb-24 max-w-7xl mx-auto">
         <div class="border-b border-gray-200 pb-5 mt-12">
             <div>
                 <h3 class="text-3xl font-semibold leading-6 text-gray-900">Dernières Rencontres</h3>

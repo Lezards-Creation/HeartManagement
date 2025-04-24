@@ -2,7 +2,7 @@
     import {ref, watch} from 'vue';
     import { useClientsStore } from '../stores/clients';
     import { useAgencesStore } from '../stores/agences';
-    import { TransitionRoot, TransitionChild, Dialog,  DialogTitle } from '@headlessui/vue'
+    import { TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogTitle, DialogDescription} from '@headlessui/vue'
     import moment from "moment";
     import fr from 'moment/dist/locale/fr';
 
@@ -116,6 +116,7 @@
     }
 
     const closePDF = () => {
+        isPDFOpen.value = false;
         emit('modal-close');
         document.querySelector('html, body').classList.remove('noscroll');
     }
@@ -157,6 +158,10 @@
         })
     }
 
+    function clodeAgenceModal(){
+        emit('modal-close');
+    }
+
     watch(() => props.isOpen, handlePDF, {immediate: true});
     watch(() => props.client, fetchClient, {immediate: true});
     // #endregion
@@ -165,7 +170,7 @@
 <template>
     <!-- #region POPUP COURRIER -->
     <div v-if="current_user && current_agence && target_user" :class="isPDFOpen ? 'pointer-events-all left-0' : 'pointer-events-none -left-[9999px]'" class="overflow-hidden fixed top-0 w-full h-full z-50">
-        <div class="wrapperPDF">
+        <div class="wrapperPDF relative flex items-center justify-center h-full" @click.self="closePDF">
             <button type="button" @click="() => {isPDFOpen = false}" class="absolute top-8 right-8 z-[2] w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer bg-rose">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
                     <path fill="white" d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
@@ -173,7 +178,7 @@
             </button>
             
             <div class="wrapperPDF__background bg-black/30 absolute top-0 left-0 w-full h-full z-[-1] backdrop-blur-sm"></div>
-            <div class="wrapperPDF__content absolute top-0 left-0 w-full h-full z-[1] overflow-y-scroll">
+            <div class="wrapperPDF__content z-[1] overflow-y-auto" @click.stop>
                 <div id="pdf">
                     <div class="page flex flex-col overflow-hidden relative p-8" ref="page">
                         <!-- #region HEADER COURRIER -->
@@ -418,7 +423,7 @@
     
     <!-- #region POPUP CHOIX AGENCE -->
     <TransitionRoot appear :show="isOpen" as="template">
-        <Dialog as="div" @close="isOpen = false" class="relative z-50">
+        <Dialog as="div" @close="clodeAgenceModal" class="relative z-50">
             <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0" enter-to="opacity-100" leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
                 <div class="fixed inset-0 bg-black/25" />
             </TransitionChild>
