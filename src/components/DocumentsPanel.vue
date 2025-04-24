@@ -242,16 +242,20 @@
                     model: 'portrait',
                     input_list: [
                         {
-                            label: 'Nom / Prénom',
-                            name: 'nom_prenom',
-                            type: 'text',
-                            value: current_user.value.nom_cli + ' ' + current_user.value.pNoms_cli,
-                        },
-                        {
                             label: 'Référence',
                             name: 'ref',
                             type: 'text',
                             value: current_user.value.ref_cli,
+                        },
+                        {
+                            type: 'title',
+                            label: 'Informations identité'
+                        },
+                        {
+                            label: 'Nom / Prénom',
+                            name: 'nom_prenom',
+                            type: 'text',
+                            value: current_user.value.nom_cli + ' ' + current_user.value.pNoms_cli,
                         },
                         {
                             label: 'Age',
@@ -276,6 +280,10 @@
                             name: 'cvds',
                             type: 'text',
                             value: '',
+                        },
+                        {
+                            type: 'title',
+                            label: 'Informations personnelles'
                         },
                         {
                             label: 'Fumeur',
@@ -538,6 +546,10 @@
                             value: current_user.value.ref_cli,
                         },
                         {
+                            type: 'title',
+                            label: 'Informations identité'
+                        },
+                        {
                             label: 'Nom',
                             name: 'nom',
                             type: 'text',
@@ -574,6 +586,10 @@
                             value: '',
                         },
                         {
+                            type: 'title',
+                            label: 'Informations tarifaire'
+                        },
+                        {
                             label: 'Durée',
                             name: 'duree',
                             type: 'text',
@@ -608,6 +624,10 @@
                             name: 'date_de_paiement',
                             type: 'text',
                             value: '',
+                        },
+                        {
+                            type: 'title',
+                            label: 'Informations de recheche'
                         },
                         {
                             label: 'Tranche Age minimum',
@@ -664,6 +684,10 @@
                     model: 'contrat_de_credit',
                     input_list: [
                         {
+                            type: 'title',
+                            label: 'Informations identité'
+                        },
+                        {
                             label: 'Nom emprunteur',
                             name: 'nom_emprunteur',
                             type: 'text',
@@ -700,6 +724,10 @@
                             value: '',
                         },
                         {
+                            type: 'title',
+                            label: 'Informations Co-emprunteur'
+                        },
+                        {
                             label: 'Nom Co-emprunteur',
                             name: 'nom_co-emprunteur',
                             type: 'text',
@@ -734,6 +762,10 @@
                             name: 'departement_naissance_co',
                             type: 'text',
                             value: '',
+                        },
+                        {
+                            type: 'title',
+                            label: 'Informations tarifaire'
                         },
                         {
                             label: 'N° de dossier',
@@ -954,7 +986,7 @@
             </div>
 
             <transition enter-active-class="transition duration-100 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-75 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-                <MenuItems class="absolute left-0 top-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                <MenuItems class="absolute z-10 left-0 top-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                     <div class="px-1 py-1">
                         <MenuItem v-slot="{ active }">
                             <button @click="openModal('additif_vip')" type="button" :class="[ active ? 'bg-rose-500 text-white' : 'text-gray-900', 'group flex w-full items-center rounded-md px-2 py-2 text-sm']">
