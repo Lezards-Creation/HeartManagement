@@ -876,12 +876,12 @@
                                             
                                             <div class="sm:flex sm:px-6 sm:py-5">
                                                 <dt class="text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48">Poids</dt>
-                                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:ml-6 sm:mt-0">{{ clientViewed.poids_cli }} kg</dd>
+                                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:ml-6 sm:mt-0">{{ clientViewed.poid_cli }} kg</dd>
                                             </div>
 
                                             <div class="sm:flex sm:px-6 sm:py-5">
                                                 <dt class="text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48">Enfants</dt>
-                                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:ml-6 sm:mt-0">{{ clientViewed.nbEbf_cli }}</dd>
+                                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:ml-6 sm:mt-0">{{ clientViewed.nbEnf_cli }}</dd>
                                             </div>
 
                                             <div class="sm:flex sm:px-6 sm:py-5">

@@ -186,7 +186,7 @@
                             <div class="basis-4/6">
                                 <div>
                                     <p class="text-bleu text-sm mb-2">{{current_user.sexe_cli === 'H' ? 'M.' : 'Mme.' }} {{ current_user.nom_cli }} {{ current_user.pNoms_cli }} - Votre numéro de dossier : n°{{ current_user.ref_cli }}</p>
-                                    <p class="text-rose text-sm">Merci de nous retourner impérativement ce coupon entier complet et signé par mail à contact@harmonie.fr ou par voie postale :</p>
+                                    <p class="text-rose text-sm">Merci de nous retourner impérativement ce coupon entier complet et signé par mail à {{current_agence.mail_agence ? current_agence.mail_agence : 'contact@agence-harmonie.fr'}} ou par voie postale :</p>
                                     <p class="font-[Avenir] text-sm">Service client - Harmonie Matrimoniale</p>
                                     <span class="font-[Avenir] text-sm">{{ current_agence.adr_agence }} {{ current_agence.cp_agence }} {{ current_agence.ville_agence }}</span>
                                 </div>
@@ -412,7 +412,7 @@
                             </div>
                         </div>
 
-                        <span class="font-[Avenir] text-xs mt-2">Une question sur ce profil ? Contactez-nous. {{current_agence.tel_agence}} (appel gratuit depuis un poste fixe).</span>
+                        <span class="font-[Avenir] text-xs mt-2">Une question sur ce profil ? Contactez-nous. {{current_agence.tel_agence}}.</span>
                         <!-- #endregion -->
                     </div>
                 </div>

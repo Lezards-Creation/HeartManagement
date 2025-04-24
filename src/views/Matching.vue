@@ -1,7 +1,7 @@
 <script setup>
     import { ref, computed, onMounted } from 'vue';
     import { useRouter } from 'vue-router';
-    import { Menu, MenuButton, MenuItem, MenuItems, Popover, PopoverButton, PopoverGroup, PopoverPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
+    import { Menu, MenuButton, MenuItem, MenuItems, Popover, PopoverButton, PopoverGroup, PopoverPanel, TransitionChild, TransitionRoot, Dialog, DialogTitle, DialogPanel } from '@headlessui/vue'
     import { PrinterIcon, AtSymbolIcon, ChevronDownIcon, BoltIcon, ArrowRightIcon, CheckIcon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon, UsersIcon, ArrowPathIcon, HomeModernIcon } from '@heroicons/vue/24/outline';
     import { useClientsStore } from '../stores/clients';
     import { useChoixStore } from '../stores/choix';
@@ -59,6 +59,9 @@
     const currentPage = ref(1);
     const totalPages = ref(1);
     const fetchType = ref('commonChoices');
+
+    const clientViewed = ref(null);
+    const open = ref(false);
 
     const functionMap = {
         fetchAllChoices, fetchAllPropositions, fetchAllCommonChoices
@@ -399,6 +402,22 @@
 		return color;
 	}
 
+    const handleOpeningFiche = (target) => {
+        clientViewed.value = target;
+        open.value = true;
+    }
+
+    function calculateAge(dateString) {
+		let today = new Date()
+		let birthDate = new Date(dateString)
+		let age = today.getFullYear() - birthDate.getFullYear()
+		let monthDifference = today.getMonth() - birthDate.getMonth()
+		if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+			age--
+		}
+		return age
+	}
+
     onMounted(() => {
         agencesStore.getAgences()
         .then(res => {
@@ -530,7 +549,7 @@
                         </div>
 
                         <div class="flex gap-2 sm:flex-nowrap flex-wrap items-center basis-auto">
-                            <button @click="goToFicheClient(commun.client.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
+                            <button @click="handleOpeningFiche(commun.client)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
                         </div>
                     </div>
 
@@ -541,7 +560,7 @@
 
                     <div class="z-0 relative flex lg:flex-nowrap flex-wrap gap-y-3 lg:gap-y-0 items-center lg:justify-between sm:justify-end justify-center space-x-3 rounded-lg border border-gray-300 bg-white sm:px-6 px-2 py-5 shadow-sm hover:border-gray-400">
                         <div class="flex sm:flex-nowrap flex-wrap items-center gap-2 basis-auto order-2 lg:order-1">
-                            <button @click="goToFicheClient(commun.demandeur.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
+                            <button @click="handleOpeningFiche(commun.demandeur)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
                         </div>
 
                         <div class="flex items-center sm:justify-end justify-center space-x-3 grow shrink-0 basis-auto lg:order-2">
@@ -684,7 +703,7 @@
                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un courrier</span>
                             </a>
 
-                            <button @click="goToFicheClient(ch.client.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
+                            <button @click="handleOpeningFiche(ch.client)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
                         </div>
                     </div>
 
@@ -695,7 +714,7 @@
 
                     <div class="z-0 relative flex lg:flex-nowrap flex-wrap gap-y-3 lg:gap-y-0 items-center lg:justify-between sm:justify-end justify-center space-x-3 rounded-lg border border-gray-300 bg-white sm:px-6 px-2 py-5 shadow-sm hover:border-gray-400">
                         <div class="flex sm:flex-nowrap flex-wrap items-center gap-2 basis-auto order-2 lg:order-1">
-                            <button @click="goToFicheClient(ch.demandeur.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
+                            <button @click="handleOpeningFiche(ch.demandeur)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
 
                             <a @click="handleSendingAttachment(ch.demandeur.id_cli, 'choix', ch.client)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <AtSymbolIcon class="w-5 h-5"/>
@@ -868,7 +887,7 @@
                                 <span class="w-max group-hover:opacity-100 duration-300 ease-out opacity-0 absolute -top-1 left-1/2 pointer-events-none bg-gray-700 text-white px-4 py-1 rounded-md -translate-y-full -translate-x-1/2">Envoyer un mail</span>
                             </a>
 
-                            <button @click="goToFicheClient(proposition.client2.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
+                            <button @click="handleOpeningFiche(proposition.client2)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
                         </div>
                     </div>
 
@@ -879,7 +898,7 @@
 
                     <div class="z-0 relative flex lg:flex-nowrap flex-wrap gap-y-3 lg:gap-y-0 items-center lg:justify-between sm:justify-end justify-center space-x-3 rounded-lg border border-gray-300 bg-white sm:px-6 px-2 py-5 shadow-sm hover:border-gray-400">
                         <div class="flex sm:flex-nowrap flex-wrap items-center gap-2 basis-auto order-2 lg:order-1">
-                            <button @click="goToFicheClient(proposition.client1.id_cli)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
+                            <button @click="handleOpeningFiche(proposition.client1)" type="button" class="basis-auto grow shrink-0 rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Voir la fiche</button>
                             
                             <a @click="handleSendingAttachment(proposition.client1.id_cli, 'prop', proposition.client2)" class="relative cursor-pointer group rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-rose-500 hover:text-white sm:block">
                                 <AtSymbolIcon class="w-5 h-5"/>
@@ -1004,6 +1023,114 @@
         :inverse="isInverse" 
         @modal-close="closeCourrierPDF"
     />
+    <!-- #endregion -->
+
+
+    <!-- #region SIDEBAR FICHE -->
+    <TransitionRoot as="template" :show="open">
+        <Dialog class="relative z-50" @close="open = false">
+            <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+                <div class="fixed inset-0 bg-black backdrop-blur-sm bg-opacity-50 transition-opacity" />
+            </TransitionChild>
+            <div class="fixed inset-0" />
+
+            <div class="fixed inset-0 overflow-hidden">
+                <div class="absolute inset-0 overflow-hidden">
+                <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
+                    <TransitionChild as="template" enter="transform transition ease-in-out duration-500 sm:duration-700" enter-from="translate-x-full" enter-to="translate-x-0" leave="transform transition ease-in-out duration-500 sm:duration-700" leave-from="translate-x-0" leave-to="translate-x-full">
+                    <DialogPanel class="pointer-events-auto w-screen max-w-2xl">
+                        <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+                            <div class="px-4 py-6 sm:px-6">
+                                <div class="flex items-start justify-between">
+                                    <DialogTitle class="text-base font-semibold leading-6 text-gray-900">Profil client</DialogTitle>
+                                    <div class="ml-3 flex h-7 items-center">
+                                        <button type="button" class="relative rounded-md bg-white text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-rose-500" @click="open = false">
+                                            <span class="absolute -inset-2.5" />
+                                            <span class="sr-only">Close panel</span>
+                                            <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Main -->
+                            <div class="divide-y divide-gray-200" v-if="clientViewed">
+                                <div class="pb-6">
+                                    <div class="h-24 bg-rose sm:h-20 lg:h-28" />
+                                    <div class="-mt-12 flow-root px-4 sm:-mt-8 sm:flex sm:items-end sm:px-6 lg:-mt-16">
+                                        <div>
+                                            <div class="-m-1 flex">
+                                                <div class="inline-flex overflow-hidden rounded-lg border-4 border-white">
+                                                <img class="h-24 w-24 flex-shrink-0 sm:h-40 sm:w-40 lg:h-48 lg:w-48 object-cover" :src="`${uri}/storage/img/cli/${clientViewed.id_cli}.webp`" alt="" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-6 sm:ml-6 sm:flex-1">
+                                            <div>
+                                                <div class="flex items-center">
+                                                    <h3 class="text-xl font-bold text-gray-900 sm:text-2xl">{{ clientViewed.pNoms_cli }} {{ clientViewed.nom_cli }}</h3>
+                                                </div>
+                                                <p class="text-sm text-gray-500">{{clientViewed.ville_cli}}, {{ calculateAge(clientViewed.dateNaiss_cli) }} ans</p>
+                                            </div>
+                                            <div class="mt-5 flex flex-wrap space-y-3 sm:space-x-3 sm:space-y-0">
+                                                <button type="button" class="inline-flex w-full flex-shrink-0 items-center justify-center rounded-md px-3 py-2 text-sm font-semibold ring-1 ring-gray-300 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 sm:flex-1">Envoyer un mail</button>
+                                                <button @click="goToFicheClient()" type="button" class="inline-flex w-full flex-shrink-0 items-center justify-center rounded-md px-3 py-2 text-sm font-semibold ring-1 ring-gray-300 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 sm:flex-1">Voir en détail</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="px-4 py-5 sm:px-0 sm:py-0">
+                                    <dl class="space-y-8 sm:space-y-0 sm:divide-y sm:divide-gray-200">
+                                        <div class="sm:flex sm:px-6 sm:py-5">
+                                            <dt class="text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48">Taille</dt>
+                                            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:ml-6 sm:mt-0">{{ clientViewed.taille_cli }} cm</dd>
+                                        </div>
+                                        
+                                        <div class="sm:flex sm:px-6 sm:py-5">
+                                            <dt class="text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48">Poids</dt>
+                                            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:ml-6 sm:mt-0">{{ clientViewed.poid_cli }} kg</dd>
+                                        </div>
+
+                                        <div class="sm:flex sm:px-6 sm:py-5">
+                                            <dt class="text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48">Enfants</dt>
+                                            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:ml-6 sm:mt-0">{{ clientViewed.nbEnf_cli }}</dd>
+                                        </div>
+
+                                        <div class="sm:flex sm:px-6 sm:py-5">
+                                            <dt class="text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48">Profession</dt>
+                                            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:ml-6 sm:mt-0">{{ clientViewed.prof_cli }}</dd>
+                                        </div>
+                                        
+                                        <div class="sm:flex sm:px-6 sm:py-5">
+                                            <dt class="text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48">Caractère</dt>
+                                            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:ml-6 sm:mt-0">
+                                                <p>{{ clientViewed.desc_cli }}</p>
+                                            </dd>
+                                        </div>
+                                        
+                                        <div class="sm:flex sm:px-6 sm:py-5">
+                                            <dt class="text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48">Goûts / loisirs</dt>
+                                            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:ml-6 sm:mt-0">
+                                                <p>{{ clientViewed.interets_cli }}</p>
+                                            </dd>
+                                        </div>
+
+                                        <div class="sm:flex sm:px-6 sm:py-5">
+                                            <dt class="text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0 lg:w-48">Milieu d'éducation</dt>
+                                            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:ml-6 sm:mt-0">
+                                                <p>{{ clientViewed.milieu_cli }}</p>
+                                            </dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </DialogPanel>
+                    </TransitionChild>
+                </div>
+                </div>
+            </div>
+        </Dialog>
+    </TransitionRoot>
     <!-- #endregion -->
 
     <Toast :state="stateToast" title="Modification enregistrée"/>
