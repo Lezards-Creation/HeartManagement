@@ -10,6 +10,6 @@
 				&& route.name !== 'Tutoriels'
 				&& route.name !== 'password'"
 			/>
-		<RouterView />
+		<RouterView v-else/>
 	</main>
 </template>

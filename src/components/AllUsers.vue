@@ -165,7 +165,8 @@
 
 	const agencesStore = useAgencesStore();
 	const agences = ref([]);
-
+	const isExpanded = ref(true);
+	
 	const fetchClients = () => {
 		ListLoaded.value = false;
 		clientsStore.getClients(selected.value.filter)
@@ -330,7 +331,11 @@
 </script>
 
 <template>
-	<div class="sm:h-screen border-r border-r-gray-100 sm:flex-[0] flex-1 sm:basis-auto basis-full sm:max-h-full max-h-[30vh] border-b-2 border-b-rose overflow-hidden sm:overflow-visible">
+	<div class="flex justify-center pb-2 w-full">
+		<button v-if="!isExpanded" @click="isExpanded = true;" class="sm:hidden px-6 rounded-b-lg bg-rose-500 py-2 text-white">Voir la liste de dossier</button>
+		<button v-if="isExpanded" @click="isExpanded = false;" class="sm:hidden px-6 rounded-b-lg bg-rose-500 py-2 text-white">Fermer la liste de dossier</button>
+	</div>
+	<div :class="[isExpanded ? 'max-h-full' : 'max-h-[0vh]' , 'sm:h-screen border-r border-r-gray-100 sm:flex-[0] flex-1 sm:basis-auto basis-full sm:max-h-full max-h-[0vh] overflow-hidden sm:overflow-visible']">
 		<!-- #region FILTRES TYPE + AJOUT -->
 		<div class="flex gap-2 items-center px-4 pt-4 flex-wrap">
 			<Listbox class="" as="div" v-model="selected" @update:model-value="fetchClients">
@@ -341,7 +346,6 @@
 							<ChevronDownIcon class="ml-2 h-4 w-4" aria-hidden="true" />
 						</ListboxButton>
 					</div>
-
 
 					<transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
 						<ListboxOptions class="absolute left-0 z-10 mt-2 w-72 origin-top-right divide-y divide-gray-200 overflow-hidden rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
@@ -361,7 +365,7 @@
 					</transition>
 				</div>
 			</Listbox>
-			<router-link :to="{path: '/clients/fiche/creation'}" type="button" class="inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+			<router-link @click="isExpanded = false" :to="{path: '/clients/fiche/creation'}" type="button" class="inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
 				<PlusIcon class="-ml-0.5 mr-1.5 h-4 w-4" aria-hidden="true" />
 				Ajouter un client
 			</router-link>
@@ -710,7 +714,7 @@
 				</div>
 				<ul role="list" class="divide-y divide-gray-100">
 					<li v-for="person in filtered_clients.filteredDirectory[letter]" :key="person.email">
-						<router-link class="flex gap-x-4 px-3 py-5 hover:bg-rose-50 items-center transition-all pointer" :to="{ name: 'Client', params: { id: person.id_cli }}" >
+						<router-link @click="isExpanded = false" class="flex gap-x-4 px-3 py-5 hover:bg-rose-50 items-center transition-all pointer" :to="{ name: 'Client', params: { id: person.id_cli }}" >
 							<LazyImage
 								:src="`${uri}/storage/img/cli/${person.id_cli}.webp`"
 								:imgClass="'h-8 w-8 2xl:h-12 2xl:w-12 flex-none object-cover object-center rounded-full bg-gray-50'"
