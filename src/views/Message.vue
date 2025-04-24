@@ -230,7 +230,9 @@
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between mt-12">
             <div>
-                <h3 class="text-3xl font-semibold leading-6 text-gray-900">Demandes du site internet</h3>
+                <h3 class="text-3xl font-semibold leading-6 text-gray-900 mb-6">Demandes du site internet</h3>
+                <p class="text-pretty text-base font-normal text-gray-500 mb-2 w-4/6">Accédez en un coup d’œil à l’historique complet des formulaires envoyés par vos prospects via votre site, pour transformer chaque demande en dossier qualifié au sein de votre agence matrimoniale :</p>
+                <p class="text-pretty text-base font-normal text-gray-500 w-4/6">Grâce à cette interface, vous ne laissez plus échapper aucune opportunité : chaque envoi de formulaire est centralisé, analysé et transformé en dossier pertinent, pour un suivi ultra-réactif et personnalisé.</p>
             </div>
         </div>
 

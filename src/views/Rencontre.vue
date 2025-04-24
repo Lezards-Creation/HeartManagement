@@ -370,7 +370,9 @@
     <div class="px-4 sm:px-6 lg:px-8 overflow-auto h-screen pb-24 max-w-7xl mx-auto">
         <div class="border-b border-gray-200 pb-5 mt-12">
             <div>
-                <h3 class="text-3xl font-semibold leading-6 text-gray-900">Dernières Rencontres</h3>
+                <h3 class="text-3xl font-semibold leading-6 text-gray-900 mb-6">Dernières Rencontres</h3>
+                <p class="text-pretty text-base font-normal text-gray-500 mb-2">Accédez d’un seul coup d’œil à l’historique complet des rencontres entre vos clients, pour piloter efficacement chaque mise en relation au sein de votre agence matrimoniale</p>
+                <p class="text-pretty text-base font-normal text-gray-500">Grâce à cette vue structurée, filtrez par type d’interaction, visualisez l’état actuel de chaque dossier et intervenez au bon moment pour transformer une rencontre en succès durable.</p>
             </div>
 
             <!-- #region FILTERS -->
